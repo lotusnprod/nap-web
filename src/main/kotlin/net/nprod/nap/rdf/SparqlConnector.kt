@@ -5,14 +5,16 @@ import org.apache.jena.rdf.model.RDFNode
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdfconnection.RDFConnection
 import org.apache.jena.system.Txn
+import org.apache.jena.tdb2.TDB2Factory
 
 
 class SparqlConnector {
-    val ENDPOINT = "http://nap-sparql:3030/raw/sparql"
+    // get environment variable SPARQL_SERVER or set defautl
+    val SPARQL_SERVER = System.getenv("SPARQL_SERVER") ?: "http://nap-sparql:3030/raw/sparql"
 
     fun getResultsOfQuery(query: String): ResultSet? {
         var safeCopy: ResultSet? = null
-        RDFConnection.connect(ENDPOINT).use { conn ->
+        RDFConnection.connect(SPARQL_SERVER).use { conn ->
             Txn.executeRead(conn) {
                 val rs = conn.query(query).execSelect()
                 safeCopy = ResultSetFactory.copyResults(rs)
@@ -20,6 +22,23 @@ class SparqlConnector {
         }
 
         return safeCopy
+    }
+
+    fun constructQueryIntoAQueriableDataset(query: String): Dataset? {
+        var datasetGraph: Dataset? = null
+        val arqQuery = QueryFactory.create(query, Syntax.syntaxARQ)
+        try {
+            val qExec = QueryExecution.service(SPARQL_SERVER).query(arqQuery).build()
+            datasetGraph = TDB2Factory.createDataset()
+
+            datasetGraph.begin(ReadWrite.WRITE)
+            qExec.execConstructDataset(datasetGraph)
+            datasetGraph.commit()
+            datasetGraph.end()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return datasetGraph
     }
 
     fun predicateAndObjectsOf(subject: String): Map<Resource, List<RDFNode>> {
@@ -47,7 +66,7 @@ class SparqlConnector {
     /**
      * The query should have two results ?predicate ?node
      */
-    private fun predicateAndNodeToMap(
+    fun predicateAndNodeToMap(
         query: String
     ): Map<Resource, MutableList<RDFNode>> {
         val output = mutableMapOf<Resource, MutableList<RDFNode>>()

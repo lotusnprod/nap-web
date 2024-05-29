@@ -28,24 +28,9 @@ fun naiveDataPage(type: String, identifier: String?): String {
     val capitalized = type.replaceFirstChar(Char::titlecase)
     return dataPage("$capitalized page for $identifier") {
         id = "content-node"
-        +"$capitalized page for $identifier"
+        h1 { +"$capitalized page for $identifier" }
         h2 { +"Out nodes" }
-        div {
-            id = "out-nodes"
-            outNodes.keys.forEach {
-                val entries = outNodes[it]
-                h3 { +"Predicate: ${it.uri.getRef()}" }
-                ul {
-                    entries?.forEach {
-                        li {
-                            classes = setOf("predicate-object")
-                            rdfNode(it)
-                        }
-                    }
-                }
-
-            }
-        }
+        div { presentOutNodes(outNodes) }
 
         h2 { +"In nodes" }
 
@@ -67,3 +52,4 @@ fun naiveDataPage(type: String, identifier: String?): String {
         }
     }
 }
+

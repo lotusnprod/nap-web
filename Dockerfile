@@ -1,17 +1,20 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
 
 
 RUN apt-get update && apt-get install -y unzip
+RUN mkdir -p /app
+COPY gradle /app/gradle
+COPY build.gradle.kts gradle.properties gradlew settings.gradle.kts /app/
+# So we keep gradle  downloaded
+RUN ./gradlew
+COPY assets src gradle /app/assets/
+COPY src /app/src/
+RUN ./gradlew installDist
 
-
-COPY nap-web.zip /app/nap-web.zip
-RUN mkdir temp && \
-    unzip nap-web.zip -d temp && \
-    mv temp/*/* . && \
-    rm -rf temp web-nap.zip
-
-RUN chmod +x bin/nap-web
-
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+RUN mkdir -p /app
+COPY --from=build /app/build/install/nap-web /app
 ENTRYPOINT ["./bin/nap-web"]
