@@ -11,7 +11,7 @@ fun DIV.presentOutNodes(outNodes: Map<Resource, List<RDFNode>>) {
     outNodes.forEach { (key, values) ->
         val filtered_values = values.filter { it.toString() != "" }
         if (filtered_values.isNotEmpty()) {
-            h3 { +"Predicatu: ${key.uri.getRef()}" }
+            h3 { +"Predicate: ${key.uri.getRef()}" }
             ul {
                 filtered_values.forEach {
                     li {
