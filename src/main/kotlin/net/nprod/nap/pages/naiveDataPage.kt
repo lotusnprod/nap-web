@@ -2,10 +2,8 @@ package net.nprod.nap.pages
 
 import dataPage
 import genURI
-import getRef
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
-import rdfNode
 
 fun naiveDataPage(type: String, identifier: String?): String {
     if (identifier == null || identifier.toIntOrNull() == null)
@@ -29,26 +27,15 @@ fun naiveDataPage(type: String, identifier: String?): String {
     return dataPage("$capitalized page for $identifier") {
         id = "content-node"
         h1 { +"$capitalized page for $identifier" }
-        h2 { +"Out nodes" }
-        div { presentOutNodes(outNodes) }
 
-        h2 { +"In nodes" }
+        if (outNodes.isNotEmpty()) {
+            h2 { +"Out nodes" }
+            div { presentOutNodes(outNodes) }
+        }
 
-        div {
-            id = "out-nodes"
-            inNodes.keys.forEach {
-                val entries = inNodes[it]
-                h3 { +"Predicate: ${it.uri.getRef()}" }
-                ul {
-                    entries?.forEach {
-                        li {
-                            classes = setOf("subject-predicate")
-                            rdfNode(it)
-                        }
-                    }
-                }
-
-            }
+        if (inNodes.isNotEmpty()) {
+            h2 { +"In nodes" }
+            div { presentInNodes(inNodes) }
         }
     }
 }
