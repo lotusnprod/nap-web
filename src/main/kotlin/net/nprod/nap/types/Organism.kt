@@ -40,14 +40,13 @@ data class Organism(
             ?comment
             ?citation
             ?country ?countryName ?geographicalarea ?geographicalareaName
-            ?organismClass ?organismClassName ?collectedCondition ?collectedConditionName
+            ?organismClass ?collectedCondition ?collectedConditionName
             ?speciesAuthority ?subSpeciesAuthority
             {
                 ?organism a n:organism;
                           n:participatesIn ?citation.
                 ?citation a n:citation.
                 ?organism n:organismclass ?organismClass.
-                ?organismClass n:name ?organismClassName.
                 OPTIONAL { ?organism n:familyname ?familyName. }
                 OPTIONAL { ?organism n:genusname ?genusName. }
                 OPTIONAL { ?organism n:speciesname ?speciesName. }
@@ -82,10 +81,7 @@ data class Organism(
                     if (new == null) {
                         new = Organism(organismUri)
                         new.citation = Citation(solution["citation"].asResource().uri)
-                        new.organismClass = OrganismClass(
-                            solution["organismClass"].asResource().uri,
-                            solution["organismClassName"].asLiteral().string
-                        )
+                        new.organismClass = OrganismClass.Cache[solution["organismClass"].asResource().uri]
                         new.familyname = solution["familyName"]?.asLiteral()?.string
                         new.genusname = solution["genusName"]?.asLiteral()?.string
                         new.speciesname = solution["speciesName"]?.asLiteral()?.string

@@ -1,0 +1,14 @@
+- [ ] Cache more tables and preload them for sure
+- [ ] remove null from taxasearch page names
+- [ ] Pharmacy page
+- [ ] Citation page and link citations to pharmacy tables?
+- [ ] Journal page
+- [ ] Add triples for taxa instead of querying every organism one by one, there are way too many
+- [ ] Query compounds by name
+- [ ] Pharmacology page (pharmacy for pharmacology)
+- [ ] Worktype page (pharmacy for worktype)
+- [ ] A way to do pagination or just show a really limited set and allow downloading as csv or something
+- [ ] Menu bar
+- [ ] Intro text
+- [ ] Release group 2
+ 

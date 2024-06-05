@@ -1,6 +1,7 @@
 package net.nprod.nap.rdf
 
 import genNode
+import io.ktor.util.logging.*
 import net.nprod.nap.types.*
 import org.apache.jena.query.Query
 import org.apache.jena.query.QueryExecutionFactory
@@ -11,13 +12,17 @@ import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.vocabulary.RDF
 
+internal val LOGGER = KtorSimpleLogger("net.nprod.pharmacyquery")
+
+
 fun pharmaciesFromQuery(
     sparqlConnector: SparqlConnector,
     query: String
 ): MutableList<Pharmacy> {
+    LOGGER.info("Query started")
     val pharmacyResults = mutableListOf<Pharmacy>()
-
     sparqlConnector.constructQueryIntoAQueriableDataset(query)?.let { pharmacyResultsDataset ->
+        LOGGER.info("Query returns results")
         pharmacyResultsDataset.begin(ReadWrite.READ)
         val graph = pharmacyResultsDataset.asDatasetGraph().defaultGraph
         val model = ModelFactory.createModelForGraph(graph)
@@ -40,7 +45,6 @@ fun pharmaciesFromQuery(
             """.asQuery()
 
             compoundsQuery.runOn(model) { result ->
-                println("Found one ${result.getLiteral("name")}")
                val compound = Compound(uri = result.getResource("uri").toString())
                 compound.name = result.getLiteral("name").string
                 pharmacy.compounds.add(compound)
@@ -74,6 +78,7 @@ fun pharmaciesFromQuery(
         }
         pharmacyResultsDataset.end()
     }
+    LOGGER.info("Finished populating the pharmacy list")
     return pharmacyResults
 }
 
