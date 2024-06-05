@@ -1,11 +1,14 @@
 package net.nprod.nap.rdf
 
 import genNode
-import net.nprod.nap.types.Organism
-import net.nprod.nap.types.Pharmacology
-import net.nprod.nap.types.Pharmacy
-import net.nprod.nap.types.Worktype
+import net.nprod.nap.types.*
+import org.apache.jena.query.Query
+import org.apache.jena.query.QueryExecutionFactory
+import org.apache.jena.query.QueryFactory
+import org.apache.jena.query.QuerySolution
 import org.apache.jena.query.ReadWrite
+import org.apache.jena.rdf.model.Model
+import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.vocabulary.RDF
 
 fun pharmaciesFromQuery(
@@ -17,6 +20,7 @@ fun pharmaciesFromQuery(
     sparqlConnector.constructQueryIntoAQueriableDataset(query)?.let { pharmacyResultsDataset ->
         pharmacyResultsDataset.begin(ReadWrite.READ)
         val graph = pharmacyResultsDataset.asDatasetGraph().defaultGraph
+        val model = ModelFactory.createModelForGraph(graph)
 
         val pharmacyResultsIterator = graph.find(null, RDF.type.asNode(), genNode("pharmacy"))
         pharmacyResultsIterator.forEach { triple ->
@@ -25,6 +29,23 @@ fun pharmaciesFromQuery(
                 val worktypeUri = worktypeTriple.`object`.uri
                 Worktype.Cache[worktypeUri]?.let { pharmacy.worktypes.add(it) }
             }
+
+            val compoundsQuery = """
+                PREFIX n: <https://nap.nprod.net/>
+                SELECT ?uri ?name WHERE {
+                   <${triple.subject.uri}> n:has_participant ?uri. 
+                   ?uri a n:compound;
+                        n:name ?name.
+                }
+            """.asQuery()
+
+            compoundsQuery.runOn(model) { result ->
+                println("Found one ${result.getLiteral("name")}")
+               val compound = Compound(uri = result.getResource("uri").toString())
+                compound.name = result.getLiteral("name").string
+                pharmacy.compounds.add(compound)
+            }
+
             if (pharmacy.pharmacology == null) {
                 graph.find(triple.subject, genNode("has_pharmacology"), null).nextOptional().ifPresent {
                     val pharmacologyUri = it.`object`.uri
@@ -54,4 +75,18 @@ fun pharmaciesFromQuery(
         pharmacyResultsDataset.end()
     }
     return pharmacyResults
+}
+
+private fun Query.runOn(model: Model, any: (QuerySolution) -> Unit) {
+    QueryExecutionFactory.create(this, model).use { qexec ->
+        val results = qexec.execSelect()
+
+        while (results.hasNext()) {
+            any(results.nextSolution())
+        }
+    }
+}
+
+private fun String.asQuery(): Query {
+    return QueryFactory.create(this.trimIndent())
 }

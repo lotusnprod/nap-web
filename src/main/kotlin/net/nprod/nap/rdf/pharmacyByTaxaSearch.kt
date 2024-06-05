@@ -1,9 +1,9 @@
-package net.nprod.nap.pages
+package net.nprod.nap.rdf
 
 import dataPage
 import kotlinx.html.*
-import net.nprod.nap.rdf.SparqlConnector
-import net.nprod.nap.rdf.pharmaciesOfTaxa
+import net.nprod.nap.pages.invalidEntryPage
+import net.nprod.nap.pages.presentPharmacyResults
 
 val safeNameRegex = Regex("[^a-zA-Z-1-9.-]")
 
@@ -33,7 +33,6 @@ fun pharmacyByTaxaSearch(family: String?, genus: String?, species: String?): Str
         else {
             +"We found ${pharmacyResults.size} experiments"
         }
-
 
         presentPharmacyResults(pharmacyResults, sourceType = "organism")
     }

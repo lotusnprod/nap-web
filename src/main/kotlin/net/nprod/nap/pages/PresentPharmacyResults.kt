@@ -14,7 +14,11 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
                     td { +"Experiment" }
                     td { +"Worktypes" }
                     td { +"Pharmacology" }
-                    td { +"Organism (specimen)" }
+                    if (sourceType == "compound") {
+                        td { +"Organism (specimen)" }
+                    } else {
+                        td { +"Compound" }
+                    }
                 }
             }
             tbody {
@@ -31,8 +35,18 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
                         td {
                             pharmacy.pharmacology?.let { a(href = it.uri) { +it.name } }
                         }
-                        td {
-                            pharmacy.organism?.let { a(href = it.uri) { +it.nameForHumans() } }
+                        if (sourceType == "compound") {
+                            td {
+                                pharmacy.organism?.let { a(href = it.uri) { +it.nameForHumans() } }
+                            }
+                        } else {
+                            td {
+                                ul {
+                                    pharmacy.compounds.forEach { compound ->
+                                        li { a(href = compound.uri) { +(compound.name ?: "Unknown compound") } }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

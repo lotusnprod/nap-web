@@ -8,7 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import net.nprod.nap.pages.naiveDataPage
 import net.nprod.nap.pages.organismPage
-import net.nprod.nap.pages.pharmacyByTaxaSearch
+import net.nprod.nap.rdf.pharmacyByTaxaSearch
 import queryPage
 import java.io.File
 

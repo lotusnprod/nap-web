@@ -33,6 +33,7 @@ fun pharmaciesOfTaxa(
                 ?pharmacy a n:pharmacy;
                           n:has_worktype ?worktype;
                           n:has_organism ?organism;
+                          n:has_participant ?compound;
                           n:has_pharmacology ?pharmacology.
                 ?pharmacology n:name ?pharmacologyName.
                 ?organism n:familyname ?organism_family_name.
@@ -40,6 +41,8 @@ fun pharmaciesOfTaxa(
                 ?organism n:speciesname ?organism_species_name.
                 ?organism n:organismclass ?organism_class.
                 ?organism_class n:organismclass ?organism_class_name.
+                ?compound a n:compound.
+                ?compound n:name ?compoundName.
            } 
             WHERE {
               $matcher
@@ -50,6 +53,9 @@ fun pharmaciesOfTaxa(
               ?organism n:genusname ?organism_genus_name.
               ?organism n:speciesname ?organism_species_name.
               ?pharmacy n:has_organism ?organism.
+              OPTIONAL { ?pharmacy n:has_participant ?compound. 
+                         ?compound a n:compound; 
+                                  n:name ?compoundName.  }
               OPTIONAL { ?pharmacy n:has_pharmacology ?pharmacology.
                          ?pharmacology n:name ?pharmacologyName. }
               OPTIONAL { ?organism n:organismclass ?organism_class.
