@@ -44,7 +44,8 @@ data class Organism(
             ?country ?countryName ?geographicalarea ?geographicalareaName
             ?organismClass ?collectedCondition ?collectedConditionName
             ?speciesAuthority ?subSpeciesAuthority
-            ?taxon ?taxonName
+            ?taxon ?taxonName ?taxonLevel
+            ?parentTaxon ?parentTaxonName
             {
                 ?organism a n:organism;
                           n:participatesIn ?citation.
@@ -52,6 +53,7 @@ data class Organism(
                 ?organism n:organismclass ?organismClass.
                 OPTIONAL { 
                     ?organism n:has_taxon ?taxon. 
+                    ?taxon n:taxonomic_level ?taxonLevel.
                     ?taxon n:name ?taxonName.
                 }
                 OPTIONAL { ?organism n:familyname ?familyName. }
@@ -60,7 +62,9 @@ data class Organism(
                 OPTIONAL { ?organism n:speciesauthority ?speciesAuthority. }
                 OPTIONAL { ?organism n:subspeciesauthority ?subSpeciesAuthority. }
                 OPTIONAL { ?organism n:subspeciesname ?subSpeciesName. }
-                OPTIONAL { ?organism n:taxon ?taxon. }
+                OPTIONAL { ?organism n:has_taxon/n:parent_taxon ?parentTaxon. 
+                           ?parentTaxon n:name ?parentTaxonName. 
+                }
                 OPTIONAL { ?organism n:collectedFrom ?geographicalarea. 
                             ?geographicalarea a n:geographicalarea  ;
                                               n:name ?geographicalareaName;
@@ -80,7 +84,7 @@ data class Organism(
                 VALUES ?organism { <$uri> }
             }
         """.trimIndent()
-
+            println(query)
             val result = sparqlConnector.getResultsOfQuery(query)
             if (result != null) {
                 while (result.hasNext()) {
@@ -96,8 +100,15 @@ data class Organism(
                         new.speciesAuthority = solution["speciesAuthority"]?.asLiteral()?.string
                         new.subSpeciesAuthority = solution["subSpeciesAuthority"]?.asLiteral()?.string
                         new.subSpeciesName = solution["subSpeciesName"]?.asLiteral()?.string
-                        new.taxon = solution["taxon"]?.asResource()?.uri
-                        new.taxonName = solution["taxonName"]?.asLiteral()?.string
+                        val taxonLevel = solution["taxonLevel"]?.asLiteral()?.string
+                        println(taxonLevel)
+                        if (taxonLevel == "SUBSPECIES") {
+                            new.taxon = solution["parentTaxon"]?.asResource()?.uri
+                            new.taxonName = solution["parentTaxonName"]?.asLiteral()?.string
+                        } else {
+                            new.taxon = solution["taxon"]?.asResource()?.uri
+                            new.taxonName = solution["taxonName"]?.asLiteral()?.string
+                        }
 
                         if (solution["collectedPart"] != null) {
                             new.collectedPart = CollectedPart(
