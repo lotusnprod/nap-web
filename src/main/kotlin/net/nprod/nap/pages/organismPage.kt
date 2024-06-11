@@ -35,14 +35,19 @@ fun organismPage(identifier: String?): String {
 
         br
 
-        a {
-            href = generatePharmacyTaxaSearchURL(organism.familyname, organism.genusname, organism.speciesname)
-            +"Search for all experiments from taxa with this name (matching family, genus, species)"
+        organism.taxon?.let { taxon ->
+            a {
+                href = generatePharmacyTaxaSearchURL(taxon)
+                +"Search for all experiments on this taxon"
+            }
         }
 
         div {
             table(classes = "table table-striped table-bordered") {
                 tbody {
+                    organism.taxon?.let {
+                        tr { td { +"Taxon" }; td { a(href= it) { +it.getRef() } } }
+                    }
                     organism.familyname?.let {
                         tr { td { +"Family" }; td { +it } }
                     }

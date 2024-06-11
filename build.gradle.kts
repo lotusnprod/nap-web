@@ -26,6 +26,7 @@ repositories {
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-cors")
 
     implementation("org.apache.jena:apache-jena-libs:5.0.0")
 

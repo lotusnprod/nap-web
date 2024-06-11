@@ -9,6 +9,8 @@ data class Organism(
     var familyname: String? = null,
     var genusname: String? = null,
     var speciesname: String? = null,
+    var taxon: String? = null,
+    var taxonName: String? = null,
     var collectedPart: CollectedPart? = null,
     var citation: Citation? = null,
     var organismClass: OrganismClass? = null,
@@ -42,17 +44,23 @@ data class Organism(
             ?country ?countryName ?geographicalarea ?geographicalareaName
             ?organismClass ?collectedCondition ?collectedConditionName
             ?speciesAuthority ?subSpeciesAuthority
+            ?taxon ?taxonName
             {
                 ?organism a n:organism;
                           n:participatesIn ?citation.
                 ?citation a n:citation.
                 ?organism n:organismclass ?organismClass.
+                OPTIONAL { 
+                    ?organism n:has_taxon ?taxon. 
+                    ?taxon n:name ?taxonName.
+                }
                 OPTIONAL { ?organism n:familyname ?familyName. }
                 OPTIONAL { ?organism n:genusname ?genusName. }
                 OPTIONAL { ?organism n:speciesname ?speciesName. }
                 OPTIONAL { ?organism n:speciesauthority ?speciesAuthority. }
                 OPTIONAL { ?organism n:subspeciesauthority ?subSpeciesAuthority. }
                 OPTIONAL { ?organism n:subspeciesname ?subSpeciesName. }
+                OPTIONAL { ?organism n:taxon ?taxon. }
                 OPTIONAL { ?organism n:collectedFrom ?geographicalarea. 
                             ?geographicalarea a n:geographicalarea  ;
                                               n:name ?geographicalareaName;
@@ -88,6 +96,9 @@ data class Organism(
                         new.speciesAuthority = solution["speciesAuthority"]?.asLiteral()?.string
                         new.subSpeciesAuthority = solution["subSpeciesAuthority"]?.asLiteral()?.string
                         new.subSpeciesName = solution["subSpeciesName"]?.asLiteral()?.string
+                        new.taxon = solution["taxon"]?.asResource()?.uri
+                        new.taxonName = solution["taxonName"]?.asLiteral()?.string
+
                         if (solution["collectedPart"] != null) {
                             new.collectedPart = CollectedPart(
                                 solution["collectedPart"].asResource().uri,

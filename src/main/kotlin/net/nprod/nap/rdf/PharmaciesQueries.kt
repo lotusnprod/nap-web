@@ -14,47 +14,8 @@ fun pharmaciesOfCompound(
 
 fun pharmaciesOfTaxa(
     sparqlConnector: SparqlConnector,
-    familyName: String?,
-    genusName: String?,
-    speciesName: String?
+    taxonId: String,
 ): List<Pharmacy> {
-    var matcher = ""
-    var hasFamily = false
-    var hasGenus = false
-    var hasSpecies = false
-    if ((familyName ?: "") != "") {
-        matcher += "VALUES ?organism_family_name { \"$familyName\" }."
-        hasFamily = true
-    }
-    if ((genusName ?: "") != "") {
-        matcher += "VALUES ?organism_genus_name { \"$genusName\" }."
-        hasGenus = true
-    }
-    if ((speciesName ?: "") != "") {
-        matcher += "VALUES ?organism_species_name { \"$speciesName\" }."
-        hasSpecies = true
-    }
-
-   if (matcher == "") return emptyList()
-
-    if (hasFamily) {
-        matcher += "?organism n:familyname ?organism_family_name."
-    } else {
-        matcher += "OPTIONAL { ?organism n:familyname ?organism_family_name. }"
-    }
-
-    if (hasGenus) {
-        matcher += "?organism n:genusname ?organism_genus_name."
-    } else {
-        matcher += "OPTIONAL { ?organism n:genusname ?organism_genus_name. }"
-    }
-
-    if (hasSpecies) {
-        matcher += "?organism n:speciesname ?organism_species_name."
-    } else {
-        matcher += "OPTIONAL { ?organism n:speciesname ?organism_species_name. }"
-    }
-
     val query = """
             PREFIX n: <https://nap.nprod.net/>
             CONSTRUCT {
@@ -67,6 +28,7 @@ fun pharmaciesOfTaxa(
                 ?organism n:familyname ?organism_family_name.
                 ?organism n:genusname ?organism_genus_name.
                 ?organism n:speciesname ?organism_species_name.
+                ?organism n:has_taxon ?taxon.
                 ?compound a n:compound.
                 ?compound n:name ?compoundName.
            } 
@@ -75,14 +37,16 @@ fun pharmaciesOfTaxa(
               ?pharmacy a n:pharmacy.
               ?pharmacy n:has_organism ?organism.
               ?pharmacy n:has_worktype ?worktype.
-              $matcher
-                          
+              ?organism n:has_taxon <https://nap.nprod.net/taxon/$taxonId>.
+              OPTIONAL { ?organism n:familyname ?organism_family_name. }
+              OPTIONAL { ?organism n:genusname ?organism_genus_name. }
+              OPTIONAL { ?organism n:speciesname ?organism_species_name. }       
               OPTIONAL { ?pharmacy n:has_participant ?compound. 
                          ?compound a n:compound; 
                                   n:name ?compoundName.  }
               OPTIONAL { ?pharmacy n:has_pharmacology ?pharmacology. }
               OPTIONAL { ?organism n:organismclass ?organism_class. }
-            } LIMIT 10000
+            }
         """.trimIndent()
 
     return pharmaciesFromQuery(sparqlConnector, query)
