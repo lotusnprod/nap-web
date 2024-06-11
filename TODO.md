@@ -1,9 +1,7 @@
+- [ ] Pharmacy page - should get the citation directly
 - [ ] Cache more tables and preload them for sure
-- [ ] remove null from taxasearch page names
-- [ ] Pharmacy page
-- [ ] Citation page and link citations to pharmacy tables?
+- [ ] Citation page and link citations to pharmacy tables? plus resolve organisms
 - [ ] Journal page
-- [ ] Add triples for taxa instead of querying every organism one by one, there are way too many
 - [ ] Query compounds by name
 - [ ] Pharmacology page (pharmacy for pharmacology)
 - [ ] Worktype page (pharmacy for worktype)
