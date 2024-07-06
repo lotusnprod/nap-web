@@ -28,20 +28,27 @@ jQuery(document).ready(function() {
             });
         }
 
-        jQuery("#query-button").on("click",function(event){
+        jQuery("#query-button").on("click", function(event) {
             event.preventDefault();
-
             var query = editor.getDoc().getValue();
             var queryText = getPrefixes() + query;
+            var endpoint = jQuery("#endpoint").val();
 
-            var queryEncoded = "?q="+encodeURIComponent(query);
-            var url = window.location.href.split('?')[0] + queryEncoded;
-
-            window.history.replaceState(null, "", url);
-
-            doQuery(jQuery("#endpoint").val(), query, function(json) { displayResult(json, "SPARQL results"); });
-
-		});
+            jQuery.ajax({
+                type: "POST",
+                url: endpoint,
+                data: {
+                    query: queryText
+                },
+                success: function(json) {
+                    displayResult(json, "SPARQL results");
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: " + error);
+                },
+                contentType: "application/x-www-form-urlencoded"
+            });
+        });
 
 		jQuery("#fetch").on("click",function(){
             fetchExamples();
