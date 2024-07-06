@@ -480,7 +480,7 @@ function nodeToHTML(node, linkMaker) {
 function exportResults(url, sparql, type, output) {
 
     service = new SPARQL.Service(url);
-    service.setMethod('GET');
+    service.setMethod('POST');
     if (_defaultGraph != "") {
         service.addDefaultGraph(_defaultGraph);
     }
