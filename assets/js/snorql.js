@@ -236,7 +236,7 @@ function start(){
 function doQuery(url, sparql, callback) {
 
     service = new SPARQL.Service(url);
-    service.setMethod('GET');
+    service.setMethod('POST');
     if (_defaultGraph != "") {
         service.addDefaultGraph(_defaultGraph);
     }

@@ -30,24 +30,10 @@ jQuery(document).ready(function() {
 
         jQuery("#query-button").on("click", function(event) {
             event.preventDefault();
-            var query = editor.getDoc().getValue();
-            var queryText = getPrefixes() + query;
-            var endpoint = jQuery("#endpoint").val();
 
-            jQuery.ajax({
-                type: "POST",
-                url: endpoint,
-                data: {
-                    query: queryText
-                },
-                success: function(json) {
-                    displayResult(json, "SPARQL results");
-                },
-                error: function(xhr, status, error) {
-                    displayResult(error + " " + xhr.responseText, "SPARQL results");
-                },
-                contentType: "application/x-www-form-urlencoded"
-            });
+            var query = editor.getDoc().getValue();
+            doQuery(jQuery("#endpoint").val(), query, function(json) { displayResult(json, "SPARQL results"); });
+
         });
 
 		jQuery("#fetch").on("click",function(){
