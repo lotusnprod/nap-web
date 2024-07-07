@@ -289,7 +289,7 @@ function displayResult(json, resultTitle) {
     var div = document.createElement('div');
 
     if (json.results === undefined) {
-        div.appendChild(json);
+        div.appendChild(document.createTextNode(json));
     } else {
         var resCount = document.createElement("small");
         resCount.classList.add("text-muted");
