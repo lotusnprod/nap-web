@@ -288,18 +288,17 @@ function displayResult(json, resultTitle) {
 
     var div = document.createElement('div');
 
-    var resCount = document.createElement("small");
-    resCount.classList.add("text-muted");
-    resCount.appendChild(document.createTextNode(" ("+json.results.bindings.length+" results in "+json.executionTime+" seconds)"));
-
-    var title = document.createElement('h3');
-    title.appendChild(document.createTextNode(resultTitle));
-    title.appendChild(resCount);
-    div.appendChild(title);
-
     if (json.results === undefined) {
         div.appendChild(json);
     } else {
+        var resCount = document.createElement("small");
+        resCount.classList.add("text-muted");
+        resCount.appendChild(document.createTextNode(" ("+json.results.bindings.length+" results in "+json.executionTime+" seconds)"));
+
+        var title = document.createElement('h2');
+        title.appendChild(document.createTextNode(resultTitle));
+        title.appendChild(resCount);
+        div.appendChild(title);
 
         if (json.results.bindings.length == 0) {
             var p = document.createElement('p');
