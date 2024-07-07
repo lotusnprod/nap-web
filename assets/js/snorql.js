@@ -297,13 +297,18 @@ function displayResult(json, resultTitle) {
     title.appendChild(resCount);
     div.appendChild(title);
 
-    if (json.results.bindings.length == 0) {
-        var p = document.createElement('p');
-        p.className = 'empty';
-        p.appendChild(document.createTextNode('[no results]'));
-        div.appendChild(p);
+    if (json.results === undefined) {
+        div.appendChild(json);
     } else {
-        div.appendChild(jsonToHTML(json));
+
+        if (json.results.bindings.length == 0) {
+            var p = document.createElement('p');
+            p.className = 'empty';
+            p.appendChild(document.createTextNode('[no results]'));
+            div.appendChild(p);
+        } else {
+            div.appendChild(jsonToHTML(json));
+        }
     }
     setResult(div);
 }
