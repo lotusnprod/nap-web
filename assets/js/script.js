@@ -44,7 +44,7 @@ jQuery(document).ready(function() {
                     displayResult(json, "SPARQL results");
                 },
                 error: function(xhr, status, error) {
-                    displayResult(error, "SPARQL results");
+                    displayResult(error + " " + xhr.responseText, "SPARQL results");
                 },
                 contentType: "application/x-www-form-urlencoded"
             });
