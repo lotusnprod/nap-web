@@ -249,7 +249,7 @@ function doQuery(url, sparql, callback) {
     busy.appendChild(document.createTextNode('Executing query ...'));
     setResult(busy);
     console.log("Sending "+sparql);
-    service.query(service.createQuery(sparql), {
+    service.query(sparql, {
             success: callback,
             failure: onFailure
     });
