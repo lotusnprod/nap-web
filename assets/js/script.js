@@ -158,41 +158,5 @@ jQuery(document).ready(function() {
 
             $('#prefixesModal').modal().find('#prefixesModalBody');
         });
-
-        jQuery("#generate-permalink").on("click",function(e){
-
-            e.preventDefault();
-
-            var query = editor.getDoc().getValue();
-            var queryText = getPrefixes() + query;
-	    query = query.trim()
-
-            query = "?q="+encodeURIComponent(query);
-
-            var url = window.location.href.split('?')[0] + query;
-
-            var accessToken = "b0021fe4839aefbc4e7967b3578443d9ea6e89bf";
-
-            var params = {
-                "long_url" : url.trim()
-            };
-
-            $.ajax({
-                url: "https://api-ssl.bitly.com/v4/shorten",
-                cache: false,
-                dataType: "json",
-                method: "POST",
-                contentType: "application/json",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-                },
-                data: JSON.stringify(params)
-            }).done(function(data) {
-                $('#permalink-url').html("<a href=\""+data.link+"\" target=\"_blank\">"+data.link+"</a>");
-                $('#permalinkModal').modal();
-            }).fail(function(data) {
-                console.log(data);
-            });
-        });
     });
 })(jQuery);

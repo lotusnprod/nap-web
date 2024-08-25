@@ -111,10 +111,6 @@ fun queryPage(): String {
                                     value = "Export XML"
                                     id = "export-xml"
                                 }
-                                input(classes = "btn btn-secondary", type = InputType.button) {
-                                    value = "Get Permalink"
-                                    id = "generate-permalink"
-                                }
                                 input(classes = "btn btn-dark", type = InputType.button)
                                 {
                                     value = "Fullscreen Mode"
@@ -199,8 +195,6 @@ fun queryPage(): String {
                             id = "poweredby"
                             +"Snorql"
                         }
-                        +" - "
-                        a(href = "cookies.html") { +"Cookie Policy" }
                     }
                 }
             }
@@ -219,51 +213,6 @@ fun queryPage(): String {
                                 id = "examples-fullscreen"
                             }
                         }
-                    }
-                }
-            }
-
-            div(classes = "modal") {
-                id = "cookieModal"
-                attributes["tabIndex"] = "-1"
-                attributes["role"] = "dialog"
-                div(classes = "modal-dialog") {
-                    attributes["role"] = "document"
-                    div(classes = "modal-content") {
-                        div(classes = "modal-header") {
-                            h3(classes = "modal-title") { +"Cookies Usage" }
-                        }
-                        div(classes = "modal-body") {
-                            p {
-                                +"We use site preferences cookies to provide you with a great experience on this site, specifically to keep your chosen SPARQL endpoint and examples repository URL when you refresh the page or navigate this site."
-                                br {}
-                                +"If you need more information, please read our "
-                                a(href = "cookies.html") { +"Cookie Policy" }
-                                +"."
-                            }
-                        }
-                        div(classes = "modal-footer") {
-                            button(classes = "btn btn-primary") { +"Accept" }
-                            button(classes = "btn btn-secondary") { +"Reject" }
-                        }
-                    }
-                }
-            }
-
-            div(classes = "modal") {
-                id = "permalinkModal"
-                attributes["tabIndex"] = "-1"
-                attributes["role"] = "dialog"
-                div(classes = "modal-dialog") {
-                    attributes["role"] = "document"
-                    div(classes = "modal-content") {
-                        div(classes = "modal-header") {
-                            h3(classes = "modal-title text-primary") { +"Permanent Link for current query" }
-                        }
-                        div(classes = "modal-body") {
-                            p { id = "permalink-url" }
-                        }
-                        div(classes = "modal-footer") {}
                     }
                 }
             }

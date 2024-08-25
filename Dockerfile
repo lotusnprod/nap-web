@@ -17,4 +17,6 @@ FROM eclipse-temurin:21-jdk
 WORKDIR /app
 RUN mkdir -p /app
 COPY --from=build /app/build/install/nap-web /app
+ENV ENVIRONMENT=production
+ENV SPARQL_SERVER=http://nap-sparql:3030/raw/sparql
 ENTRYPOINT ["./bin/nap-web"]

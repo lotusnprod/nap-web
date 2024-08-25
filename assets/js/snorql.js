@@ -1,4 +1,4 @@
-var _endpoint = "https://nap.nprod.net/raw/sparql";
+var _endpoint = "/raw/sparql";
 var _examples_repo = "https://github.com/lotusnprod/nap-queries";
 var _defaultGraph = "";
 var _namespaces = snorql_namespacePrefixes;

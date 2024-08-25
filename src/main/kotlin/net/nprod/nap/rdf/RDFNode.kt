@@ -7,7 +7,12 @@ import org.apache.jena.rdf.model.Resource
 fun HtmlBlockTag.rdfNode(it: RDFNode) {
     when (it) {
         is Resource -> {
-            a(href = it.uri) { +it.uri }
+            if (System.getenv("ENVIRONMENT") == "development") {
+                val uri = it.uri.replace("https://nap.nprod.net", "http://localhost:8080")
+                a(href = uri) { +uri }
+            } else {
+                a(href = it.uri) { +it.uri }
+            }
         }
 
         else -> {
