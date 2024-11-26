@@ -29,7 +29,7 @@ dependencies {
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-client-cio")
 
-    implementation("org.apache.jena:apache-jena-libs:5.0.0")
+    implementation("org.apache.jena:apache-jena-libs:5.2.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinxHtmlVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinxHtmlVersion")

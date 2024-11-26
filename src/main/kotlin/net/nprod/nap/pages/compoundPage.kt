@@ -34,7 +34,7 @@ fun compoundPage(identifier: String?): String {
                         tr { td { +"Compound class" }; td { +it } }
                     }
                     compound.compoundCode?.let {
-                        tr { td { +"Compound code" }; td { a(href = it.uri) { +it.name } } }
+                        tr { td { +"Compound code" }; td { a(href = it.uri.as_local_link_if_dev.as_local_link_if_dev) { +it.name } } }
                     }
                     if (compound.synonyms.isNotEmpty()) {
                         tr {
@@ -42,7 +42,7 @@ fun compoundPage(identifier: String?): String {
                             td {
                                 ul {
                                     compound.synonyms.forEach { synonym ->
-                                        li { a(href = synonym.uri) { +synonym.name } }
+                                        li { a(href = synonym.uri.as_local_link_if_dev.as_local_link_if_dev) { +synonym.name } }
                                     }
                                 }
                             }

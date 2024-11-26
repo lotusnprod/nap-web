@@ -10,7 +10,7 @@ import org.apache.jena.tdb2.TDB2Factory
 
 class SparqlConnector {
     // get environment variable SPARQL_SERVER or set default for the production docker compose
-    val SPARQL_SERVER = System.getenv("SPARQL_SERVER") ?: "http://nap-sparql:3030/raw/sparql"
+    val SPARQL_SERVER = System.getenv("SPARQL_SERVER")
 
     fun getResultsOfQuery(query: String): ResultSet? {
         var safeCopy: ResultSet? = null

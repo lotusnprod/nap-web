@@ -1,12 +1,1 @@
-- [ ] Pharmacy page - should get the citation directly
-- [ ] Cache more tables and preload them for sure
-- [ ] Citation page and link citations to pharmacy tables? plus resolve organisms
-- [ ] Journal page
-- [ ] Query compounds by name
-- [ ] Pharmacology page (pharmacy for pharmacology)
-- [ ] Worktype page (pharmacy for worktype)
-- [ ] A way to do pagination or just show a really limited set and allow downloading as csv or something
-- [ ] Menu bar
-- [ ] Intro text
-- [ ] Release group 2
- 
+Moved to obsidian.

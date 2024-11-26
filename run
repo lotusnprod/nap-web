@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+# If the network web_network doesn't exist, create it
+if [ -z "$(docker network ls --filter name=web_network -q)" ]; then
+    docker network create web_network
+fi
+
+podman-compose stop || true
+(podman ps -a | grep -i nap-web | awk '{print $1}' | xargs podman rm -f) || true
+podman-compose -f docker-compose-dev.yml -f docker-compose.yml up --build -d

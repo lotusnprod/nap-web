@@ -3,6 +3,7 @@ package net.nprod.nap.plugins
 import compoundPage
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -20,6 +21,8 @@ import java.io.File
 
 fun Application.configureRouting() {
     routing {
+        staticResources("/static", "static")
+
         get("/compound/{id}") {
             call.respondText(compoundPage(call.parameters["id"]), ContentType.Text.Html)
         }
@@ -52,10 +55,13 @@ fun Application.configureRouting() {
         // Proxy to nap.nprod.net
         post("/raw/sparql") {
             val client = HttpClient(CIO) {
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 60_000
+                }
                 followRedirects = true
             }
 
-            val response: HttpResponse = client.post("https://nap.nprod.net/raw/sparql") {
+            val response: HttpResponse = client.post(System.getenv("SPARQL_SERVER")) {
                 headers {
                     val user = System.getenv("HTTP_AUTH_SPARQL_USER") ?: ""
                     val password = System.getenv("HTTP_AUTH_SPARQL_PASSWORD") ?: ""
@@ -65,12 +71,8 @@ fun Application.configureRouting() {
                     )
                     append(HttpHeaders.ContentType, "application/x-www-form-urlencoded")
                 }
-                // Print headers
-                println("Headers")
-                println(headers.entries())
 
                 val body = call.receiveText()
-                println(body)
                 setBody(body)
             }
             call.respondText(response.bodyAsText(), response.contentType())
@@ -78,10 +80,13 @@ fun Application.configureRouting() {
 
         get("/raw/sparql") {
             val client = HttpClient(CIO) {
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 60_000
+                }
                 followRedirects = true
             }
 
-            val response: HttpResponse = client.get("https://nap.nprod.net/raw/sparql") {
+            val response: HttpResponse = client.get(System.getenv("SPARQL_SERVER")) {
                 headers {
                     val user = System.getenv("HTTP_AUTH_SPARQL_USER") ?: ""
                     val password = System.getenv("HTTP_AUTH_SPARQL_PASSWORD") ?: ""

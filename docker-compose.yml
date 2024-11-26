@@ -1,0 +1,24 @@
+services:
+  nap-web:
+    build: 
+      context: ./
+    networks:
+      - web_network
+    ports:
+      - "127.0.0.1:8080:8080"
+  nap-sparql:
+    build:
+      context: stack/fuseki
+    environment:
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ENABLE_DATA_WRITE=false
+      - ENABLE_UPDATE=false
+      - ENABLE_SHACL=false
+    volumes:
+      - ./data:/databases
+    networks:
+      - web_network
+networks:
+  web_network:
+    external: true
+    name: web_network

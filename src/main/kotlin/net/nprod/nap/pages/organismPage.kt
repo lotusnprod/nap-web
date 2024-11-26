@@ -1,5 +1,6 @@
 package net.nprod.nap.pages
 
+import as_local_link_if_dev
 import capitalize
 import dataPage
 import genURI
@@ -46,7 +47,7 @@ fun organismPage(identifier: String?): String {
             table(classes = "table table-striped table-bordered") {
                 tbody {
                     organism.taxon?.let {
-                        tr { td { +"Taxon" }; td { a(href= it) { +it.getRef() } } }
+                        tr { td { +"Taxon" }; td { a(href= it.as_local_link_if_dev) { +it.getRef() } } }
                     }
                     organism.familyname?.let {
                         tr { td { +"Family" }; td { +it } }
@@ -70,22 +71,22 @@ fun organismPage(identifier: String?): String {
                         tr { td { +"Comment" }; td { +it } }
                     }
                     organism.organismClass?.let {
-                        tr { td { +"Class" }; td { a(href = it.uri) { +it.name } } }
+                        tr { td { +"Class" }; td { a(href = it.uri.as_local_link_if_dev) { +it.name } } }
                     }
                     organism.collectedPart?.let {
-                        tr { td { +"Collected part" }; td { a(href= it.uri) { +it.name } } }
+                        tr { td { +"Collected part" }; td { a(href= it.uri.as_local_link_if_dev) { +it.name } } }
                     }
                     organism.collectedCondition?.let {
-                        tr { td { +"Collected condition" }; td { a(href=it.uri) { +it.name } } }
+                        tr { td { +"Collected condition" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
                     }
                     organism.citation?.let {
-                        tr { td { +"Citation" }; td { a(href = it.uri) { +it.uri.getRef() } } }
+                        tr { td { +"Citation" }; td { a(href = it.uri.as_local_link_if_dev) { +it.uri.as_local_link_if_dev.getRef() } } }
                     }
                     organism.geographicalArea?.let {
-                        tr { td { +"Geographical area" }; td { a(href=it.uri) { +it.name } } }
+                        tr { td { +"Geographical area" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
                     }
                     organism.country?.let {
-                        tr { td { +"Country" }; td { a(href=it.uri) { +it.name } } }
+                        tr { td { +"Country" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
                     }
                 }
 
