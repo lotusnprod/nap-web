@@ -15,6 +15,7 @@ fun pharmacyByTaxaSearch(taxonId: String): String {
 
     val pharmacyResults = pharmaciesOfTaxa(sparqlConnector, taxonId)
 
+
     val name = pharmacyResults.firstOrNull()?.organism?.nameForHumans() ?: taxonId
     val title ="Experiments for taxon $name"
 

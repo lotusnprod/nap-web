@@ -32,7 +32,7 @@ fun organismPage(identifier: String?): String {
     return dataPage(title) {
         id = "content-node"
         h1 { +title }
-        +"Organisms in Nap refer to specimens, they are not \"taxonomical\" organisms and they can in some cases even be mixtures of organisms."
+        +"Organisms in Nap refer to specimens, they are not \"taxonomical\" organisms and they can in some cases even be mixtures of organisms. Empty organisms are used as placeholders as the original dataset entry system used organism as the central part."
 
         br
 

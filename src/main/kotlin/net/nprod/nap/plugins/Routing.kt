@@ -15,6 +15,7 @@ import io.ktor.server.routing.*
 import net.nprod.nap.pages.naiveDataPage
 import net.nprod.nap.pages.organismPage
 import net.nprod.nap.pages.pharmacyByTaxaSearch
+import net.nprod.nap.pages.pharmacyPage
 import org.apache.commons.codec.binary.Base64.encodeBase64
 import queryPage
 import java.io.File
@@ -29,6 +30,10 @@ fun Application.configureRouting() {
 
         get("/organism/{id}") {
             call.respondText(organismPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+
+        get("/pharmacy/{id}") {
+            call.respondText(pharmacyPage(call.parameters["id"]), ContentType.Text.Html)
         }
 
         // Taxa search

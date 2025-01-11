@@ -84,7 +84,6 @@ data class Organism(
                 VALUES ?organism { <$uri> }
             }
         """.trimIndent()
-            println(query)
             val result = sparqlConnector.getResultsOfQuery(query)
             if (result != null) {
                 while (result.hasNext()) {
@@ -101,7 +100,6 @@ data class Organism(
                         new.subSpeciesAuthority = solution["subSpeciesAuthority"]?.asLiteral()?.string
                         new.subSpeciesName = solution["subSpeciesName"]?.asLiteral()?.string
                         val taxonLevel = solution["taxonLevel"]?.asLiteral()?.string
-                        println(taxonLevel)
                         if (taxonLevel == "SUBSPECIES") {
                             new.taxon = solution["parentTaxon"]?.asResource()?.uri
                             new.taxonName = solution["parentTaxonName"]?.asLiteral()?.string
