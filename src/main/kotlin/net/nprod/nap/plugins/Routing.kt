@@ -1,6 +1,7 @@
 package net.nprod.nap.plugins
 
 import compoundPage
+import homePage
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.HttpTimeout
@@ -17,6 +18,7 @@ import net.nprod.nap.pages.organismPage
 import net.nprod.nap.pages.pharmacyByTaxaSearch
 import net.nprod.nap.pages.pharmacyPage
 import org.apache.commons.codec.binary.Base64.encodeBase64
+import pharmacologyPage
 import queryPage
 import java.io.File
 
@@ -26,6 +28,10 @@ fun Application.configureRouting() {
 
         get("/compound/{id}") {
             call.respondText(compoundPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+
+        get("/pharmacology/{id}") {
+            call.respondText(pharmacologyPage(call.parameters["id"]), ContentType.Text.Html)
         }
 
         get("/organism/{id}") {
@@ -53,9 +59,13 @@ fun Application.configureRouting() {
         }
 
         get("/") {
-            call.respondText(queryPage(), ContentType.Text.Html)
+            call.respondText(homePage(), ContentType.Text.Html)
         }
 
+
+        get("/sparql") {
+            call.respondText(queryPage(), ContentType.Text.Html)
+        }
         // Only for development
         // Proxy to nap.nprod.net
         post("/raw/sparql") {

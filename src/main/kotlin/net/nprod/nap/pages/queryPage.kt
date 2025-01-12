@@ -1,66 +1,24 @@
 import kotlinx.html.*
 import kotlinx.html.dom.createHTMLDocument
 import kotlinx.html.dom.serialize
+import net.nprod.nap.pages.defaultFinalScripts
+import net.nprod.nap.pages.genericHead
+import net.nprod.nap.pages.navbar
 
 fun queryPage(): String {
     return createHTMLDocument().html {
         head {
-            meta(charset = "utf-8")
-            meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
-            meta(name = "description", content = "Snorql: A SPARQL Explorer - Extended Edition")
-            meta(name = "author", content = "The LOTUS devs")
-            link(rel = "icon", href = "assets/images/favicon.ico")
-
-            title("Snorql: A SPARQL Explorer - Extended Edition")
-
-            link(rel = "stylesheet", type = "text/css", href = "assets/css/bootstrap.min.css")
-            link(rel = "stylesheet", type = "text/css", href = "assets/codemirror/lib/codemirror.css")
-            link(rel = "stylesheet", type = "text/css", href = "assets/codemirror/addon/display/fullscreen.css")
-            link(rel = "stylesheet", type = "text/css", href = "assets/css/bootstrap-treeview.min.css")
-            link(rel = "stylesheet", type = "text/css", href = "assets/css/style.css")
-
-            script(type = ScriptType.textJavaScript, src = "assets/js/jquery.min.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/js/bootstrap.min.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/codemirror/lib/codemirror.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/codemirror/mode/javascript/javascript.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/codemirror/addon/selection/active-line.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/codemirror/addon/edit/matchbrackets.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/codemirror/addon/display/fullscreen.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/codemirror/sparql.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/js/bootstrap-treeview.min.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/js/sparql.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/js/namespaces.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/js/snorql.js") {}
-            script(type = ScriptType.textJavaScript, src = "assets/js/script.js") {}
+            genericHead(title="Snorql: A SPARQL Explorer - Extended Edition") {
+                link(rel = "stylesheet", type = "text/css", href = "assets/codemirror/lib/codemirror.css")
+                link(rel = "stylesheet", type = "text/css", href = "assets/codemirror/addon/display/fullscreen.css")
+                link(rel = "stylesheet", type = "text/css", href = "assets/css/bootstrap-treeview.min.css")
+            }
         }
 
         body {
             onLoad = "start()"
 
-            nav(classes = "navbar navbar-default") {
-                div(classes = "container-fluid") {
-                    div(classes = "navbar-header") {
-                        a(classes = "navbar-brand", href = "") {
-                            id = "index-page"
-                            +"Nap: SPARQL Explorer"
-                        }
-                    }
-                    div(classes = "navbar-collapse collapse") {
-                        id = "navbar"
-                        ul(classes = "nav navbar-nav") {}
-                        form(classes = "navbar-form navbar-right") {
-                            div(classes = "input-group") {
-                                span(classes = "input-group-addon") { +"SPARQL Endpoint" }
-                                input(classes = "form-control mr-sm-2", name = "endpoint") {
-                                    id = "endpoint"
-                                    size = "50"
-                                    onChange = "changeEndpoint();"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            navbar()
 
             div(classes = "snorql container-fluid") {
                 div(classes = "row") {
@@ -71,19 +29,6 @@ fun queryPage(): String {
                                 textArea(rows = "9") {
                                     attributes.put("name", "query")
                                     id = "querytext"
-                                }
-                                script {
-                                    unsafe {
-                                        raw(
-                                            """
-                                            var editor = CodeMirror.fromTextArea(document.getElementById("querytext"), {
-                                              lineNumbers: true,
-                                              mode: "application/sparql-query",
-                                              matchBrackets: true
-                                            });
-                                        """.trimIndent()
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -123,47 +68,8 @@ fun queryPage(): String {
                     div(classes = "col-md-4") {
                         h4 { +"SPARQL Examples:" }
                         div(classes = "panel panel-default") {
-                            div(classes = "panel-heading") {
-                                div(classes = "input-group") {
-                                    input(
-                                        classes = "form-control",
-                                        name = "examples-repo",
-                                    ) {
-                                        id = "examples-repo"
-                                        placeholder = "Github Repository URL"
-                                        onChange = "changeExamplesRepo();"
-                                    }
-                                    div(classes = "input-group-btn") {
-                                        button(classes = "btn btn-primary") {
-                                            id = "fetch"
-                                            i(classes = "glyphicon glyphicon-refresh") {}
-                                        }
-                                    }
-                                }
-                            }
                             div(classes = "panel-body") {
                                 id = "examplesMainBody"
-                                div(classes = "form-group") {
-                                    label(classes = "sr-only") {
-                                        attributes.put("htmlFor", "input-search")
-                                        +"Search Tree:"
-                                    }
-                                    input(classes = "form-control") {
-                                        id = "input-search"
-                                        placeholder = "Type part of the query file name to search for..."
-                                        value = ""
-                                    }
-                                }
-                                button(classes = "btn btn-success") {
-                                    id = "btn-search"
-                                    +"Search"
-                                }
-                                button(classes = "btn btn-default")
-                                {
-                                    id = "btn-clear-search"
-                                    +"Clear"
-                                }
-                                hr {}
                                 div(
                                     classes = "list-group"
                                 ) {
@@ -258,6 +164,32 @@ fun queryPage(): String {
                     }
                 }
             }
+            defaultFinalScripts()
+
+            script(type = ScriptType.textJavaScript, src = "assets/codemirror/lib/codemirror.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/codemirror/mode/javascript/javascript.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/codemirror/addon/selection/active-line.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/codemirror/addon/edit/matchbrackets.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/codemirror/addon/display/fullscreen.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/codemirror/sparql.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/js/bootstrap-treeview.min.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/js/sparql.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/js/namespaces.js") {}
+            script {
+                unsafe {
+                    raw(
+                        """
+                                            var editor = CodeMirror.fromTextArea(document.getElementById("querytext"), {
+                                              lineNumbers: true,
+                                              mode: "application/sparql-query",
+                                              matchBrackets: true
+                                            });
+                                        """.trimIndent()
+                    )
+                }
+            }
+            script(type = ScriptType.textJavaScript, src = "assets/js/snorql.js") {}
+            script(type = ScriptType.textJavaScript, src = "assets/js/script.js") {}
         }
     }.serialize(true)
 }

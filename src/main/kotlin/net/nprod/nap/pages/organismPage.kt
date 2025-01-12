@@ -2,12 +2,14 @@ package net.nprod.nap.pages
 
 import as_local_link_if_dev
 import capitalize
-import dataPage
+import defaultPage
 import genURI
 import generatePharmacyTaxaSearchURL
 import getRef
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
+import net.nprod.nap.rdf.pharmaciesOfOrganism
+import net.nprod.nap.rdf.pharmaciesOfPharmacology
 import net.nprod.nap.types.Organism
 
 fun organismPage(identifier: String?): String {
@@ -21,15 +23,15 @@ fun organismPage(identifier: String?): String {
 
     val organism = Organism.fromSparql(sparqlConnector, uri)
 
-    // Nodes going in
-    val inNodes = sparqlConnector.subjectAndPredicatesOf(uri)
+
+    val pharmacyResults = pharmaciesOfOrganism(uri, sparqlConnector)
 
     val family = organism.familyname?.let {
         if (it != "") "($it)" else null
     } ?: ""
     val title =
         "Organism $identifier - ${organism.genusname?.lowercase()?.capitalize()} ${organism.speciesname?.lowercase()} $family "
-    return dataPage(title) {
+    return defaultPage(title) {
         id = "content-node"
         h1 { +title }
         +"Organisms in Nap refer to specimens, they are not \"taxonomical\" organisms and they can in some cases even be mixtures of organisms. Empty organisms are used as placeholders as the original dataset entry system used organism as the central part."
@@ -93,10 +95,9 @@ fun organismPage(identifier: String?): String {
             }
         }
 
-        if (inNodes.isNotEmpty()) {
-            h2 { +"In nodes" }
-            div { presentInNodes(inNodes) }
-        }
+        h2 { +"Experiments" }
+
+        presentPharmacyResults(pharmacyResults, sourceType = "pharmacology")
     }
 }
 

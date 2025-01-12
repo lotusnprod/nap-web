@@ -1,6 +1,6 @@
 package net.nprod.nap.pages
 
-import dataPage
+import defaultPage
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.rdf.pharmaciesOfTaxa
@@ -19,7 +19,7 @@ fun pharmacyByTaxaSearch(taxonId: String): String {
     val name = pharmacyResults.firstOrNull()?.organism?.nameForHumans() ?: taxonId
     val title ="Experiments for taxon $name"
 
-    return dataPage("") {
+    return defaultPage("") {
         id = "content-node"
         h1 { +title }
 

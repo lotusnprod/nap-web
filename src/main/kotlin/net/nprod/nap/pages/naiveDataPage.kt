@@ -1,6 +1,6 @@
 package net.nprod.nap.pages
 
-import dataPage
+import defaultPage
 import genURI
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
@@ -24,7 +24,7 @@ fun naiveDataPage(type: String, identifier: String?): String {
     val inNodes = sparqlConnector.subjectAndPredicatesOf(uri)
 
     val capitalized = type.replaceFirstChar(Char::titlecase)
-    return dataPage("$capitalized page for $identifier") {
+    return defaultPage("$capitalized page for $identifier") {
         id = "content-node"
         h1 { +"$capitalized page for $identifier" }
 

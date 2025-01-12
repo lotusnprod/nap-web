@@ -12,6 +12,26 @@ fun pharmaciesOfCompound(
     return pharmaciesGeneric(sparqlConnector, matcher, values)
 }
 
+fun pharmaciesOfPharmacology(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:has_pharmacology <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
+fun pharmaciesOfOrganism(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:has_organism <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
 fun pharmaciesOfTaxa(
     sparqlConnector: SparqlConnector,
     taxonId: String,
@@ -66,11 +86,14 @@ fun pharmaciesGeneric(
                 ?pharmacy a n:pharmacy;
                           n:has_worktype ?worktype;
                           n:has_organism ?organism;
+                          n:has_participant ?compound;
                           n:has_pharmacology ?pharmacology.
                 ?pharmacology n:name ?pharmacologyName.
                 ?organism n:familyname ?organism_family_name.
                 ?organism n:genusname ?organism_genus_name.
                 ?organism n:speciesname ?organism_species_name.
+                ?compound a n:compound.
+                ?compound n:name ?compoundName.
            } 
             WHERE {
               $matcher
@@ -80,6 +103,9 @@ fun pharmaciesGeneric(
               OPTIONAL { ?pharmacy n:has_organism ?organism. }
               OPTIONAL { ?pharmacy n:has_pharmacology ?pharmacology.
                          ?pharmacology n:name ?pharmacologyName. }
+              OPTIONAL { ?pharmacy n:has_participant ?compound. 
+                         ?compound a n:compound; 
+                                   n:name ?compoundName.  }
               OPTIONAL { ?organism n:familyname ?organism_family_name. }
               OPTIONAL { ?organism n:genusname ?organism_genus_name. }
               OPTIONAL { ?organism n:speciesname ?organism_species_name. }

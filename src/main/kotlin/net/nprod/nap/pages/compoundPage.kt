@@ -19,7 +19,7 @@ fun compoundPage(identifier: String?): String {
     val pharmacyResults = pharmaciesOfCompound(uri, sparqlConnector)
 
 
-    return dataPage("${compound.name} ($identifier)") {
+    return defaultPage("${compound.name} ($identifier)") {
         id = "content-node"
         h1 { +"${compound.name} ($identifier)" }
         h2 { +"Details" }
@@ -53,7 +53,7 @@ fun compoundPage(identifier: String?): String {
         }
 
 
-        h2 { +"Works" }
+        h2 { +"Experiments" }
 
         presentPharmacyResults(pharmacyResults, sourceType = "compound")
     }

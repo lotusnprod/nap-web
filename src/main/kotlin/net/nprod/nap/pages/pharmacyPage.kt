@@ -1,11 +1,10 @@
 package net.nprod.nap.pages
 
 import as_local_link_if_dev
-import dataPage
+import defaultPage
 import genURI
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
-import net.nprod.nap.types.Organism
 import net.nprod.nap.types.Pharmacy
 
 fun pharmacyPage(identifier: String?): String {
@@ -20,7 +19,7 @@ fun pharmacyPage(identifier: String?): String {
 
     val pharmacy = Pharmacy.fromSparql(sparqlConnector, uri)
 
-    return dataPage("Experiment $identifier") {
+    return defaultPage("Experiment $identifier") {
         id = "content-node"
         h1 { +"Experiment $identifier" }
 

@@ -30,16 +30,6 @@ function getCookie(cname) {
     return "";
 }
 
-function changeEndpoint() {
-    var newEp = document.getElementById("endpoint").value;
-    setCookie("endpoint", newEp);
-}
-
-function changeExamplesRepo() {
-    var newEx = document.getElementById("examples-repo").value;
-    setCookie("examplesrepo", newEx);
-}
-
 function getPrefixes(){
 
     prefixes = '';
@@ -161,9 +151,9 @@ function getIndexFromTree(segment, nodes){
 }
 
 function fetchExamples(suffix="") {
-    var repo = jQuery("#examples-repo").val();
+    var repo = _examples_repo;
 
-    if(repo.charAt(repo.length-1) == "/"){
+    if(repo.charAt(repo.length-1) === "/"){
         repo = repo.substring(0, repo.length - 1);
     }
 
@@ -209,33 +199,15 @@ function fetchExamples(suffix="") {
 }
 
 function start(){
-
-    var ep = getCookie('endpoint');
-    if (ep != "") {
-        _endpoint = ep;
-        document.getElementById('endpoint').value = ep;
-    }else{
-        document.getElementById('endpoint').value = _endpoint;
-    }
-
-    var ex = getCookie('examplesrepo');
-    if (ex != "") {
-        _examples_repo = ex;
-        document.getElementById('examples-repo').value = ex;
-    }else{
-        document.getElementById('examples-repo').value = _examples_repo;
-    }
-
     fetchExamples();
-    fetchExamples("-fs");
+    //fetchExamples("-fs");
 
     $('#poweredby').attr('href', _poweredByLink);
     $('#poweredby').text( _poweredByLabel);
 }
 
-function doQuery(url, sparql, callback) {
-
-    service = new SPARQL.Service(url);
+function doQuery(sparql, callback) {
+    service = new SPARQL.Service(_endpoint);
     service.setMethod('POST');
     if (_defaultGraph != "") {
         service.addDefaultGraph(_defaultGraph);
@@ -482,9 +454,9 @@ function nodeToHTML(node, linkMaker) {
     return document.createTextNode('???');
 }
 
-function exportResults(url, sparql, type, output) {
+function exportResults(sparql, type, output) {
 
-    service = new SPARQL.Service(url);
+    service = new SPARQL.Service(_endpoint);
     service.setMethod('POST');
     if (_defaultGraph != "") {
         service.addDefaultGraph(_defaultGraph);

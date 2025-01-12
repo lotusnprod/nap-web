@@ -2,37 +2,11 @@
 (function ($) {
 
 jQuery(document).ready(function() {
-
-        var cookieDecision = getCookie('cookieDecision');
-
-        if (cookieDecision == "" || cookieDecision == "reject") {
-
-            $('#cookieModal').modal();
-
-            $('#cookieModal button.btn-secondary').on('click', function (e) {
-                setCookie("cookieDecision", "reject");
-		var pathQueryIndex = window.location.href.indexOf("?")
-		var path = window.location.href
-		
-		if(pathQueryIndex != -1){
-		  var newPath = window.location.href.substring(0,pathQueryIndex)
-		  window.location.href = newPath.endsWith("/") ? newPath.slice(0,-1) +"/cookies.html" : newPath +"/cookies.html";
-		}else{
-		  window.location.href = path.endsWith("/") ? path.slice(0,-1) +"/cookies.html" : path +"/cookies.html";	
-		}
-            });
-
-            $("#cookieModal button.btn-primary").on('click', function(){
-                setCookie("cookieDecision", "accept");
-                $('#cookieModal').modal('hide');
-            });
-        }
-
         jQuery("#query-button").on("click", function(event) {
             event.preventDefault();
 
             var query = editor.getDoc().getValue();
-            doQuery(jQuery("#endpoint").val(), query, function(json) { displayResult(json, "SPARQL results"); });
+            doQuery(query, function(json) { displayResult(json, "SPARQL results"); });
 
         });
 
@@ -112,19 +86,19 @@ jQuery(document).ready(function() {
         jQuery("#export-csv").on("click",function(){
             var query = editor.getDoc().getValue();
             var queryText = getPrefixes() + query;
-            exportResults(jQuery("#endpoint").val(), query, "csv");
+            exportResults(queryText, "csv");
         });
 
         jQuery("#export-json").on("click",function(){
             var query = editor.getDoc().getValue();
             var queryText = getPrefixes() + query;
-            exportResults(jQuery("#endpoint").val(), query, "json");
+            exportResults(queryText, "json");
         });
 
         jQuery("#export-xml").on("click",function(){
             var query = editor.getDoc().getValue();
             var queryText = getPrefixes() + query;
-            exportResults(jQuery("#endpoint").val(), query, "xml");
+            exportResults(queryText, "xml");
         });
 
         jQuery("#enter-fullscreen").on("click",function(){
