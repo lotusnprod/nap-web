@@ -23,7 +23,7 @@ fun pharmacologyPage(identifier: String?): String {
         id = "content-node"
         h1 { +"${pharmacology.name} ($identifier)" }
 
-        h2 { +"Experiments" }
+        h2 { +"Experiments (${pharmacyResults.size} results)" }
 
         presentPharmacyResults(pharmacyResults, sourceType = "pharmacology")
     }
