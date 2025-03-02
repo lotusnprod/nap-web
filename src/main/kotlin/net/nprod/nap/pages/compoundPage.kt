@@ -21,28 +21,52 @@ fun compoundPage(identifier: String?): String {
 
     return defaultPage("${compound.name} ($identifier)") {
         id = "content-node"
-        h1 { +"${compound.name} ($identifier)" }
-        h2 { +"Details" }
-
-        div {
-            table(classes = "table table-striped table-bordered") {
-                tbody {
-                    compound.name?.let {
-                        tr { td { +"Name" }; td { +it } }
-                    }
-                    compound.compoundClass?.let {
-                        tr { td { +"Compound class" }; td { +it } }
-                    }
-                    compound.compoundCode?.let {
-                        tr { td { +"Compound code" }; td { a(href = it.uri.as_local_link_if_dev.as_local_link_if_dev) { +it.name } } }
-                    }
-                    if (compound.synonyms.isNotEmpty()) {
-                        tr {
-                            td { +"Synonym" }
-                            td {
-                                ul {
-                                    compound.synonyms.forEach { synonym ->
-                                        li { a(href = synonym.uri.as_local_link_if_dev.as_local_link_if_dev) { +synonym.name } }
+        div("container") {
+            div("row") {
+                div("col-12") {
+                    h1(classes = "mt-4 mb-4") { +"${compound.name} ($identifier)" }
+                }
+            }
+            
+            div("row") {
+                div("col-12") {
+                    div("card mb-4") {
+                        div("card-header bg-success text-white") {
+                            h3(classes = "card-title mb-0") { +"Compound Details" }
+                        }
+                        div("card-body") {
+                            div("table-responsive") {
+                                table(classes = "table table-striped table-bordered table-hover") {
+                                    thead {
+                                        tr {
+                                            th { +"Property" }
+                                            th { +"Value" }
+                                        }
+                                    }
+                                    tbody {
+                                        compound.name?.let {
+                                            tr { td { +"Name" }; td { +it } }
+                                        }
+                                        compound.compoundClass?.let {
+                                            tr { td { +"Compound class" }; td { +it } }
+                                        }
+                                        compound.compoundCode?.let {
+                                            tr { td { +"Compound code" }; td { a(href = it.uri.as_local_link_if_dev.as_local_link_if_dev) { +it.name } } }
+                                        }
+                                        if (compound.synonyms.isNotEmpty()) {
+                                            tr {
+                                                td { +"Synonyms" }
+                                                td {
+                                                    div("list-group") {
+                                                        compound.synonyms.forEach { synonym ->
+                                                            a(href = synonym.uri.as_local_link_if_dev.as_local_link_if_dev, classes = "list-group-item list-group-item-action") {
+                                                                +synonym.name
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -50,11 +74,19 @@ fun compoundPage(identifier: String?): String {
                     }
                 }
             }
+            
+            div("row") {
+                div("col-12") {
+                    div("card mb-4") {
+                        div("card-header bg-primary text-white") {
+                            h3(classes = "card-title mb-0") { +"Experiments" }
+                        }
+                        div("card-body p-0") {
+                            presentPharmacyResults(pharmacyResults, sourceType = "compound")
+                        }
+                    }
+                }
+            }
         }
-
-
-        h2 { +"Experiments" }
-
-        presentPharmacyResults(pharmacyResults, sourceType = "compound")
     }
 }

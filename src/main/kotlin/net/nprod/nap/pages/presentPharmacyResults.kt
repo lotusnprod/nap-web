@@ -7,43 +7,70 @@ import kotlinx.html.*
 import net.nprod.nap.types.Pharmacy
 
 fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: String) {
-    div(classes = "container mt-5") {
+    if (pharmacyResults.isEmpty()) {
+        div(classes = "alert alert-info mt-3") {
+            +"No experiments found."
+        }
+        return
+    }
+    
+    div(classes = "table-responsive") {
         id = "pharmacy"
-        table(classes = "table table-striped table-bordered") {
-            thead(classes = "thead-dark") {
-                tr {
-                    td { +"Experiment" }
-                    td { +"Worktypes" }
-                    td { +"Pharmacology" }
-                    td { +"Organism (specimen)" }
+        table(classes = "table table-striped table-bordered table-hover") {
+            thead {
+                tr(classes = "bg-light") {
+                    th { +"Experiment" }
+                    th { +"Worktypes" }
+                    th { +"Pharmacology" }
+                    th { +"Organism (specimen)" }
                     if (sourceType != "compound") {
-                        td { +"Compound" }
+                        th { +"Compound" }
                     }
                 }
             }
             tbody {
                 pharmacyResults.forEach { pharmacy ->
                     tr {
-                        td { a(href = pharmacy.uri.as_local_link_if_dev.as_local_link_if_dev) { +pharmacy.uri.as_local_link_if_dev.getRef() } }
+                        td { 
+                            a(href = pharmacy.uri.as_local_link_if_dev.as_local_link_if_dev, classes = "font-weight-bold") { 
+                                +pharmacy.uri.as_local_link_if_dev.getRef() 
+                            } 
+                        }
                         td {
-                            ul {
-                                pharmacy.worktypes.forEach { worktype ->
-                                    li { a(href = worktype.uri.as_local_link_if_dev) { +worktype.name } }
+                            if (pharmacy.worktypes.isNotEmpty()) {
+                                div("d-flex flex-wrap gap-1") {
+                                    pharmacy.worktypes.forEach { worktype ->
+                                        span(classes = "badge bg-primary me-1 mb-1") { 
+                                            a(href = worktype.uri.as_local_link_if_dev, classes = "text-white text-decoration-none") { 
+                                                +worktype.name 
+                                            } 
+                                        }
+                                    }
                                 }
                             }
                         }
                         td {
-                            pharmacy.pharmacology?.let { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                            pharmacy.pharmacology?.let { 
+                                a(href = it.uri.as_local_link_if_dev) { +it.name } 
+                            }
                         }
                         td {
-                            pharmacy.organism?.let { a(href = it.uri.as_local_link_if_dev) { +it.nameForHumans() } }
+                            pharmacy.organism?.let { 
+                                a(href = it.uri.as_local_link_if_dev) { +it.nameForHumans() } 
+                            }
                         }
 
                         if (sourceType !== "compound") {
                             td {
-                                ul {
-                                    pharmacy.compounds.forEach { compound ->
-                                        li { a(href = compound.uri.as_local_link_if_dev) { +(compound.name ?: "Unknown compound") } }
+                                if (pharmacy.compounds.isNotEmpty()) {
+                                    div("d-flex flex-wrap gap-1") {
+                                        pharmacy.compounds.forEach { compound ->
+                                            span(classes = "badge bg-success me-1 mb-1") { 
+                                                a(href = compound.uri.as_local_link_if_dev, classes = "text-white text-decoration-none") { 
+                                                    +(compound.name ?: "Unknown compound") 
+                                                } 
+                                            }
+                                        }
                                     }
                                 }
                             }

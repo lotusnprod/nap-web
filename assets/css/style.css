@@ -88,3 +88,49 @@ footer p{
 .buttons-holder .btn{
     margin: 3px;
 }
+
+/* Pharmacy page styles */
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header h3 {
+    font-size: 1.25rem;
+}
+
+.list-group-item-action:hover {
+    background-color: #f8f9fa;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+@media (max-width: 767.98px) {
+    .table-responsive {
+        border: 0;
+    }
+}
