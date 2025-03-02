@@ -21,10 +21,25 @@ fun pharmacologyPage(identifier: String?): String {
 
     return defaultPage("${pharmacology.name} ($identifier)") {
         id = "content-node"
-        h1 { +"${pharmacology.name} ($identifier)" }
-
-        h2 { +"Experiments (${pharmacyResults.size} results)" }
-
-        presentPharmacyResults(pharmacyResults, sourceType = "pharmacology")
+        div("container") {
+            div("row") {
+                div("col-12") {
+                    h1(classes = "mt-4 mb-4") { +"${pharmacology.name} ($identifier)" }
+                }
+            }
+            
+            div("row") {
+                div("col-12") {
+                    div("card mb-4") {
+                        div("card-header bg-primary text-white") {
+                            h3(classes = "card-title mb-0") { +"Experiments (${pharmacyResults.size} results)" }
+                        }
+                        div("card-body p-0") {
+                            presentPharmacyResults(pharmacyResults, sourceType = "pharmacology")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
