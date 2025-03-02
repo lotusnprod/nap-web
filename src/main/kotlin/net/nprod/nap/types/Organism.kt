@@ -20,7 +20,7 @@ data class Organism(
     var geographicalArea: GeographicalArea? = null,
     var country: Country? = null,
     var comment: String? = null,
-    var collectedCondition: CollectedCondition? = null
+    var partCondition: Partcondition? = null
 ) {
 
     fun nameForHumans(): String {
@@ -42,7 +42,7 @@ data class Organism(
             ?comment
             ?citation
             ?country ?countryName ?geographicalarea ?geographicalareaName
-            ?organismClass ?collectedCondition ?collectedConditionName
+            ?organismClass ?partCondition ?partConditionName
             ?speciesAuthority ?subSpeciesAuthority
             ?taxon ?taxonName ?taxonLevel
             ?parentTaxon ?parentTaxonName
@@ -78,8 +78,8 @@ data class Organism(
                 OPTIONAL { ?organism n:comment ?comment. }
                 OPTIONAL { ?organism n:has_collectedpart ?collectedPart. 
                            ?collectedPart n:name ?collectedPartName. }
-                OPTIONAL { ?organism n:collectedCondition ?collectedCondition. 
-                           ?collectedCondition n:name ?collectedConditionName. }
+                OPTIONAL { ?organism n:PartCondition ?partCondition. 
+                           ?partCondition n:name ?partConditionName. }
               
                 VALUES ?organism { <$uri> }
             }
@@ -129,10 +129,10 @@ data class Organism(
                             )
                         }
                         new.comment = solution["comment"]?.asLiteral()?.string
-                        if (solution["collectedCondition"] != null) {
-                            new.collectedCondition = CollectedCondition(
-                                solution["collectedCondition"].asResource().uri,
-                                solution["collectedConditionName"]?.asLiteral()?.string ?: "Unknown collected condition"
+                        if (solution["PartCondition"] != null) {
+                            new.partCondition = Partcondition(
+                                solution["partCondition"].asResource().uri,
+                                solution["partConditionName"]?.asLiteral()?.string ?: "Unknown collected condition"
                             )
                         }
                     }

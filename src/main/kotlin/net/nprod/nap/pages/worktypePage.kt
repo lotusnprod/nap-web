@@ -25,37 +25,61 @@ fun worktypePage(identifier: String?): String {
 
     return defaultPage("Worktype ${worktype.code} - ${worktype.name}") {
         id = "content-node"
-        h1 { +"Worktype ${worktype.code} - ${worktype.name}" }
-
-        // Basic worktype information
-        div {
-            table(classes = "table table-striped table-bordered") {
-                tbody {
-                    tr { 
-                        td { +"Code" }
-                        td { +worktype.code } 
+        div("container") {
+            div("row") {
+                div("col-12") {
+                    h1(classes = "mt-4 mb-3") { +"Worktype ${worktype.code} - ${worktype.name}" }
+                }
+            }
+            
+            div("row") {
+                div("col-12") {
+                    div("card mb-4") {
+                        div("card-header bg-success text-white") {
+                            h3(classes = "card-title mb-0") { +"Worktype Details" }
+                        }
+                        div("card-body") {
+                            div("table-responsive") {
+                                table(classes = "table table-striped table-bordered table-hover") {
+                                    tbody {
+                                        tr { 
+                                            td { +"Code" }
+                                            td { +worktype.code } 
+                                        }
+                                        tr { 
+                                            td { +"Name" }
+                                            td { +worktype.name } 
+                                        }
+                                        worktype.group?.let {
+                                            tr { 
+                                                td { +"Group" }
+                                                td { 
+                                                    a(href = it.uri.as_local_link_if_dev) { 
+                                                        +"${it.code} - ${it.name}" 
+                                                    } 
+                                                } 
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    tr { 
-                        td { +"Name" }
-                        td { +worktype.name } 
-                    }
-                    worktype.group?.let {
-                        tr { 
-                            td { +"Group" }
-                            td { 
-                                a(href = it.uri.as_local_link_if_dev) { 
-                                    +"${it.code} - ${it.name}" 
-                                } 
-                            } 
+                }
+            }
+            
+            div("row") {
+                div("col-12") {
+                    div("card mb-4") {
+                        div("card-header bg-primary text-white") {
+                            h3(classes = "card-title mb-0") { +"Experiments (${pharmacyResults.size} results)" }
+                        }
+                        div("card-body p-0") {
+                            presentPharmacyResults(pharmacyResults, sourceType = "worktype")
                         }
                     }
                 }
             }
         }
-
-        h2 { +"Experiments using this worktype (${pharmacyResults.size} results)" }
-
-        // Present the pharmacy results in a table
-        presentPharmacyResults(pharmacyResults, sourceType = "worktype")
     }
 }

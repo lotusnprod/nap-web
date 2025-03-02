@@ -92,6 +92,46 @@ fun pharmaciesOfTaxa(
     return pharmaciesFromQuery(sparqlConnector, query)
 }
 
+fun pharmaciesOfGeographicalArea(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:has_geographicalarea <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
+fun pharmaciesOfCountry(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:has_country <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
+fun pharmaciesOfPartCondition(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:has_collected_condition <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
+fun pharmaciesOfExtract(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:has_extract <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
 fun pharmaciesGeneric(
     sparqlConnector: SparqlConnector,
     matcher: String,

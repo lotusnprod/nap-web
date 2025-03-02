@@ -1,6 +1,9 @@
 package net.nprod.nap.plugins
 
+import PartConditionPage
 import compoundPage
+import countryPage
+import geographicalAreaPage
 import homePage
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -15,6 +18,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import net.nprod.nap.pages.animalPage
 import net.nprod.nap.pages.citationPage
+import net.nprod.nap.pages.extractPage
 import net.nprod.nap.pages.naiveDataPage
 import net.nprod.nap.pages.organismPage
 import net.nprod.nap.pages.pharmacyByTaxaSearch
@@ -55,6 +59,22 @@ fun Application.configureRouting() {
         
         get("/animal/{id}") {
             call.respondText(animalPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+        
+        get("/geographicalarea/{id}") {
+            call.respondText(geographicalAreaPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+        
+        get("/country/{id}") {
+            call.respondText(countryPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+        
+        get("/partcondition/{id}") {
+            call.respondText(PartConditionPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+        
+        get("/extract/{id}") {
+            call.respondText(extractPage(call.parameters["id"]), ContentType.Text.Html)
         }
 
         // Taxa search

@@ -98,7 +98,7 @@ fun organismPage(identifier: String?): String {
                                         organism.collectedPart?.let {
                                             tr { td { +"Collected part" }; td { a(href= it.uri.as_local_link_if_dev) { +it.name } } }
                                         }
-                                        organism.collectedCondition?.let {
+                                        organism.partCondition?.let {
                                             tr { td { +"Collected condition" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
                                         }
                                         organism.citation?.let {
