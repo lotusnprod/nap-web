@@ -96,7 +96,11 @@ fun pharmaciesOfGeographicalArea(
     uri: String,
     sparqlConnector: SparqlConnector
 ): List<Pharmacy> {
-    val matcher = "?pharmacy n:has_geographicalarea <$uri>."
+    val matcher = """
+            ?pharmacy n:has_organism ?organism.
+            ?organism n:collectedFrom <$uri>.
+            <$uri> a n:geographicalarea.
+    """
     val values = ""
 
     return pharmaciesGeneric(sparqlConnector, matcher, values)
@@ -106,7 +110,11 @@ fun pharmaciesOfCountry(
     uri: String,
     sparqlConnector: SparqlConnector
 ): List<Pharmacy> {
-    val matcher = "?pharmacy n:has_country <$uri>."
+    val matcher = """
+            ?pharmacy n:has_organism ?organism.
+            ?organism n:collectedFrom <$uri>.
+            <$uri> a n:country.
+    """
     val values = ""
 
     return pharmaciesGeneric(sparqlConnector, matcher, values)

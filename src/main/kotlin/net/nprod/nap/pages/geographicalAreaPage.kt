@@ -63,7 +63,7 @@ fun geographicalAreaPage(identifier: String?): String {
                     div("col-12") {
                         div("card mb-4") {
                             div("card-header bg-primary text-white") {
-                                h3(classes = "card-title mb-0") { +"Experiments in this geographical area (${pharmacies.size} results)" }
+                                h3(classes = "card-title mb-0") { +"Experiments in this geographical area or with organisms from this area (${pharmacies.size} results)" }
                             }
                             div("card-body p-0") {
                                 presentPharmacyResults(pharmacies, sourceType = "geographicalarea")
