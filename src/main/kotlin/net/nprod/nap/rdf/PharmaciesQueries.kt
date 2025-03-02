@@ -32,6 +32,16 @@ fun pharmaciesOfOrganism(
     return pharmaciesGeneric(sparqlConnector, matcher, values)
 }
 
+fun pharmaciesOfWorktype(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:has_worktype <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
 fun pharmaciesOfTaxa(
     sparqlConnector: SparqlConnector,
     taxonId: String,

@@ -5,7 +5,8 @@ import net.nprod.nap.rdf.SparqlConnector
 data class Worktype (
     val uri: String,
     val code: String,
-    val name: String
+    val name: String,
+    val group: WorktypeGroup? = null
 ) {
     object Cache {
         private val worktypes: MutableMap<String, Worktype> = mutableMapOf()
@@ -19,13 +20,16 @@ data class Worktype (
         init {
             val sparqlConnector = SparqlConnector()
 
+            // Initialize WorktypeGroup cache first
+            WorktypeGroup.Cache
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
-           SELECT ?worktype ?code ?name {
+           SELECT ?worktype ?code ?name ?group {
                 ?worktype a n:worktype;
-                             n:code ?code;
-                             n:name ?name.
+                         n:code ?code;
+                         n:name ?name.
+                OPTIONAL { ?worktype n:has_group ?group. }
             }
         """.trimIndent()
 
@@ -36,7 +40,9 @@ data class Worktype (
                     val worktypeUri = solution["worktype"].asResource().uri
                     val code = solution["code"].asLiteral().string
                     val name = solution["name"].asLiteral().string
-                    worktypes[worktypeUri] = Worktype(uri = worktypeUri, code = code, name = name)
+                    val groupUri = if (solution.contains("group")) solution["group"]?.asResource()?.uri else null
+                    val group = groupUri?.let { WorktypeGroup.Cache[it] }
+                    worktypes[worktypeUri] = Worktype(uri = worktypeUri, code = code, name = name, group = group)
                 }
             }
         }
