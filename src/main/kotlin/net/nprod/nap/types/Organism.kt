@@ -91,7 +91,7 @@ data class Organism(
                     val organismUri = solution["organism"].asResource().uri
                     if (new == null) {
                         new = Organism(organismUri)
-                        new.citation = Citation(solution["citation"].asResource().uri)
+                        new.citation = Citation.fromSparql(sparqlConnector, solution["citation"].asResource().uri)
                         solution["organismClass"]?.asResource()?.let {
                             new.organismClass = OrganismClass.Cache[it.uri]
                         }

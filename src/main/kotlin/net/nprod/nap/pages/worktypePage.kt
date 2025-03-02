@@ -53,7 +53,7 @@ fun worktypePage(identifier: String?): String {
             }
         }
 
-        h2 { +"Experiments using this worktype (${pharmacyResults.size})" }
+        h2 { +"Experiments using this worktype (${pharmacyResults.size} results)" }
 
         // Present the pharmacy results in a table
         presentPharmacyResults(pharmacyResults, sourceType = "worktype")

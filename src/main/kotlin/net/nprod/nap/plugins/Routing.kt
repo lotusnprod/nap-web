@@ -13,6 +13,7 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import net.nprod.nap.pages.citationPage
 import net.nprod.nap.pages.naiveDataPage
 import net.nprod.nap.pages.organismPage
 import net.nprod.nap.pages.pharmacyByTaxaSearch
@@ -45,6 +46,10 @@ fun Application.configureRouting() {
 
         get("/worktype/{id}") {
             call.respondText(worktypePage(call.parameters["id"]), ContentType.Text.Html)
+        }
+
+        get("/citation/{id}") {
+            call.respondText(citationPage(call.parameters["id"]), ContentType.Text.Html)
         }
 
         // Taxa search

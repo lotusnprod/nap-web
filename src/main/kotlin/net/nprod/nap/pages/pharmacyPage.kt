@@ -66,6 +66,22 @@ fun pharmacyPage(identifier: String?): String {
                         td { a(href = it.uri.as_local_link_if_dev) { +it.nameForHumans() } }
                     }
                 }
+                pharmacy.organism?.citation?.let { citation ->
+                    tr {
+                        td { +"Citation" }
+                        td { 
+                            a(href = citation.uri.as_local_link_if_dev) {
+                                +citation.formatCitation()
+                            }
+                            citation.doi?.let { doi ->
+                                if (doi.isNotEmpty()) {
+                                    br {}
+                                    a(href = "https://doi.org/$doi", target = "_blank") { +"DOI: $doi" }
+                                }
+                            }
+                        }
+                    }
+                }
                 pharmacy.activitylevel?.let {
                     tr {
                         td { +"Activity level" }
