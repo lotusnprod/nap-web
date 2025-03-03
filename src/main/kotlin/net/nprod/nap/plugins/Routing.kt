@@ -25,6 +25,7 @@ import net.nprod.nap.pages.organismPage
 import net.nprod.nap.pages.pharmacyByTaxaSearch
 import net.nprod.nap.pages.pharmacyPage
 import net.nprod.nap.pages.worktypePage
+import net.nprod.nap.pages.administrationRoutePage
 import org.apache.commons.codec.binary.Base64.encodeBase64
 import pharmacologyPage
 import queryPage
@@ -80,6 +81,10 @@ fun Application.configureRouting() {
         
         get("/compoundcode/{id}") {
             call.respondText(compoundCodePage(call.parameters["id"]), ContentType.Text.Html)
+        }
+        
+        get("/administrationroute/{id}") {
+            call.respondText(administrationRoutePage(call.parameters["id"]), ContentType.Text.Html)
         }
 
         // Taxa search

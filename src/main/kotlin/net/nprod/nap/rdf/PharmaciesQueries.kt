@@ -142,6 +142,16 @@ fun pharmaciesOfExtract(
     return pharmaciesGeneric(sparqlConnector, matcher, values)
 }
 
+fun pharmaciesOfAdministrationRoute(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Pharmacy> {
+    val matcher = "?pharmacy n:administeredBy <$uri>."
+    val values = ""
+
+    return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
 /**
  * Get all compounds with a specific compound code
  *

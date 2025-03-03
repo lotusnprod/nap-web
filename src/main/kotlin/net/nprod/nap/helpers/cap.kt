@@ -1,3 +1,5 @@
+package net.nprod.nap.helpers
+
 import java.util.*
 
 fun String.capitalize(): String {

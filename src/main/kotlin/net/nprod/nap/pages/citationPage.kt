@@ -223,8 +223,8 @@ fun citationPage(identifier: String?): String {
                                         // Format organism name
                                         val name = mutableListOf<String>()
                                         if (!organism.genus.isNullOrEmpty()) {
-                                            val capitalizedGenus = organism.genus.replaceFirstChar {
-                                                if (it.isLowerCase()) it.titlecase() else it.toString()
+                                            val capitalizedGenus = organism.genus.lowercase().replaceFirstChar {
+                                                it.titlecase()
                                             }
                                             name.add(capitalizedGenus)
                                         }

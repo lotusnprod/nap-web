@@ -1,7 +1,6 @@
 package net.nprod.nap.pages
 
 import as_local_link_if_dev
-import capitalize
 import defaultPage
 import genURI
 import generatePharmacyTaxaSearchURL
@@ -9,7 +8,6 @@ import getRef
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.rdf.pharmaciesOfOrganism
-import net.nprod.nap.rdf.pharmaciesOfPharmacology
 import net.nprod.nap.types.Organism
 
 fun organismPage(identifier: String?): String {

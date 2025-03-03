@@ -1,7 +1,6 @@
 package net.nprod.nap.types
 
 
-import capitalize
 import net.nprod.nap.rdf.SparqlConnector
 
 data class Organism(
