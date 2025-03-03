@@ -5,12 +5,16 @@ val kotlinxHtmlVersion: String by project
 
 
 plugins {
-    kotlin("jvm") version "2.0.0"
-    id("io.ktor.plugin") version "2.3.11"
+    kotlin("jvm") version "2.1.10"
+    id("io.ktor.plugin") version "3.1.1"
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 group = "net.nprod.nap"
-version = "0.0.1"
+version = "0.0.2"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
@@ -29,7 +33,7 @@ dependencies {
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-client-cio")
 
-    implementation("org.apache.jena:apache-jena-libs:5.2.0")
+    implementation("org.apache.jena:apache-jena-libs:5.3.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinxHtmlVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinxHtmlVersion")

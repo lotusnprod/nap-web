@@ -1,5 +1,7 @@
 package net.nprod.nap.rdf
 
+import net.nprod.nap.types.Compound
+import net.nprod.nap.types.CompoundSynonym
 import net.nprod.nap.types.Pharmacy
 
 fun pharmaciesOfCompound(
@@ -138,6 +140,68 @@ fun pharmaciesOfExtract(
     val values = ""
 
     return pharmaciesGeneric(sparqlConnector, matcher, values)
+}
+
+/**
+ * Get all compounds with a specific compound code
+ *
+ * @param uri The URI of the compound code
+ * @param sparqlConnector The SPARQL connector
+ * @return A list of compounds with the given compound code
+ */
+fun compoundsByCompoundCode(
+    uri: String,
+    sparqlConnector: SparqlConnector
+): List<Compound> {
+    val sparql = """
+        PREFIX n: <https://nap.nprod.net/>
+        SELECT DISTINCT ?compound ?compoundName ?synonym ?synonymName
+        WHERE {
+            ?compound n:has_compoundcode <$uri>.
+            ?compound a n:compound.
+            ?compound n:name ?compoundName.
+            OPTIONAL {
+                ?compound n:has_synonym ?synonym.
+                ?synonym n:name ?synonymName.
+            }
+        }
+        ORDER BY ?compoundName
+    """.trimIndent()
+    
+    val results = sparqlConnector.getResultsOfQuery(sparql)
+    
+    // Group by compound to properly associate synonyms
+    val compoundMap = mutableMapOf<String, Compound>()
+    
+    if (results != null) {
+        while (results.hasNext()) {
+            val solution = results.nextSolution()
+            val compoundUri = solution.getResource("compound")?.uri ?: continue
+            val compoundName = solution.getLiteral("compoundName")?.string ?: continue
+            
+            // Get or create the compound
+            val compound = compoundMap.getOrPut(compoundUri) {
+                Compound(uri = compoundUri, name = compoundName)
+            }
+            
+            // Add synonym if present
+            val synonymResource = solution.getResource("synonym")
+            val synonymLiteral = solution.getLiteral("synonymName")
+            
+            if (synonymResource != null && synonymLiteral != null) {
+                val synonymUri = synonymResource.uri
+                val synonymName = synonymLiteral.string
+                val synonym = CompoundSynonym(synonymUri, synonymName)
+                
+                // Check if this synonym is already added
+                if (compound.synonyms.none { it.uri == synonymUri }) {
+                    compound.synonyms.add(synonym)
+                }
+            }
+        }
+    }
+    
+    return compoundMap.values.toList()
 }
 
 fun pharmaciesGeneric(

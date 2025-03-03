@@ -18,6 +18,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import net.nprod.nap.pages.animalPage
 import net.nprod.nap.pages.citationPage
+import net.nprod.nap.pages.compoundCodePage
 import net.nprod.nap.pages.extractPage
 import net.nprod.nap.pages.naiveDataPage
 import net.nprod.nap.pages.organismPage
@@ -75,6 +76,10 @@ fun Application.configureRouting() {
         
         get("/extract/{id}") {
             call.respondText(extractPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+        
+        get("/compoundcode/{id}") {
+            call.respondText(compoundCodePage(call.parameters["id"]), ContentType.Text.Html)
         }
 
         // Taxa search

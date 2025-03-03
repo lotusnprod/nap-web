@@ -32,7 +32,7 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
                 pharmacyResults.forEach { pharmacy ->
                     tr {
                         td { 
-                            a(href = pharmacy.uri.as_local_link_if_dev.as_local_link_if_dev, classes = "font-weight-bold") { 
+                            a(href = pharmacy.uri.as_local_link_if_dev, classes = "font-weight-bold") { 
                                 +pharmacy.uri.as_local_link_if_dev.getRef() 
                             } 
                         }
