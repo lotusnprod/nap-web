@@ -1,4 +1,4 @@
-FROM docker.io/eclipse-temurin:21-jdk AS build
+FROM docker.io/eclipse-temurin:23-jdk AS build
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY assets src gradle /app/assets/
 COPY src /app/src/
 RUN ./gradlew installDist
 
-FROM docker.io/eclipse-temurin:21-jdk
+FROM docker.io/eclipse-temurin:23-jdk
 WORKDIR /app
 RUN mkdir -p /app
 COPY --from=build /app/build/install/nap-web /app
