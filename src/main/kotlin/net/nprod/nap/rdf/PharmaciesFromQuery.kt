@@ -34,6 +34,11 @@ fun pharmaciesFromQuery(
                 val worktypeUri = worktypeTriple.`object`.uri
                 Worktype.Cache[worktypeUri]?.let { pharmacy.worktypes.add(it) }
             }
+            
+            // Get number property for sorting
+            graph.find(triple.subject, genNode("number"), null).nextOptional().ifPresent {
+                pharmacy.number = it.`object`.literal.value.toString()
+            }
 
             val compoundsQuery = """
                 PREFIX n: <https://nap.nprod.net/>

@@ -25,6 +25,7 @@ fun organismPage(identifier: String?): String {
 
 
     val pharmacyResults = pharmaciesOfOrganism(uri, sparqlConnector)
+        .sortedBy { it.number?.toIntOrNull() ?: Int.MAX_VALUE }
 
     val family = organism.familyname?.let {
         if (it != "") "($it)" else null
@@ -102,7 +103,7 @@ fun organismPage(identifier: String?): String {
                                             tr { td { +"Collected condition" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
                                         }
                                         organism.citation?.let {
-                                            tr { td { +"Citation" }; td { a(href = it.uri.as_local_link_if_dev) { +it.uri.as_local_link_if_dev.getRef() } } }
+                                            tr { td { +"Citation" }; td { a(href = it.uri.as_local_link_if_dev) { +it.formatCitation() } } }
                                         }
                                         organism.geographicalArea?.let {
                                             tr { td { +"Geographical area" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }

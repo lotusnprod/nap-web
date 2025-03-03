@@ -219,7 +219,8 @@ fun pharmaciesGeneric(
                           n:has_worktype ?worktype;
                           n:has_organism ?organism;
                           n:has_participant ?compound;
-                          n:has_pharmacology ?pharmacology.
+                          n:has_pharmacology ?pharmacology;
+                          n:number ?number.
                 ?pharmacology n:name ?pharmacologyName.
                 ?organism n:familyname ?organism_family_name.
                 ?organism n:genusname ?organism_genus_name.
@@ -242,6 +243,7 @@ fun pharmaciesGeneric(
               OPTIONAL { ?organism n:genusname ?organism_genus_name. }
               OPTIONAL { ?organism n:speciesname ?organism_species_name. }
               OPTIONAL { ?organism n:organismclass ?organism_class. }
+              OPTIONAL { ?pharmacy n:number ?number. }
               $values
             } LIMIT 10000
         """.trimIndent()
