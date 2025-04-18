@@ -10,4 +10,7 @@ If using podman
 
 ```shell
 ./run
+# If you want to run from IntelliJ
+docker stop nap-web_nap-web_1
+
 ```

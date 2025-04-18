@@ -5,10 +5,15 @@ import kotlinx.html.ButtonType
 import kotlinx.html.a
 import kotlinx.html.button
 import kotlinx.html.div
+import kotlinx.html.form
 import kotlinx.html.id
+import kotlinx.html.input
 import kotlinx.html.li
 import kotlinx.html.nav
+import kotlinx.html.option
+import kotlinx.html.select
 import kotlinx.html.span
+import kotlinx.html.style
 import kotlinx.html.ul
 
 fun BODY.navbar() {
@@ -40,6 +45,41 @@ fun BODY.navbar() {
                     }
                     li(classes = "nav-item") {
                         a(classes = "nav-link", href = "/sparql") { +"Sparql" }
+                    }
+                }
+
+                form(classes = "d-flex") {
+                    attributes["role"] = "search"
+                    id = "search-form"
+
+                    select(classes = "form-select me-2") {
+                        id = "search-type"
+                        style = "width: auto;"
+
+                        option { 
+                            value = "compound"
+                            +"Compound" 
+                        }
+                        option { 
+                            value = "organism"
+                            +"Organism" 
+                        }
+                        option { 
+                            value = "pharmacology"
+                            +"Pharmacology" 
+                        }
+                    }
+
+                    input(classes = "form-control me-2") {
+                        type = kotlinx.html.InputType.search
+                        placeholder = "Search"
+                        attributes["aria-label"] = "Search"
+                        id = "search-input"
+                        name = "search-query"
+                    }
+
+                    button(classes = "btn btn-outline-success", type = ButtonType.submit) {
+                        +"Search"
                     }
                 }
             }

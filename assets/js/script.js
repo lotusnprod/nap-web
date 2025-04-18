@@ -79,6 +79,39 @@ jQuery(document).ready(function() {
 
         //---------------- Search funcionality Fullscreen ends ------------------------
 
+        //---------------- Navbar Search functionality starts ------------------------
+
+        jQuery("#search-form").on("submit", function(event) {
+            event.preventDefault();
+
+            var searchType = jQuery("#search-type").val();
+            var searchQuery = jQuery("#search-input").val().trim();
+
+            if (searchQuery === "") {
+                return; // Don't search if query is empty
+            }
+
+            var url = "";
+
+            switch(searchType) {
+                case "compound":
+                    url = "/compound/search?query=" + encodeURIComponent(searchQuery);
+                    break;
+                case "organism":
+                    url = "/organism/search?query=" + encodeURIComponent(searchQuery);
+                    break;
+                case "pharmacology":
+                    url = "/pharmacology/search?query=" + encodeURIComponent(searchQuery);
+                    break;
+                default:
+                    return; // Invalid search type
+            }
+
+            window.location.href = url;
+        });
+
+        //---------------- Navbar Search functionality ends ------------------------
+
 		jQuery("#reset-button").on("click",function(){
             editor.getDoc().setValue("");
         });

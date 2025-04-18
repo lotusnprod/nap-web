@@ -92,11 +92,6 @@ footer p{
 /* Pharmacy page styles */
 .card {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-5px);
 }
 
 .card-header h3 {
@@ -132,5 +127,32 @@ footer p{
 @media (max-width: 767.98px) {
     .table-responsive {
         border: 0;
+    }
+}
+
+/* Search bar styles */
+.navbar form[role="search"] {
+    display: flex;
+    align-items: center;
+}
+
+.navbar form[role="search"] .form-select {
+    min-width: 180px;
+    max-width: 220px;
+}
+
+.navbar form[role="search"] .form-control {
+    min-width: 150px;
+}
+
+@media (max-width: 991.98px) {
+    .navbar form[role="search"] {
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .navbar form[role="search"] .form-select,
+    .navbar form[role="search"] .form-control {
+        flex-grow: 1;
     }
 }

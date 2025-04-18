@@ -14,4 +14,7 @@ fun BODY.defaultFinalScripts() {
     ) {
         attributes["crossorigin"] = "anonymous"
     }
+
+    // Custom scripts for the application
+    script(src = "/assets/js/script.js") {}
 }

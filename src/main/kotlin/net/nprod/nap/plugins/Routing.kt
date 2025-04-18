@@ -22,10 +22,13 @@ import net.nprod.nap.pages.compoundCodePage
 import net.nprod.nap.pages.extractPage
 import net.nprod.nap.pages.naiveDataPage
 import net.nprod.nap.pages.organismPage
+import net.nprod.nap.pages.organismSearchPage
+import net.nprod.nap.pages.pharmacologySearchPage
 import net.nprod.nap.pages.pharmacyByTaxaSearch
 import net.nprod.nap.pages.pharmacyPage
 import net.nprod.nap.pages.worktypePage
 import net.nprod.nap.pages.administrationRoutePage
+import net.nprod.nap.pages.compoundSearchPage
 import org.apache.commons.codec.binary.Base64.encodeBase64
 import pharmacologyPage
 import queryPage
@@ -35,12 +38,27 @@ fun Application.configureRouting() {
     routing {
         staticResources("/static", "static")
 
+        get("/compound/search") {
+            val query = call.request.queryParameters["query"]
+            call.respondText(compoundSearchPage(query), ContentType.Text.Html)
+        }
+
         get("/compound/{id}") {
             call.respondText(compoundPage(call.parameters["id"]), ContentType.Text.Html)
         }
 
+        get("/pharmacology/search") {
+            val query = call.request.queryParameters["query"]
+            call.respondText(pharmacologySearchPage(query), ContentType.Text.Html)
+        }
+
         get("/pharmacology/{id}") {
             call.respondText(pharmacologyPage(call.parameters["id"]), ContentType.Text.Html)
+        }
+
+        get("/organism/search") {
+            val query = call.request.queryParameters["query"]
+            call.respondText(organismSearchPage(query), ContentType.Text.Html)
         }
 
         get("/organism/{id}") {
@@ -58,31 +76,31 @@ fun Application.configureRouting() {
         get("/citation/{id}") {
             call.respondText(citationPage(call.parameters["id"]), ContentType.Text.Html)
         }
-        
+
         get("/animal/{id}") {
             call.respondText(animalPage(call.parameters["id"]), ContentType.Text.Html)
         }
-        
+
         get("/geographicalarea/{id}") {
             call.respondText(geographicalAreaPage(call.parameters["id"]), ContentType.Text.Html)
         }
-        
+
         get("/country/{id}") {
             call.respondText(countryPage(call.parameters["id"]), ContentType.Text.Html)
         }
-        
+
         get("/partcondition/{id}") {
             call.respondText(PartConditionPage(call.parameters["id"]), ContentType.Text.Html)
         }
-        
+
         get("/extract/{id}") {
             call.respondText(extractPage(call.parameters["id"]), ContentType.Text.Html)
         }
-        
+
         get("/compoundcode/{id}") {
             call.respondText(compoundCodePage(call.parameters["id"]), ContentType.Text.Html)
         }
-        
+
         get("/administrationroute/{id}") {
             call.respondText(administrationRoutePage(call.parameters["id"]), ContentType.Text.Html)
         }
