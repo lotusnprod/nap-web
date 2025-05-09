@@ -9,4 +9,4 @@ fi
 
 podman-compose stop || true
 (podman ps -a | grep -i nap-web | awk '{print $1}' | xargs podman rm -f) || true
-podman-compose -f docker-compose.yml up --build -d
+podman-compose -f docker-compose.yml -f docker-compose-dev.yml up --build -d --scale nap-web=0

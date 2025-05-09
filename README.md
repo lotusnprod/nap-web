@@ -6,11 +6,18 @@ Code is licensed under AGPL 3.0 except for SnorQL by Ammar Ammar (ammar257ammar@
 
 When working locally set the following environment variables
 
-If using podman
+If using podman/docker:
 
 ```shell
+# For production deployment
 ./run
-# If you want to run from IntelliJ
-docker stop nap-web_nap-web_1
 
+# For development with Docker/Podman
+./run-dev  # This starts only the nap-sparql service (accessible at http://localhost:3030) without nap-web
+
+# If you want to run from IntelliJ
+./run-dev  # This starts only the nap-sparql service
+# No need to stop nap-web as it's not started by run-dev
 ```
+
+Note: You may need to make the scripts executable with `chmod +x run-dev` if they aren't already.
