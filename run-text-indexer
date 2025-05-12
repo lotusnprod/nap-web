@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Detect if we're using Docker or Podman
+if command -v podman &> /dev/null && podman ps &> /dev/null; then
+    COMPOSE_CMD="podman-compose"
+    CONTAINER_CMD="podman"
+elif command -v docker &> /dev/null && docker ps &> /dev/null; then
+    COMPOSE_CMD="docker compose"
+    CONTAINER_CMD="docker"
+else
+    echo "Error: Neither Docker nor Podman seems to be running or available."
+    exit 1
+fi
+
+TEXTINDEXER="java -cp ./fuseki-server.jar jena.textindexer --desc=/fuseki-base/configuration/assembler.ttl"
+echo "Running text indexer in SPARQL container using $COMPOSE_CMD..."
+$COMPOSE_CMD run nap-sparql $TEXTINDEXER
+echo "Text indexer completed."
