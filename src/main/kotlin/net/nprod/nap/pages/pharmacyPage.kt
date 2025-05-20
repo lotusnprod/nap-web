@@ -1,6 +1,6 @@
 package net.nprod.nap.pages
 
-import as_local_link_if_dev
+import net.nprod.nap.helpers.localLinks
 import defaultPage
 import genURI
 import kotlinx.html.*
@@ -39,7 +39,7 @@ fun pharmacyPage(identifier: String?): String {
                                 div("list-group") {
                                     pharmacy.worktypes.forEach { worktype ->
                                         a(
-                                            href = worktype.uri.as_local_link_if_dev,
+                                            href = localLinks(worktype.uri),
                                             classes = "list-group-item list-group-item-action"
                                         ) {
                                             +worktype.name
@@ -61,7 +61,7 @@ fun pharmacyPage(identifier: String?): String {
                                 div("list-group") {
                                     pharmacy.compounds.forEach { compound ->
                                         a(
-                                            href = compound.uri.as_local_link_if_dev,
+                                            href = localLinks(compound.uri),
                                             classes = "list-group-item list-group-item-action"
                                         ) {
                                             +(compound.name ?: "Unknown compound")
@@ -83,7 +83,7 @@ fun pharmacyPage(identifier: String?): String {
                                 div("list-group") {
                                     pharmacy.alerts.forEach { alert ->
                                         a(
-                                            href = alert.uri.as_local_link_if_dev,
+                                            href = localLinks(alert.uri),
                                             classes = "list-group-item list-group-item-action"
                                         ) {
                                             +alert.name
@@ -115,26 +115,26 @@ fun pharmacyPage(identifier: String?): String {
                                         pharmacy.pharmacology?.let {
                                             tr {
                                                 td { +"Pharmacology" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.administrationRoute?.let {
                                             tr {
                                                 td { +"Administration route" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.organism?.let {
                                             tr {
                                                 td { +"Organism" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.nameForHumans() } }
+                                                td { a(href = localLinks(it.uri)) { +it.nameForHumans() } }
                                             }
                                         }
                                         pharmacy.organism?.citation?.let { citation ->
                                             tr {
                                                 td { +"Citation" }
                                                 td {
-                                                    a(href = citation.uri.as_local_link_if_dev) {
+                                                    a(href = localLinks(citation.uri)) {
                                                         +citation.formatCitation()
                                                     }
                                                     citation.doi?.let { doi ->
@@ -180,7 +180,7 @@ fun pharmacyPage(identifier: String?): String {
                                                     +it
                                                     pharmacy.doseUnit?.let {
                                                         +" "
-                                                        a(href = it.uri.as_local_link_if_dev) { +it.name }
+                                                        a(href = localLinks(it.uri)) { +it.name }
                                                     }
                                                 }
                                             }
@@ -218,49 +218,49 @@ fun pharmacyPage(identifier: String?): String {
                                         pharmacy.qualitativeResult?.let {
                                             tr {
                                                 td { +"Qualitative result" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.animal?.let {
                                             tr {
                                                 td { +"Animal" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.perUnit?.let {
                                             tr {
                                                 td { +"Per unit" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.doseExpression?.let {
                                             tr {
                                                 td { +"Dose expression" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.extract?.let {
                                             tr {
                                                 td { +"Extract" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.pathologicalSystem?.let {
                                             tr {
                                                 td { +"Pathological system" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.gender?.let {
                                             tr {
                                                 td { +"Gender" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                         pharmacy.expressionResult?.let {
                                             tr {
                                                 td { +"Expression result" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } }
+                                                td { a(href = localLinks(it.uri)) { +it.name } }
                                             }
                                         }
                                     }

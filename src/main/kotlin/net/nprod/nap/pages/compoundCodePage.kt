@@ -1,12 +1,12 @@
 package net.nprod.nap.pages
 
-import as_local_link_if_dev
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.rdf.compoundsByCompoundCode
 import net.nprod.nap.types.CompoundCode
 import genURI
+import net.nprod.nap.helpers.localLinks
 
 /**
  * Page that displays all compounds with a specific compound code
@@ -56,7 +56,7 @@ fun compoundCodePage(id: String?): String {
                                     div("list-group") {
                                         compounds.forEach { compound ->
                                             a(classes = "list-group-item list-group-item-action", 
-                                              href = compound.uri.as_local_link_if_dev) {
+                                              href = localLinks(compound.uri)) {
                                                 div("d-flex w-100 justify-content-between") {
                                                     h5("mb-1") { +(compound.name ?: "Unnamed Compound") }
                                                     small { +"ID: ${compound.uri.split("/").last()}" }

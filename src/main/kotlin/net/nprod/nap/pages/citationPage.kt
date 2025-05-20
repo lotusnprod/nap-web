@@ -1,9 +1,9 @@
 package net.nprod.nap.pages
 
-import as_local_link_if_dev
 import defaultPage
 import genURI
 import kotlinx.html.*
+import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.types.Citation
 import net.nprod.nap.types.QualitativeResult
@@ -258,7 +258,7 @@ fun citationPage(identifier: String?): String {
 
                                         h4(classes = "mt-2") {
                                             a(
-                                                href = organism.uri.as_local_link_if_dev,
+                                                href = localLinks(organism.uri),
                                                 classes = "text-decoration-none"
                                             ) { +displayName }
                                         }
@@ -285,7 +285,7 @@ fun citationPage(identifier: String?): String {
                                                             tr {
                                                                 td {
                                                                     a(
-                                                                        href = experiment.uri.as_local_link_if_dev,
+                                                                        href = localLinks(experiment.uri),
                                                                         classes = "text-decoration-none"
                                                                     ) {
                                                                         +(experiment.number ?: "N/A")
@@ -301,7 +301,7 @@ fun citationPage(identifier: String?): String {
                                                                                 if (worktype != null) {
                                                                                     span(classes = "badge bg-primary me-1 mb-1 small") {
                                                                                         a(
-                                                                                            href = worktype.uri.as_local_link_if_dev,
+                                                                                            href = localLinks(worktype.uri),
                                                                                             classes = "text-white text-decoration-none"
                                                                                         ) {
                                                                                             +worktype.name
@@ -324,7 +324,7 @@ fun citationPage(identifier: String?): String {
                                                                                 val compoundName = compoundNameMap[compoundUri] ?: "Unknown compound"
                                                                                 span(classes = "badge bg-success me-1 mb-1 small") {
                                                                                     a(
-                                                                                        href = compoundUri.as_local_link_if_dev,
+                                                                                        href = localLinks(compoundUri),
                                                                                         classes = "text-white text-decoration-none"
                                                                                     ) {
                                                                                         +compoundName

@@ -1,9 +1,9 @@
 package net.nprod.nap.pages
 
-import as_local_link_if_dev
 import defaultPage
 import genURI
 import kotlinx.html.*
+import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.rdf.pharmaciesOfWorktype
 import net.nprod.nap.types.Worktype
@@ -54,7 +54,7 @@ fun worktypePage(identifier: String?): String {
                                             tr { 
                                                 td { +"Group" }
                                                 td { 
-                                                    a(href = it.uri.as_local_link_if_dev) { 
+                                                    a(href = localLinks(it.uri)) {
                                                         +"${it.code} - ${it.name}" 
                                                     } 
                                                 } 

@@ -1,8 +1,5 @@
-import as_local_link_if_dev
-import defaultPage
-import genURI
-import getRef
 import kotlinx.html.*
+import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.pages.invalidEntryPage
 import net.nprod.nap.pages.presentPharmacyResults
 import net.nprod.nap.rdf.SparqlConnector
@@ -49,7 +46,7 @@ fun countryPage(identifier: String?): String {
                                     }
                                     tr {
                                         th { +"URI" }
-                                        td { a(href = country.uri.as_local_link_if_dev) { +country.uri } }
+                                        td { a(href = localLinks(country.uri)) { +country.uri } }
                                     }
                                 }
                             }

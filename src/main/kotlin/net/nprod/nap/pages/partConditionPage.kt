@@ -1,4 +1,5 @@
 import kotlinx.html.*
+import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.pages.invalidEntryPage
 import net.nprod.nap.pages.presentPharmacyResults
 import net.nprod.nap.rdf.SparqlConnector
@@ -45,7 +46,7 @@ fun PartConditionPage(identifier: String?): String {
                                     }
                                     tr {
                                         th { +"URI" }
-                                        td { a(href = partCondition.uri.as_local_link_if_dev) { +partCondition.uri } }
+                                        td { a(href = localLinks(partCondition.uri)) { +partCondition.uri } }
                                     }
                                 }
                             }

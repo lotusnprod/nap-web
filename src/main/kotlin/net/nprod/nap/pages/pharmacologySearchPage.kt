@@ -2,9 +2,8 @@ package net.nprod.nap.pages
 
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
-import net.nprod.nap.types.*
 import defaultPage
-import as_local_link_if_dev
+import net.nprod.nap.helpers.localLinks
 import io.ktor.util.toLowerCasePreservingASCIIRules
 
 /**
@@ -92,7 +91,7 @@ fun pharmacologySearchPage(query: String?): String {
                                                 tr {
                                                     td { 
                                                         val uri = entry["uri"]!!
-                                                        a(href = uri.as_local_link_if_dev) { +entry["name"]!! }
+                                                        a(href = localLinks(uri)) { +entry["name"]!! }
                                                     }
                                                 }
                                             }

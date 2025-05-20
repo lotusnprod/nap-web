@@ -1,4 +1,5 @@
 import kotlinx.html.*
+import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.pages.invalidEntryPage
 import net.nprod.nap.pages.presentPharmacyResults
 import net.nprod.nap.rdf.SparqlConnector
@@ -64,7 +65,7 @@ fun compoundPage(identifier: String?): String {
                                         compound.compoundCode?.let {
                                             tr { 
                                                 th(scope = ThScope.row) { +"Compound code" }
-                                                td { a(href = it.uri.as_local_link_if_dev) { +it.name } } 
+                                                td { a(href = localLinks(it.uri)) { +it.name } } 
                                             }
                                         }
                                     }
@@ -81,7 +82,8 @@ fun compoundPage(identifier: String?): String {
                             div("card-body p-0") {
                                 div("list-group list-group-flush") {
                                     compound.synonyms.forEach { synonym ->
-                                        a(href = synonym.uri.as_local_link_if_dev, classes = "list-group-item list-group-item-action d-flex justify-content-between align-items-center") {
+                                        a(href = localLinks(synonym.uri), 
+                                          classes = "list-group-item list-group-item-action d-flex justify-content-between align-items-center") {
                                             +synonym.name
                                             span("badge bg-primary rounded-pill") { +"view" }
                                         }

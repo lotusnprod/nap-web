@@ -2,9 +2,8 @@ package net.nprod.nap.pages
 
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
-import net.nprod.nap.types.*
 import defaultPage
-import as_local_link_if_dev
+import net.nprod.nap.helpers.localLinks
 import io.ktor.util.toLowerCasePreservingASCIIRules
 
 /**
@@ -138,7 +137,7 @@ fun organismSearchPage(query: String?): String {
                                                 tr {
                                                     td { 
                                                         val uri = organism["uri"]!!
-                                                        a(href = uri.as_local_link_if_dev) { +organism["displayName"]!! }
+                                                        a(href = localLinks(uri)) { +organism["displayName"]!! }
                                                     }
                                                     td { +organism["familyname"]!! }
                                                     td { +organism["subspeciesname"]!! }

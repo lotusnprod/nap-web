@@ -2,11 +2,30 @@
 
 set -e
 
-# If the network web_network doesn't exist, create it
-if [ -z "$(docker network ls --filter name=web_network -q)" ]; then
-    docker network create web_network
+# Check if podman or docker is available
+if command -v podman &> /dev/null; then
+    CONTAINER_ENGINE="podman"
+    COMPOSE_CMD="podman-compose"
+elif command -v docker &> /dev/null; then
+    CONTAINER_ENGINE="docker"
+    COMPOSE_CMD="docker compose"
+else
+    echo "Neither podman nor docker found. Please install one of them."
+    exit 1
 fi
 
-podman-compose stop || true
-(podman ps -a | grep -i nap-web | awk '{print $1}' | xargs podman rm -f) || true
-podman-compose -f docker-compose.yml up --build -d
+# If the network web_network doesn't exist, create it
+if [ -z "$($CONTAINER_ENGINE network ls --filter name=web_network -q)" ]; then
+    $CONTAINER_ENGINE network create web_network
+fi
+
+# Stop any running containers
+$COMPOSE_CMD stop || true
+
+# Remove any existing containers
+if [ "$CONTAINER_ENGINE" = "podman" ]; then
+    (podman ps -a | grep -i nap-web | awk '{print $1}' | xargs podman rm -f) || true
+fi
+
+# Start containers
+$COMPOSE_CMD -f docker-compose.yml up --build -d

@@ -1,6 +1,5 @@
 package net.nprod.nap.pages
 
-import as_local_link_if_dev
 import defaultPage
 import genURI
 import kotlinx.html.*

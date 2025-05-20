@@ -1,11 +1,11 @@
 package net.nprod.nap.pages
 
-import as_local_link_if_dev
 import defaultPage
 import genURI
 import generatePharmacyTaxaSearchURL
 import getRef
 import kotlinx.html.*
+import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.rdf.pharmaciesOfOrganism
 import net.nprod.nap.types.Organism
@@ -68,7 +68,7 @@ fun organismPage(identifier: String?): String {
                                     }
                                     tbody {
                                         organism.taxon?.let {
-                                            tr { td { +"Taxon" }; td { a(href= it.as_local_link_if_dev) { +it.getRef() } } }
+                                            tr { td { +"Taxon" }; td { a(href= localLinks(it)) { +it.getRef() } } }
                                         }
                                         organism.familyname?.let {
                                             tr { td { +"Family" }; td { +it } }
@@ -92,22 +92,22 @@ fun organismPage(identifier: String?): String {
                                             tr { td { +"Comment" }; td { +it } }
                                         }
                                         organism.organismClass?.let {
-                                            tr { td { +"Class" }; td { a(href = it.uri.as_local_link_if_dev) { +it.name } } }
+                                            tr { td { +"Class" }; td { a(href = localLinks(it.uri)) { +it.name } } }
                                         }
                                         organism.collectedPart?.let {
-                                            tr { td { +"Collected part" }; td { a(href= it.uri.as_local_link_if_dev) { +it.name } } }
+                                            tr { td { +"Collected part" }; td { a(href= localLinks(it.uri)) { +it.name } } }
                                         }
                                         organism.partCondition?.let {
-                                            tr { td { +"Collected condition" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
+                                            tr { td { +"Collected condition" }; td { a(href=localLinks(it.uri)) { +it.name } } }
                                         }
                                         organism.citation?.let {
-                                            tr { td { +"Citation" }; td { a(href = it.uri.as_local_link_if_dev) { +it.formatCitation() } } }
+                                            tr { td { +"Citation" }; td { a(href = localLinks(it.uri)) { +it.formatCitation() } } }
                                         }
                                         organism.geographicalArea?.let {
-                                            tr { td { +"Geographical area" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
+                                            tr { td { +"Geographical area" }; td { a(href=localLinks(it.uri)) { +it.name } } }
                                         }
                                         organism.country?.let {
-                                            tr { td { +"Country" }; td { a(href=it.uri.as_local_link_if_dev) { +it.name } } }
+                                            tr { td { +"Country" }; td { a(href=localLinks(it.uri)) { +it.name } } }
                                         }
                                     }
                                 }

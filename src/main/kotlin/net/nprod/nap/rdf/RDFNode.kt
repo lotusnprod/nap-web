@@ -1,6 +1,6 @@
-import as_local_link_if_dev
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.a
+import net.nprod.nap.helpers.localLinks
 import org.apache.jena.datatypes.xsd.XSDDatatype
 import org.apache.jena.rdf.model.RDFNode
 import org.apache.jena.rdf.model.Resource
@@ -8,7 +8,7 @@ import org.apache.jena.rdf.model.Resource
 fun HtmlBlockTag.rdfNode(it: RDFNode) {
     when (it) {
         is Resource -> {
-            val localUri = it.uri.as_local_link_if_dev
+            val localUri = localLinks(it.uri)
             a(href = localUri) { +localUri }
         }
 
