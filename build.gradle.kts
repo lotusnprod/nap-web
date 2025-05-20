@@ -12,7 +12,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(23)
+    jvmToolchain(24)
 }
 
 group = "net.nprod.nap"
