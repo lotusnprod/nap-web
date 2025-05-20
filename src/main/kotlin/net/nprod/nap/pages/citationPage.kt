@@ -131,7 +131,7 @@ fun citationPage(identifier: String?): String {
             // Query for organisms, their pharmacology experiments, and experiment numbers from this citation
             val queryRelated = """
             PREFIX n: <https://nap.nprod.net/>
-            SELECT ?organism ?pharmacy ?genus ?species ?family ?number ?pharmacology ?pharmacology_name ?worktype ?qualitativeResult
+            SELECT ?organism ?pharmacy ?genus ?species ?family ?number ?pharmacology ?pharmacology_name ?worktype ?qualitativeResult ?compound ?compound_name
             WHERE {
                 ?organism a n:organism ;
                           n:participatesIn <$uri>.
@@ -144,6 +144,9 @@ fun citationPage(identifier: String?): String {
                 OPTIONAL { ?organism n:genusname ?genus . }
                 OPTIONAL { ?organism n:speciesname ?species . }
                 OPTIONAL { ?organism n:familyname ?family . }
+                OPTIONAL { ?pharmacy n:has_participant ?compound .
+                           ?compound a n:compound ;
+                                     n:name ?compound_name . }
             }
             ORDER BY ?organism ?number
         """.trimIndent()
@@ -169,17 +172,24 @@ fun citationPage(identifier: String?): String {
 
             val organismMap = mutableMapOf<String, OrganismInfo>()
 
+            val organismCompoundMap = mutableMapOf<String, MutableSet<String>>()
+            val compoundNameMap = mutableMapOf<String, String>()
+
             if (result != null) {
                 while (result.hasNext()) {
                     val solution = result.nextSolution()
 
                     val organismUri = solution["organism"]?.asResource()?.uri ?: continue
                     val pharmacyUri = solution["pharmacy"]?.asResource()?.uri ?: continue
+                    val compoundUri = solution["compound"]?.asResource()?.uri
+                    val compoundName = solution["compound_name"]?.asLiteral()?.string
                     val number = solution["number"]?.asLiteral()?.string
                     val pharmacologyUri = solution["pharmacology"]?.asResource()?.uri
                     val pharmacologyName = solution["pharmacology_name"]?.asLiteral()?.string
                     val worktypeUri = solution["worktype"]?.asResource()?.uri
                     val qualitativeResultUri = solution["qualitativeResult"]?.asResource()?.uri
+
+
 
                     // Initialize organism if not exists
                     if (!organismMap.containsKey(organismUri)) {
@@ -187,6 +197,14 @@ fun citationPage(identifier: String?): String {
                         val species = solution["species"]?.asLiteral()?.string
                         val family = solution["family"]?.asLiteral()?.string
                         organismMap[organismUri] = OrganismInfo(organismUri, genus, species, family)
+                        organismCompoundMap[organismUri] = mutableSetOf()
+                    }
+
+                    if (compoundUri != null) {
+                        organismCompoundMap[organismUri]?.add(compoundUri)
+                        if (compoundName != null) {
+                            compoundNameMap[compoundUri] = compoundName
+                        }
                     }
 
                     // Initialize or update experiment
@@ -258,6 +276,7 @@ fun citationPage(identifier: String?): String {
                                                             th(scope = ThScope.col) { +"Experiment #" }
                                                             th(scope = ThScope.col) { +"Pharmacology Type" }
                                                             th(scope = ThScope.col) { +"Worktypes" }
+                                                            th(scope = ThScope.col) { +"Compound" }
                                                             th(scope = ThScope.col) { +"Results" }
                                                         }
                                                     }
@@ -269,7 +288,7 @@ fun citationPage(identifier: String?): String {
                                                                         href = experiment.uri.as_local_link_if_dev,
                                                                         classes = "text-decoration-none"
                                                                     ) {
-                                                                        +"${experiment.number ?: "N/A"}"
+                                                                        +(experiment.number ?: "N/A")
                                                                     }
                                                                 }
                                                                 td { +(experiment.pharmacologyName ?: "Not specified") }
@@ -287,6 +306,28 @@ fun citationPage(identifier: String?): String {
                                                                                         ) {
                                                                                             +worktype.name
                                                                                         }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    } else {
+                                                                        +"None"
+                                                                    }
+                                                                }
+                                                                td {
+                                                                    val organismUri = organism.uri
+                                                                    val compoundsForOrganism = organismCompoundMap[organismUri] ?: emptySet()
+                                                                    
+                                                                    if (compoundsForOrganism.isNotEmpty()) {
+                                                                        div("d-flex flex-wrap gap-1") {
+                                                                            compoundsForOrganism.forEach { compoundUri ->
+                                                                                val compoundName = compoundNameMap[compoundUri] ?: "Unknown compound"
+                                                                                span(classes = "badge bg-success me-1 mb-1 small") {
+                                                                                    a(
+                                                                                        href = compoundUri.as_local_link_if_dev,
+                                                                                        classes = "text-white text-decoration-none"
+                                                                                    ) {
+                                                                                        +compoundName
                                                                                     }
                                                                                 }
                                                                             }

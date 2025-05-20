@@ -5,6 +5,7 @@ import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.types.*
 import defaultPage
 import as_local_link_if_dev
+import io.ktor.util.toLowerCasePreservingASCIIRules
 
 /**
  * Search for pharmacology entries by name
@@ -26,15 +27,18 @@ fun pharmacologySearchPage(query: String?): String {
     }
 
     val sparqlConnector = SparqlConnector()
-
-    // Search for pharmacology entries by name
+    
+    val cleanQuery = query.replace("\\", "\\\\").replace("\"", "\\\"").toLowerCasePreservingASCIIRules();
+    
+    // Search for pharmacology entries using text indexing
     val searchQuery = """
         PREFIX n: <https://nap.nprod.net/>
-        SELECT ?pharmacology ?name
+        PREFIX text: <http://jena.apache.org/text#>
+        SELECT DISTINCT ?pharmacology ?name
         WHERE {
+            ?pharmacology text:query "$cleanQuery".
             ?pharmacology a n:pharmacology;
                          n:name ?name.
-            FILTER(CONTAINS(LCASE(?name), LCASE("${query.replace("\\", "\\\\").replace("\"", "\\\"")}")))
         }
         ORDER BY ?name
     """.trimIndent()

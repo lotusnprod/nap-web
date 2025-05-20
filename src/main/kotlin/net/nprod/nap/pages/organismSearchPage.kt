@@ -5,6 +5,7 @@ import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.types.*
 import defaultPage
 import as_local_link_if_dev
+import io.ktor.util.toLowerCasePreservingASCIIRules
 
 /**
  * Search for organisms by name
@@ -26,12 +27,16 @@ fun organismSearchPage(query: String?): String {
     }
 
     val sparqlConnector = SparqlConnector()
-
-    // Search for organisms by name (using genus and species names)
+    
+    val cleanQuery = query.replace("\\", "\\\\").replace("\"", "\\\"").toLowerCasePreservingASCIIRules();
+    
+    // Search for organisms using text indexing
     val searchQuery = """
         PREFIX n: <https://nap.nprod.net/>
+        PREFIX text: <http://jena.apache.org/text#>
         SELECT ?organism ?genusname ?speciesname ?subspeciesname ?familyname ?number ?taxon
         WHERE {
+            ?organism text:query "$cleanQuery".
             ?organism a n:organism;
                       n:number ?number.
             OPTIONAL { ?organism n:genusname ?genusname }
@@ -39,13 +44,6 @@ fun organismSearchPage(query: String?): String {
             OPTIONAL { ?organism n:subspeciesname ?subspeciesname }
             OPTIONAL { ?organism n:familyname ?familyname }
             OPTIONAL { ?organism n:has_taxon ?taxon }
-
-            FILTER(
-                (BOUND(?genusname) && CONTAINS(LCASE(?genusname), LCASE("${query.replace("\\", "\\\\").replace("\"", "\\\"")}"))) ||
-                (BOUND(?speciesname) && CONTAINS(LCASE(?speciesname), LCASE("${query.replace("\\", "\\\\").replace("\"", "\\\"")}"))) ||
-                (BOUND(?subspeciesname) && CONTAINS(LCASE(?subspeciesname), LCASE("${query.replace("\\", "\\\\").replace("\"", "\\\"")}"))) ||
-                (BOUND(?familyname) && CONTAINS(LCASE(?familyname), LCASE("${query.replace("\\", "\\\\").replace("\"", "\\\"")}"))
-            ))
         }
         ORDER BY ?genusname ?speciesname
     """.trimIndent()

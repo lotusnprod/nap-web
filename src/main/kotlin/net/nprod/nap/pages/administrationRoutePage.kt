@@ -6,20 +6,18 @@ import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.rdf.pharmaciesOfAdministrationRoute
 import net.nprod.nap.types.AdministrationRoute
+import net.nprod.nap.helpers.capitalize
 
 fun administrationRoutePage(identifier: String?): String {
     if (identifier == null)
         return invalidEntryPage("administrationroute", "null")
 
-    // Generate URI
     val uri = genURI("administrationroute", identifier)
 
     val sparqlConnector = SparqlConnector()
 
-    // Get the administration route
     val administrationRoute = AdministrationRoute.Cache[uri] ?: return invalidEntryPage("administrationroute", identifier)
     
-    // Get all pharmacies with this administration route
     val pharmacyResults = pharmaciesOfAdministrationRoute(uri, sparqlConnector)
 
     return defaultPage("${administrationRoute.name.capitalize()} Administration Route ($identifier)") {
