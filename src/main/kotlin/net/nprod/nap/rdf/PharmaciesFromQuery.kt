@@ -49,10 +49,7 @@ fun pharmaciesFromQuery(
                 }
             """.asQuery()
 
-            println("Compounds query: $compoundsQuery")
-
             compoundsQuery.runOn(model) { result ->
-               println("Result: $result")
                val compound = Compound(uri = result.getResource("uri").toString())
                compound.name = result.getLiteral("name").string
                pharmacy.compounds.add(compound)
