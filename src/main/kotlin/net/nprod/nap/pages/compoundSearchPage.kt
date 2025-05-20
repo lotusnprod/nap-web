@@ -3,8 +3,8 @@ package net.nprod.nap.pages
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
 import defaultPage
-import io.ktor.util.toLowerCasePreservingASCIIRules
 import net.nprod.nap.helpers.localLinks
+import net.nprod.nap.rdf.compoundSearchQuery
 
 /**
  * Search for compounds by name
@@ -27,21 +27,8 @@ fun compoundSearchPage(query: String?): String {
 
     val sparqlConnector = SparqlConnector()
 
-    val cleanQuery = query.replace("\\", "\\\\").replace("\"", "\\\"").toLowerCasePreservingASCIIRules();
-    // Search for compounds by name
-    val searchQuery = """
-        PREFIX n: <https://nap.nprod.net/>
-        PREFIX text: <http://jena.apache.org/text#>
-        SELECT DISTINCT ?compound ?name ?compoundClass ?number
-        WHERE {
-            ?compound text:query (n:name "$cleanQuery").
-            ?compound a n:compound;
-                      n:name ?name;
-                      n:compoundclass ?compoundClass;
-                      n:number ?number.
-        }
-        ORDER BY ?name
-    """.trimIndent()
+    // Get SPARQL query for compound search
+    val searchQuery = compoundSearchQuery(query)
 
     val results = sparqlConnector.getResultsOfQuery(searchQuery)
     val compounds = mutableListOf<Map<String, String>>()

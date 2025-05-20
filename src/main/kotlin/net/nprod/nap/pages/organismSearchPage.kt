@@ -4,7 +4,7 @@ import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
 import defaultPage
 import net.nprod.nap.helpers.localLinks
-import io.ktor.util.toLowerCasePreservingASCIIRules
+import net.nprod.nap.rdf.organismSearchQuery
 
 /**
  * Search for organisms by name
@@ -27,25 +27,8 @@ fun organismSearchPage(query: String?): String {
 
     val sparqlConnector = SparqlConnector()
     
-    val cleanQuery = query.replace("\\", "\\\\").replace("\"", "\\\"").toLowerCasePreservingASCIIRules();
-    
-    // Search for organisms using text indexing
-    val searchQuery = """
-        PREFIX n: <https://nap.nprod.net/>
-        PREFIX text: <http://jena.apache.org/text#>
-        SELECT ?organism ?genusname ?speciesname ?subspeciesname ?familyname ?number ?taxon
-        WHERE {
-            ?organism text:query "$cleanQuery".
-            ?organism a n:organism;
-                      n:number ?number.
-            OPTIONAL { ?organism n:genusname ?genusname }
-            OPTIONAL { ?organism n:speciesname ?speciesname }
-            OPTIONAL { ?organism n:subspeciesname ?subspeciesname }
-            OPTIONAL { ?organism n:familyname ?familyname }
-            OPTIONAL { ?organism n:has_taxon ?taxon }
-        }
-        ORDER BY ?genusname ?speciesname
-    """.trimIndent()
+    // Get SPARQL query for organism search
+    val searchQuery = organismSearchQuery(query)
 
     val results = sparqlConnector.getResultsOfQuery(searchQuery)
     val organisms = mutableListOf<Map<String, String>>()

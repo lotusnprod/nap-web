@@ -4,7 +4,7 @@ import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
 import defaultPage
 import net.nprod.nap.helpers.localLinks
-import io.ktor.util.toLowerCasePreservingASCIIRules
+import net.nprod.nap.rdf.pharmacologySearchQuery
 
 /**
  * Search for pharmacology entries by name
@@ -27,20 +27,8 @@ fun pharmacologySearchPage(query: String?): String {
 
     val sparqlConnector = SparqlConnector()
     
-    val cleanQuery = query.replace("\\", "\\\\").replace("\"", "\\\"").toLowerCasePreservingASCIIRules();
-    
-    // Search for pharmacology entries using text indexing
-    val searchQuery = """
-        PREFIX n: <https://nap.nprod.net/>
-        PREFIX text: <http://jena.apache.org/text#>
-        SELECT DISTINCT ?pharmacology ?name
-        WHERE {
-            ?pharmacology text:query "$cleanQuery".
-            ?pharmacology a n:pharmacology;
-                         n:name ?name.
-        }
-        ORDER BY ?name
-    """.trimIndent()
+    // Get SPARQL query for pharmacology search
+    val searchQuery = pharmacologySearchQuery(query)
 
     val results = sparqlConnector.getResultsOfQuery(searchQuery)
     val pharmacologyEntries = mutableListOf<Map<String, String>>()
