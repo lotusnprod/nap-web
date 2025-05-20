@@ -47,7 +47,7 @@ fun organismSearchQuery(query: String): String {
     return """
         PREFIX n: <https://nap.nprod.net/>
         PREFIX text: <http://jena.apache.org/text#>
-        SELECT ?organism ?genusname ?speciesname ?subspeciesname ?familyname ?number ?taxon
+        SELECT DISTINCT ?organism ?genusname ?speciesname ?subspeciesname ?familyname ?number ?taxon
         WHERE {
             ?organism text:query "$cleanQuery".
             ?organism a n:organism;

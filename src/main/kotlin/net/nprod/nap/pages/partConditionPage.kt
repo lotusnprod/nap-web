@@ -19,7 +19,6 @@ fun PartConditionPage(identifier: String?): String {
 
     // We get the data about that collected condition
     val partCondition = Partcondition.fromSparql(sparqlConnector, uri)
-        ?: return invalidEntryPage("partcondition", identifier)
 
     val pharmacies = pharmaciesOfPartCondition(uri, sparqlConnector)
 

@@ -12,135 +12,86 @@ import net.nprod.nap.rdf.organismSearchQuery
  * @return HTML page with search results
  */
 fun organismSearchPage(query: String?): String {
-    if (query.isNullOrBlank()) {
-        return defaultPage("Organism Search") {
-            div("container") {
-                div("row") {
-                    div("col-12") {
-                        h1(classes = "mt-4 mb-4") { +"Organism Search" }
-                        p { +"Please enter a search term." }
-                    }
-                }
-            }
-        }
-    }
+    return genericSearchPage(
+        entityType = "Organism",
+        query = query,
+        searchQueryFunction = ::organismSearchQuery,
+        processResults = { results ->
+            val organisms = mutableListOf<Map<String, String>>()
+            
+            while (results.hasNext()) {
+                val solution = results.nextSolution()
+                val organismUri = solution["organism"].asResource().uri
+                val genusname = solution["genusname"]?.asLiteral()?.string ?: ""
+                val speciesname = solution["speciesname"]?.asLiteral()?.string ?: ""
+                val subspeciesname = solution["subspeciesname"]?.asLiteral()?.string ?: ""
+                val familyname = solution["familyname"]?.asLiteral()?.string ?: ""
+                val number = solution["number"]?.asLiteral()?.int?.toString() ?: "Unknown"
+                val taxon = solution["taxon"]?.asResource()?.uri
 
-    val sparqlConnector = SparqlConnector()
-    
-    // Get SPARQL query for organism search
-    val searchQuery = organismSearchQuery(query)
-
-    val results = sparqlConnector.getResultsOfQuery(searchQuery)
-    val organisms = mutableListOf<Map<String, String>>()
-
-    if (results != null) {
-        while (results.hasNext()) {
-            val solution = results.nextSolution()
-            val organismUri = solution["organism"].asResource().uri
-            val genusname = solution["genusname"]?.asLiteral()?.string ?: ""
-            val speciesname = solution["speciesname"]?.asLiteral()?.string ?: ""
-            val subspeciesname = solution["subspeciesname"]?.asLiteral()?.string ?: ""
-            val familyname = solution["familyname"]?.asLiteral()?.string ?: ""
-            val number = solution["number"]?.asLiteral()?.int?.toString() ?: "Unknown"
-            val taxon = solution["taxon"]?.asResource()?.uri
-
-            val displayName = buildString {
-                if (genusname.isNotBlank()) {
-                    append(genusname.capitalize())
-                    if (speciesname.isNotBlank()) {
-                        append(" ")
-                        append(speciesname.lowercase())
-                        if (subspeciesname.isNotBlank()) {
-                            append(" subsp. ")
-                            append(subspeciesname.lowercase())
-                        }
-                    }
-                    if (familyname.isNotBlank()) {
-                        append(" (")
-                        append(familyname)
-                        append(")")
-                    }
-                } else {
-                    append("Organism #$number")
-                }
-            }
-
-            organisms.add(mapOf(
-                "uri" to organismUri,
-                "displayName" to displayName,
-                "genusname" to genusname,
-                "speciesname" to speciesname,
-                "subspeciesname" to subspeciesname,
-                "familyname" to familyname,
-                "number" to number,
-                "taxon" to (taxon ?: "")
-            ))
-        }
-    }
-
-    // Group organisms by taxon and only show the first one per taxon
-    val groupedByTaxon = organisms.groupBy { it["taxon"] }
-    val firstPerTaxon = groupedByTaxon
-        .filter { it.key?.isNotEmpty() == true } // Filter out organisms without taxon
-        .map { it.value.first() } // Take the first organism for each taxon
-
-    return defaultPage("Organism Search: $query") {
-        div("container") {
-            div("row") {
-                div("col-12") {
-                    h1(classes = "mt-4 mb-4") { +"Organism Search: $query" }
-                    p { +"Found ${organisms.size} results (${firstPerTaxon.size} unique taxa)." }
-                }
-            }
-
-            div("row") {
-                div("col-12") {
-                    div("card mb-4") {
-                        div("card-header bg-success text-white") {
-                            h3(classes = "card-title mb-0") { +"Search Results" }
-                        }
-                        div("card-body p-0") {
-                            if (organisms.isEmpty()) {
-                                div("p-3") {
-                                    p { +"No organisms found matching '$query'." }
-                                }
-                            } else {
-                                div("table-responsive") {
-                                    table(classes = "table table-striped table-hover") {
-                                        thead {
-                                            tr {
-                                                th { +"Name" }
-                                                th { +"Family" }
-                                                th { +"Subspecies" }
-                                                th { +"Taxon Search" }
-                                            }
-                                        }
-                                        tbody {
-                                            firstPerTaxon.forEach { organism ->
-                                                tr {
-                                                    td { 
-                                                        val uri = organism["uri"]!!
-                                                        a(href = localLinks(uri)) { +organism["displayName"]!! }
-                                                    }
-                                                    td { +organism["familyname"]!! }
-                                                    td { +organism["subspeciesname"]!! }
-                                                    td {
-                                                        val taxon = organism["taxon"]!!
-                                                        if (taxon.isNotEmpty()) {
-                                                            val taxonId = taxon.split("/").last()
-                                                            a(href = "/pharmacy_search?taxon_id=$taxonId", classes = "btn btn-primary btn-sm") { +"View all experiments" }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                val displayName = buildString {
+                    if (genusname.isNotBlank()) {
+                        append(genusname.replaceFirstChar { it.uppercase() })
+                        if (speciesname.isNotBlank()) {
+                            append(" ")
+                            append(speciesname.lowercase())
+                            if (subspeciesname.isNotBlank()) {
+                                append(" subsp. ")
+                                append(subspeciesname.lowercase())
                             }
                         }
+                        if (familyname.isNotBlank()) {
+                            append(" (")
+                            append(familyname)
+                            append(")")
+                        }
+                    } else {
+                        append("Organism #$number")
                     }
                 }
+
+                organisms.add(mapOf(
+                    "uri" to organismUri,
+                    "displayName" to displayName,
+                    "genusname" to genusname,
+                    "speciesname" to speciesname,
+                    "subspeciesname" to subspeciesname,
+                    "familyname" to familyname,
+                    "number" to number,
+                    "taxon" to (taxon ?: "")
+                ))
             }
+            
+            // Group organisms by taxon and only show the first one per taxon
+            val groupedByTaxon = organisms.groupBy { it["taxon"] }
+            val uniqueOrganisms = groupedByTaxon
+                .filter { it.key?.isNotEmpty() == true } // Filter out organisms without taxon
+                .map { it.value.first() } // Take the first organism for each taxon
+            
+            uniqueOrganisms
+        },
+        renderTableHeaders = {
+            th { +"Name" }
+            th { +"Family" }
+            th { +"Subspecies" }
+        },
+        renderTableRow = { organism ->
+            td { 
+                val taxon = organism["taxon"]!!
+                if (taxon.isNotEmpty()) {
+                    val taxonId = taxon.split("/").last()
+                    a(href = "/pharmacy_search?taxon_id=$taxonId") { +organism["displayName"]!! }
+                } else {
+                    val uri = organism["uri"]!!
+                    a(href = localLinks(uri)) { +organism["displayName"]!! }
+                }
+            }
+            td { +organism["familyname"]!! }
+            td { +organism["subspeciesname"]!! }
+        },
+        additionalInfoBlock = { uniqueOrganisms ->
+            val totalOrganisms = uniqueOrganisms.size
+            p { +"Found $totalOrganisms unique taxa." }
         }
-    }
+    )
 }
