@@ -16,6 +16,7 @@ class SparqlConnector {
         var safeCopy: ResultSet? = null
         RDFConnection.connect(SPARQL_SERVER).use { conn ->
             Txn.executeRead(conn) {
+                LOGGER.error("Query: $query")
                 val rs = conn.query(query).execSelect()
                 safeCopy = ResultSetFactory.copyResults(rs)
             }

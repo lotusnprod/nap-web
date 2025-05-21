@@ -7,12 +7,29 @@ import io.ktor.util.toLowerCasePreservingASCIIRules
  */
 
 /**
- * Clean a search query for safe use in SPARQL
+ * Clean a search query for safe use in SPARQL text search
  * @param query The raw query string to clean
- * @return A cleaned query string safe for use in SPARQL
+ * @return A cleaned query string safe for use in SPARQL text search
  */
 fun cleanSearchQuery(query: String): String {
-    return query.replace("\\", "\\\\").replace("\"", "\\\"").toLowerCasePreservingASCIIRules()
+    // First handle backslash escaping as we'll be adding backslashes for other characters
+    var cleanedQuery = query.replace("\\", "\\\\")
+    
+    // Convert to lowercase
+    cleanedQuery = cleanedQuery.toLowerCasePreservingASCIIRules()
+    
+    // Escape special characters for Lucene/text search (excluding backslash which we already handled)
+    val specialChars = """+-&|!(){}[]^"~*?:/"""
+    
+    // Escape each special character with a preceding backslash
+    specialChars.forEach { char ->
+        cleanedQuery = cleanedQuery.replace(char.toString(), "\\\\$char")
+    }
+
+    // Then we escape quote signs
+    cleanedQuery = cleanedQuery.replace("\"", "\\\"")
+    
+    return cleanedQuery
 }
 
 /**
