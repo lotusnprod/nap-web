@@ -1,3 +1,5 @@
+package net.nprod.nap.pages
+
 import kotlinx.html.*
 import kotlinx.html.dom.createHTMLDocument
 import kotlinx.html.dom.serialize

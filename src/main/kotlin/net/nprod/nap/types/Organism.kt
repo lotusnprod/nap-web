@@ -1,8 +1,10 @@
 package net.nprod.nap.types
 
 
+import kotlinx.serialization.Serializable
 import net.nprod.nap.rdf.SparqlConnector
 
+@Serializable
 data class Organism(
     val uri: String,
     var familyname: String? = null,
@@ -19,7 +21,7 @@ data class Organism(
     var geographicalArea: GeographicalArea? = null,
     var country: Country? = null,
     var comment: String? = null,
-    var partCondition: Partcondition? = null
+    var partCondition: PartCondition? = null
 ) {
 
     fun nameForHumans(): String {
@@ -129,7 +131,7 @@ data class Organism(
                         }
                         new.comment = solution["comment"]?.asLiteral()?.string
                         if (solution["PartCondition"] != null) {
-                            new.partCondition = Partcondition(
+                            new.partCondition = PartCondition(
                                 solution["partCondition"].asResource().uri,
                                 solution["partConditionName"]?.asLiteral()?.string ?: "Unknown collected condition"
                             )

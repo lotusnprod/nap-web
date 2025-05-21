@@ -2,15 +2,18 @@ package net.nprod.nap.pages
 
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
-import defaultPage
+import net.nprod.nap.pages.defaultPage
 import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.rdf.compoundSearchQuery
+import net.nprod.nap.pages.compoundSearch.CompoundSearchController
 
 /**
  * Search for compounds by name
  * @param query The search query
  * @return HTML page with search results
+ * @deprecated Use CompoundSearchController instead
  */
+@Deprecated("Use CompoundSearchController instead", ReplaceWith("CompoundSearchController"))
 fun compoundSearchPage(query: String?): String {
     return genericSearchPage(
         entityType = "Compound",

@@ -3,12 +3,14 @@ val kotlin_version: String by project
 val logback_version: String by project
 val kotlinxHtml_version: String by project
 val jena_version: String by project
+val serialization_version: String by project
 
 
 plugins {
     kotlin("jvm") version "2.2.0-RC"
     id("io.ktor.plugin") version "3.1.3"
     id("com.github.ben-manes.versions") version "0.52.0"
+    kotlin("plugin.serialization") version "2.2.0-RC"
 }
 
 kotlin {
@@ -34,11 +36,14 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-server-content-negotiation")
 
     implementation("org.apache.jena:apache-jena-libs:$jena_version")
 
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinxHtml_version")
     implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinxHtml_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
     implementation("ch.qos.logback:logback-classic:$logback_version")
     // We're not using Ktor test utilities in our simple test

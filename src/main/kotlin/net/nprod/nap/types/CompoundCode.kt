@@ -1,7 +1,9 @@
 package net.nprod.nap.types
 
+import kotlinx.serialization.Serializable
 import net.nprod.nap.rdf.SparqlConnector
 
+@Serializable
 data class CompoundCode(
     var uri: String,
     var name: String

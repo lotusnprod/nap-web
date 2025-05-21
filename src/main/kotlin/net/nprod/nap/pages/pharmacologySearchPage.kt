@@ -2,15 +2,18 @@ package net.nprod.nap.pages
 
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
-import defaultPage
+import net.nprod.nap.pages.defaultPage
 import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.rdf.pharmacologySearchQuery
+import net.nprod.nap.pages.pharmacologySearch.PharmacologySearchController
 
 /**
  * Search for pharmacology entries by name
  * @param query The search query
  * @return HTML page with search results
+ * @deprecated Use PharmacologySearchController instead
  */
+@Deprecated("Use PharmacologySearchController instead", ReplaceWith("PharmacologySearchController"))
 fun pharmacologySearchPage(query: String?): String {
     return genericSearchPage(
         entityType = "Pharmacology",

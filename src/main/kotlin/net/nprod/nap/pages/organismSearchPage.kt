@@ -2,15 +2,18 @@ package net.nprod.nap.pages
 
 import kotlinx.html.*
 import net.nprod.nap.rdf.SparqlConnector
-import defaultPage
+import net.nprod.nap.pages.defaultPage
 import net.nprod.nap.helpers.localLinks
 import net.nprod.nap.rdf.organismSearchQuery
+import net.nprod.nap.pages.organismSearch.OrganismSearchController
 
 /**
  * Search for organisms by name
  * @param query The search query
  * @return HTML page with search results
+ * @deprecated Use OrganismSearchController instead
  */
+@Deprecated("Use OrganismSearchController instead", ReplaceWith("OrganismSearchController"))
 fun organismSearchPage(query: String?): String {
     return genericSearchPage(
         entityType = "Organism",

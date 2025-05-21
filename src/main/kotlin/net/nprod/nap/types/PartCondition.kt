@@ -1,15 +1,17 @@
 package net.nprod.nap.types
 
+import kotlinx.serialization.Serializable
 import net.nprod.nap.rdf.SparqlConnector
 
-data class Partcondition (
+@Serializable
+data class PartCondition (
     val uri: String,
     val name: String
 ) {
 
     companion object {
-        fun fromSparql(sparqlConnector: SparqlConnector, uri: String): Partcondition {
-            var new: Partcondition? = null
+        fun fromSparql(sparqlConnector: SparqlConnector, uri: String): PartCondition {
+            var new: PartCondition? = null
 
             val query = """
             PREFIX n: <https://nap.nprod.net/>
@@ -26,7 +28,7 @@ data class Partcondition (
                     val solution = result.nextSolution()
                     val partconditionUri = solution["partcondition"].asResource().uri
                     if (new == null) {
-                        new = Partcondition(partconditionUri, solution["name"].asLiteral().string)
+                        new = PartCondition(partconditionUri, solution["name"].asLiteral().string)
                     }
                 }
             }
@@ -36,9 +38,9 @@ data class Partcondition (
     }
 
     object Cache {
-        private val pharmacologies: MutableMap<String, Partcondition> = mutableMapOf()
+        private val pharmacologies: MutableMap<String, PartCondition> = mutableMapOf()
 
-        operator fun get(partconditionUri: String?): Partcondition? {
+        operator fun get(partconditionUri: String?): PartCondition? {
             if (partconditionUri == null) return null
 
             return pharmacologies[partconditionUri]
@@ -62,7 +64,7 @@ data class Partcondition (
                     val solution = result.nextSolution()
                     val partconditionUri = solution["partcondition"].asResource().uri
                     val name = solution["name"].asLiteral().string
-                    pharmacologies[partconditionUri] = Partcondition(uri = partconditionUri, name = name)
+                    pharmacologies[partconditionUri] = PartCondition(uri = partconditionUri, name = name)
                 }
             }
         }

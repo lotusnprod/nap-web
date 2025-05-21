@@ -1,7 +1,9 @@
 package net.nprod.nap.types
 
+import kotlinx.serialization.Serializable
 import net.nprod.nap.rdf.SparqlConnector
 
+@Serializable
 data class Pharmacology (
     val uri: String,
     val name: String

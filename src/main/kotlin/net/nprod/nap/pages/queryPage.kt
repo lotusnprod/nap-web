@@ -4,7 +4,12 @@ import kotlinx.html.dom.serialize
 import net.nprod.nap.pages.defaultFinalScripts
 import net.nprod.nap.pages.genericHead
 import net.nprod.nap.pages.navbar
+import net.nprod.nap.pages.query.QueryController
 
+/**
+ * @deprecated Use QueryController instead
+ */
+@Deprecated("Use QueryController instead", ReplaceWith("QueryController"))
 fun queryPage(): String {
     return createHTMLDocument().html {
         head {

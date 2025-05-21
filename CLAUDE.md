@@ -27,3 +27,60 @@
 - RDF/SPARQL related code in rdf/ directory
 - Page templates in pages/ directory
 - Data types in types/ directory
+
+## Architecture Overview
+The application follows an MVC-like architecture pattern:
+
+### Controller Layer
+- **AbstractController**: Abstract base class that defines the core structure for all entity controllers
+  - Provides common methods for data retrieval and rendering
+  - Handles error cases consistently
+  - Creates data objects from SPARQL query results
+  - Connects views with data
+  
+- **BaseController**: Interface that defines the contract for controllers
+  - Handles HTTP request processing with content negotiation (HTML/JSON)
+  - Manages routing and parameter extraction
+  - Standardizes error responses
+  - Provides route registration utilities
+  
+- **Entity Controllers**: Entity-specific controllers (e.g., AdministrationRouteController, CompoundController)
+  - Implement entity-specific data retrieval logic
+  - Define entity type information
+  - Register routes for the entity
+  - Connect to the appropriate view renderer
+
+### View Layer
+- **View Objects**: Entity-specific view renderers (e.g., AdministrationRouteView, CompoundView)
+  - Responsible for HTML rendering using kotlinx.html
+  - Provide clean separation between data and presentation
+  - Use shared templates and components
+  - Define the structure and layout of pages
+
+### Model/Data Layer
+- **ViewData Classes**: Data transfer objects (e.g., AdministrationRouteViewData, CompoundViewData)
+  - Contain all necessary data for view rendering
+  - Serializable for both HTML rendering and JSON API responses
+  - Act as an interface between controllers and views
+  - Bundle related data entities together
+
+### Routing
+- Routes are registered in the Routing.kt file
+- Entity controllers register their own routes using the registerRoutes function
+- Legacy handlers still exist for some routes
+
+## Creating a New Entity Page
+1. Create a new directory under pages/ with your entity name
+2. Create these files in the directory:
+   - `EntityViewData.kt`: Define the data structure
+   - `EntityView.kt`: Create the view rendering logic
+   - `EntityController.kt`: Implement data retrieval and routing
+3. Register the controller routes in Routing.kt
+
+## Example Flow
+1. Request comes to `/compound/123`
+2. CompoundController processes the request
+3. Controller retrieves data from SPARQL endpoint
+4. Data is packaged into CompoundViewData object
+5. CompoundView renders HTML using the data
+6. Response is sent to the client

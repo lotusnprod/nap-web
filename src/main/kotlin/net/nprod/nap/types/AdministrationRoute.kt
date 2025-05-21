@@ -1,7 +1,9 @@
 package net.nprod.nap.types
 
 import net.nprod.nap.rdf.SparqlConnector
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AdministrationRoute (
     val uri: String,
     val name: String
