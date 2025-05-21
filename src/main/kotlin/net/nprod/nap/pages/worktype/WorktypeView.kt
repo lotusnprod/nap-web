@@ -17,7 +17,7 @@ object WorktypeView {
      */
     fun render(data: WorktypeViewData): String {
         val worktype = data.worktype
-        val identifier = data.identifier
+        data.identifier
         val pharmacyResults = data.pharmacyResults
         
         return defaultPage("Worktype ${worktype.code} - ${worktype.name}") {

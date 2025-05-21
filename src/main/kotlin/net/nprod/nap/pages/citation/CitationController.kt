@@ -62,7 +62,7 @@ class CitationController : AbstractController<CitationViewData>() {
                 val compoundUri = solution["compound"]?.asResource()?.uri
                 val compoundName = solution["compound_name"]?.asLiteral()?.string
                 val number = solution["number"]?.asLiteral()?.string
-                val pharmacologyUri = solution["pharmacology"]?.asResource()?.uri
+                solution["pharmacology"]?.asResource()?.uri
                 val pharmacologyName = solution["pharmacology_name"]?.asLiteral()?.string
                 val worktypeUri = solution["worktype"]?.asResource()?.uri
                 val qualitativeResultUri = solution["qualitativeResult"]?.asResource()?.uri
@@ -120,7 +120,7 @@ class CitationController : AbstractController<CitationViewData>() {
             val experimentsMap = experimentInfoMap[organismUri] ?: emptyMap()
             
             // Convert experiments to view data
-            val experiments = experimentsMap.map { (expUri, expInfo) ->
+            val experiments = experimentsMap.map { (_, expInfo) ->
                 // Convert worktypes to view data
                 val worktypes = expInfo.worktypes.map { (uri, name) ->
                     WorktypeData(uri, name)

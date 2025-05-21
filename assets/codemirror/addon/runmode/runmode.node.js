@@ -3,7 +3,7 @@
 
 /* Just enough of CodeMirror to run runMode under node.js */
 
-function splitLines(string){return string.split(/\r\n?|\n/);};
+function splitLines(string){return string.split(/\r\n?|\n/);}
 
 // Counts the column offset in a string, taking tabs into account.
 // Used mostly to find indentation.
@@ -29,7 +29,7 @@ function StringStream(string, tabSize, context) {
   this.lastColumnPos = this.lastColumnValue = 0;
   this.lineStart = 0;
   this.context = context
-};
+}
 
 StringStream.prototype = {
   eol: function() {return this.pos >= this.string.length;},
