@@ -1,0 +1,232 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix n: <https://nap.nprod.net/> .
+@prefix text: <http://jena.apache.org/text#> .
+
+# Test compounds
+<https://nap.nprod.net/compound/1> rdf:type n:compound ;
+    n:name "Aspirin" ;
+    n:number "1" ;
+    n:compoundclass "Salicylate" ;
+    n:publicationCode "ASP001" ;
+    n:publicationName "Aspirin Publication" .
+
+<https://nap.nprod.net/compound/2> rdf:type n:compound ;
+    n:name "Caffeine" ;
+    n:number "2" ;
+    n:compoundclass "Xanthine" ;
+    n:publicationCode "CAF001" ;
+    n:publicationName "Caffeine Study" .
+
+<https://nap.nprod.net/compound/3> rdf:type n:compound ;
+    n:name "Morphine" ;
+    n:number "3" ;
+    n:compoundclass "Alkaloid" ;
+    n:publicationCode "MOR001" ;
+    n:publicationName "Morphine Research" .
+
+# Test compound synonyms
+<https://nap.nprod.net/compoundsynonym/1> n:synonym "Acetylsalicylic acid" ;
+    n:has_synonym <https://nap.nprod.net/compound/1> .
+
+<https://nap.nprod.net/compoundsynonym/2> n:synonym "1,3,7-trimethylxanthine" ;
+    n:has_synonym <https://nap.nprod.net/compound/2> .
+
+# Test organisms
+<https://nap.nprod.net/organism/1> rdf:type n:organism ;
+    n:name "Salix alba" ;
+    n:familyname "Salicaceae" ;
+    n:genusname "Salix" ;
+    n:speciesname "alba" ;
+    n:speciesauthority "L." ;
+    n:organismclass "Plantae" ;
+    n:comment "White willow tree" .
+
+<https://nap.nprod.net/organism/2> rdf:type n:organism ;
+    n:name "Coffea arabica" ;
+    n:familyname "Rubiaceae" ;
+    n:genusname "Coffea" ;
+    n:speciesname "arabica" ;
+    n:speciesauthority "L." ;
+    n:organismclass "Plantae" ;
+    n:comment "Coffee plant" .
+
+<https://nap.nprod.net/organism/3> rdf:type n:organism ;
+    n:name "Papaver somniferum" ;
+    n:familyname "Papaveraceae" ;
+    n:genusname "Papaver" ;
+    n:speciesname "somniferum" ;
+    n:speciesauthority "L." ;
+    n:organismclass "Plantae" ;
+    n:comment "Opium poppy" .
+
+# Test geographical areas
+<https://nap.nprod.net/geographicalarea/1> rdf:type n:geographicalarea ;
+    n:name "Europe" ;
+    n:code "EU" .
+
+<https://nap.nprod.net/geographicalarea/2> rdf:type n:geographicalarea ;
+    n:name "South America" ;
+    n:code "SA" .
+
+<https://nap.nprod.net/country/1> rdf:type n:country ;
+    n:name "Germany" ;
+    n:code "DE" .
+
+<https://nap.nprod.net/country/2> rdf:type n:country ;
+    n:name "Brazil" ;
+    n:code "BR" .
+
+# Link organisms to geographical areas
+<https://nap.nprod.net/organism/1> n:collectedFrom <https://nap.nprod.net/geographicalarea/1> .
+<https://nap.nprod.net/organism/2> n:collectedFrom <https://nap.nprod.net/geographicalarea/2> .
+<https://nap.nprod.net/organism/3> n:collectedFrom <https://nap.nprod.net/geographicalarea/1> .
+
+# Test worktypes
+<https://nap.nprod.net/worktype/1> rdf:type n:worktype ;
+    n:name "Anti-inflammatory activity" ;
+    n:code "AI" ;
+    n:has_group <https://nap.nprod.net/worktypegroup/1> .
+
+<https://nap.nprod.net/worktype/2> rdf:type n:worktype ;
+    n:name "CNS stimulant activity" ;
+    n:code "CNS" ;
+    n:has_group <https://nap.nprod.net/worktypegroup/2> .
+
+<https://nap.nprod.net/worktype/3> rdf:type n:worktype ;
+    n:name "Analgesic activity" ;
+    n:code "AN" ;
+    n:has_group <https://nap.nprod.net/worktypegroup/3> .
+
+# Test worktype groups
+<https://nap.nprod.net/worktypegroup/1> rdf:type n:worktypegroup ;
+    n:name "Inflammatory disorders" ;
+    n:code "INFLAM" .
+
+<https://nap.nprod.net/worktypegroup/2> rdf:type n:worktypegroup ;
+    n:name "Central nervous system" ;
+    n:code "CNS" .
+
+<https://nap.nprod.net/worktypegroup/3> rdf:type n:worktypegroup ;
+    n:name "Pain management" ;
+    n:code "PAIN" .
+
+# Test pharmacology activities
+<https://nap.nprod.net/pharmacology/1> rdf:type n:pharmacology ;
+    n:name "Anti-inflammatory effect" ;
+    n:disease "Inflammation" .
+
+<https://nap.nprod.net/pharmacology/2> rdf:type n:pharmacology ;
+    n:name "Stimulant effect" ;
+    n:disease "Fatigue" .
+
+<https://nap.nprod.net/pharmacology/3> rdf:type n:pharmacology ;
+    n:name "Analgesic effect" ;
+    n:disease "Pain" .
+
+# Test pharmacy experiments (central hub)
+<https://nap.nprod.net/pharmacy/1> rdf:type n:pharmacy ;
+    n:number "1" ;
+    n:has_organism <https://nap.nprod.net/organism/1> ;
+    n:has_participant <https://nap.nprod.net/compound/1> ;
+    n:has_pharmacology <https://nap.nprod.net/pharmacology/1> ;
+    n:has_worktype <https://nap.nprod.net/worktype/1> ;
+    n:doseamount "500" ;
+    n:activitylevel "High" ;
+    n:disease "Inflammation" ;
+    n:cmpdiso "Test cmpdiso 1" ;
+    n:cmpdisounit "mg/kg" ;
+    n:rawyield "85.5" ;
+    n:amtutilunit "grams" ;
+    n:pharmactivity "Anti-inflammatory" ;
+    n:percentyield "85.5" ;
+    n:quantitativeresult "Significant" ;
+    n:amtutil "100" ;
+    n:administeredBy <https://nap.nprod.net/administrationroute/1> .
+
+<https://nap.nprod.net/pharmacy/2> rdf:type n:pharmacy ;
+    n:number "2" ;
+    n:has_organism <https://nap.nprod.net/organism/2> ;
+    n:has_participant <https://nap.nprod.net/compound/2> ;
+    n:has_pharmacology <https://nap.nprod.net/pharmacology/2> ;
+    n:has_worktype <https://nap.nprod.net/worktype/2> ;
+    n:doseamount "100" ;
+    n:activitylevel "Moderate" ;
+    n:disease "Fatigue" ;
+    n:cmpdiso "Test cmpdiso 2" ;
+    n:cmpdisounit "mg/ml" ;
+    n:rawyield "92.3" ;
+    n:amtutilunit "grams" ;
+    n:pharmactivity "Stimulant" ;
+    n:percentyield "92.3" ;
+    n:quantitativeresult "Moderate" ;
+    n:amtutil "50" ;
+    n:administeredBy <https://nap.nprod.net/administrationroute/1> .
+
+<https://nap.nprod.net/pharmacy/3> rdf:type n:pharmacy ;
+    n:number "3" ;
+    n:has_organism <https://nap.nprod.net/organism/3> ;
+    n:has_participant <https://nap.nprod.net/compound/3> ;
+    n:has_pharmacology <https://nap.nprod.net/pharmacology/3> ;
+    n:has_worktype <https://nap.nprod.net/worktype/3> ;
+    n:doseamount "10" ;
+    n:activitylevel "High" ;
+    n:disease "Pain" ;
+    n:cmpdiso "Test cmpdiso 3" ;
+    n:cmpdisounit "mg/dose" ;
+    n:rawyield "78.9" ;
+    n:amtutilunit "milligrams" ;
+    n:pharmactivity "Analgesic" ;
+    n:percentyield "78.9" ;
+    n:quantitativeresult "High" ;
+    n:amtutil "25" ;
+    n:administeredBy <https://nap.nprod.net/administrationroute/2> .
+
+# Test citations
+<https://nap.nprod.net/citation/1> rdf:type n:citation ;
+    n:title "Salicin from willow bark: anti-inflammatory properties" ;
+    n:authors "Smith, J.; Brown, A.; Wilson, K." ;
+    n:year "2020" ;
+    n:journal "Journal of Natural Products" ;
+    n:volume "83" ;
+    n:issue "4" ;
+    n:pages "1234-1245" ;
+    n:doi "10.1021/acs.jnatprod.0c00123" .
+
+<https://nap.nprod.net/citation/2> rdf:type n:citation ;
+    n:title "Caffeine metabolism and CNS effects" ;
+    n:authors "Johnson, M.; Davis, L." ;
+    n:year "2019" ;
+    n:journal "Drug Metabolism Reviews" ;
+    n:volume "51" ;
+    n:issue "2" ;
+    n:pages "567-589" ;
+    n:doi "10.1080/03602532.2019.1234567" .
+
+<https://nap.nprod.net/citation/3> rdf:type n:citation ;
+    n:title "Opium alkaloids: pharmacology and therapeutic use" ;
+    n:authors "Garcia, R.; Martinez, P.; Lopez, C." ;
+    n:year "2021" ;
+    n:journal "Pain Medicine" ;
+    n:volume "22" ;
+    n:issue "8" ;
+    n:pages "1890-1905" ;
+    n:doi "10.1093/pm/pnab123" .
+
+# Link organisms to citations
+<https://nap.nprod.net/organism/1> n:participatesIn <https://nap.nprod.net/citation/1> .
+<https://nap.nprod.net/organism/2> n:participatesIn <https://nap.nprod.net/citation/2> .
+<https://nap.nprod.net/organism/3> n:participatesIn <https://nap.nprod.net/citation/3> .
+
+# Test administration routes
+<https://nap.nprod.net/administrationroute/1> rdf:type n:administrationroute ;
+    n:name "Oral" ;
+    n:code "PO" .
+
+<https://nap.nprod.net/administrationroute/2> rdf:type n:administrationroute ;
+    n:name "Intravenous" ;
+    n:code "IV" .
+
+<https://nap.nprod.net/administrationroute/3> rdf:type n:administrationroute ;
+    n:name "Topical" ;
+    n:code "TOP" .

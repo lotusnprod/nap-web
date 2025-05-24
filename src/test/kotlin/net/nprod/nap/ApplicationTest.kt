@@ -1,21 +1,15 @@
 package net.nprod.nap
 
+import net.nprod.nap.test.withTestApplication
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlin.test.*
 
 /**
- * A simple test class to demonstrate testing in the project.
+ * Basic application tests that verify the core functionality works.
  * 
- * In a real scenario, you would use Ktor's testing utilities to test the application.
- * For example:
- * 
- * ```
- * testApplication {
- *     val response = client.get("/")
- *     assertEquals(HttpStatusCode.OK, response.status)
- * }
- * ```
- * 
- * But for this demonstration, we'll use a simple test.
+ * For more comprehensive testing with test data, see the controller-specific
+ * test classes in the pages/ packages that extend BaseControllerTest.
  */
 class ApplicationTest {
     @Test
@@ -29,5 +23,19 @@ class ApplicationTest {
         // A simple test that checks if a string contains a substring
         val testString = "<html><body>Hello, World!</body></html>"
         assertTrue(testString.contains("<html"), "String should contain HTML tag")
+    }
+    
+    @Test
+    fun testApplicationStartsWithoutData() {
+        // Test that the application can start even without test data
+        withTestApplication("http://localhost:9999/nonexistent") {
+            // This tests that the application module loads correctly
+            val response = client.get("/")
+            // We expect this to work even if SPARQL queries fail
+            assert(response.status == HttpStatusCode.OK || 
+                   response.status == HttpStatusCode.InternalServerError) {
+                "Application should start even with invalid SPARQL endpoint"
+            }
+        }
     }
 }

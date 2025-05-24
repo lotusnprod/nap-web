@@ -46,8 +46,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    // We're not using Ktor test utilities in our simple test
+    
+    // Testing dependencies
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("io.ktor:ktor-client-content-negotiation")
+    testImplementation("org.apache.jena:jena-fuseki-main:$jena_version")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 distributions {
