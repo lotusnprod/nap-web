@@ -9,7 +9,6 @@ import net.nprod.nap.pages.invalidEntry.InvalidEntryUtil
 /**
  * @deprecated Use InvalidEntryUtil.createInvalidEntryPage instead
  */
-@Deprecated("Use InvalidEntryUtil.createInvalidEntryPage instead", ReplaceWith("InvalidEntryUtil.createInvalidEntryPage(type, value)"))
 fun invalidEntryPage(type: String, value: String): String {
     val doc = createHTMLDocument().div {
         id = "test-node"
