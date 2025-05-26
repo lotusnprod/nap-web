@@ -22,6 +22,11 @@
 - Handle errors with try/catch blocks or Result type
 - Document public APIs with KDoc comments
 
+## Data Conventions
+- Use integers for entity numbers (compound numbers, organism numbers, etc.)
+- When creating test data or RDF triples, always use integer literals for `n:number` fields, not strings
+- Entity URIs should use numeric identifiers (e.g., `/compound/1`, `/organism/123`)
+
 ## Project Structure
 - Main application code in src/main/kotlin/net/nprod/nap/
 - RDF/SPARQL related code in rdf/ directory
@@ -84,3 +89,30 @@ The application follows an MVC-like architecture pattern:
 4. Data is packaged into CompoundViewData object
 5. CompoundView renders HTML using the data
 6. Response is sent to the client
+
+## Tools
+
+### Coverage Parser
+Location: `tools/coverage_parser.py`
+
+A utility to parse Kover coverage reports and identify classes that need more test coverage.
+
+Usage:
+```bash
+# Show classes with coverage < 100% (default)
+./tools/coverage_parser.py
+
+# Show specific coverage ranges
+./tools/coverage_parser.py --min 50 --max 90
+
+# Filter by file name
+./tools/coverage_parser.py --file Citation
+
+# Show more results
+./tools/coverage_parser.py --limit 50
+
+# Sort by different criteria
+./tools/coverage_parser.py --sort name
+```
+
+Note: When improving test coverage, ignore null checks on `getResultsOfQuery` in SparqlConnector as they require mocking which isn't necessary.

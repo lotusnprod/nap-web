@@ -6,17 +6,22 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.jena.rdfconnection.RDFConnection
 import org.apache.jena.system.Txn
 import org.apache.jena.tdb2.TDB2Factory
+import org.slf4j.LoggerFactory
 
 
 class SparqlConnector {
     // get SPARQL_SERVER from system property first, then environment variable, or set default for production docker compose
     val SPARQL_SERVER = System.getProperty("SPARQL_SERVER") ?: System.getenv("SPARQL_SERVER")
+    
+    companion object {
+        private val LOGGER = LoggerFactory.getLogger(SparqlConnector::class.java)
+    }
 
     fun getResultsOfQuery(query: String): ResultSet? {
         var safeCopy: ResultSet? = null
         RDFConnection.connect(SPARQL_SERVER).use { conn ->
             Txn.executeRead(conn) {
-                LOGGER.error("Query: $query")
+                LOGGER.debug("Query: $query")
                 val rs = conn.query(query).execSelect()
                 safeCopy = ResultSetFactory.copyResults(rs)
             }

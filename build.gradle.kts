@@ -11,6 +11,7 @@ plugins {
     id("io.ktor.plugin") version "3.1.3"
     id("com.github.ben-manes.versions") version "0.52.0"
     kotlin("plugin.serialization") version "2.2.0-RC"
+    id("org.jetbrains.kotlinx.kover") version "0.8.3"
 }
 
 kotlin {
@@ -61,6 +62,19 @@ distributions {
             // Add a directory to the distribution
             from("assets") {
                 into("assets")
+            }
+        }
+    }
+}
+
+kover {
+    reports {
+        total {
+            html {
+                onCheck = false
+            }
+            xml {
+                onCheck = false
             }
         }
     }

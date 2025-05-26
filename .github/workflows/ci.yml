@@ -36,6 +36,9 @@ jobs:
     - name: Run tests
       run: ./gradlew test
       
+    - name: Generate coverage report
+      run: ./gradlew koverXmlReport koverHtmlReport
+      
     - name: Build application
       run: ./gradlew build
       
@@ -52,3 +55,13 @@ jobs:
       with:
         name: build-reports
         path: build/reports/
+        
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-reports
+        path: |
+          build/reports/kover/
+          build/reports/kover/html/
+          build/reports/kover/xml/
