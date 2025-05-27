@@ -109,9 +109,11 @@ def main():
         # Filter by coverage range
         filtered = filter_by_coverage(classes, args.min, args.max)
         
-        # Filter by file name if specified
+        # Filter by file name or class name if specified
         if args.file:
-            filtered = [c for c in filtered if args.file.lower() in c['file'].lower()]
+            filtered = [c for c in filtered if 
+                       args.file.lower() in c['file'].lower() or
+                       args.file.lower() in c['name'].lower()]
         
         # Sort results
         if args.sort == 'coverage':
