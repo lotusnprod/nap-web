@@ -312,18 +312,19 @@ class PharmaciesQueriesTest {
     fun testPharmaciesWithMissingOptionalData() {
         val pharmacies = pharmaciesOfWorktype("http://example.org/worktype2", sparqlConnector)
         
-        // Due to the implementation requiring organisms and worktype cache not being populated,
-        // pharmacies might not be returned as expected in test environment
-        // This test documents the behavior but may need adjustment based on cache availability
-        assertTrue(pharmacies.size <= 1, "Should have at most 1 pharmacy (pharmacy2)")
+        // Both pharmacy2 (with organism) and pharmacy4 (without organism) should be returned
+        assertEquals(2, pharmacies.size, "Should have 2 pharmacies with worktype2")
         
-        if (pharmacies.isNotEmpty()) {
-            val pharmacy2 = pharmacies.find { it.uri == "http://example.org/pharmacy2" }
-            assertNotNull(pharmacy2)
-            assertEquals("102", pharmacy2.number)
-            assertNotNull(pharmacy2.organism)
-            assertEquals("Penicillium", pharmacy2.organism?.genusname)
-        }
+        val pharmacy2 = pharmacies.find { it.uri == "http://example.org/pharmacy2" }
+        assertNotNull(pharmacy2)
+        assertEquals("102", pharmacy2.number)
+        assertNotNull(pharmacy2.organism)
+        assertEquals("Penicillium", pharmacy2.organism?.genusname)
+        
+        val pharmacy4 = pharmacies.find { it.uri == "http://example.org/pharmacy4" }
+        assertNotNull(pharmacy4)
+        assertEquals("104", pharmacy4.number)
+        // pharmacy4 has no organism data
     }
     
     @Test
