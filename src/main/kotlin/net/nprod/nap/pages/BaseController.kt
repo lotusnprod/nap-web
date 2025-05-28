@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.header
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import net.nprod.nap.rdf.SparqlConnector
 
 /**
  * Base controller interface with support for HTML and JSON response formats
@@ -37,27 +38,36 @@ interface BaseController<DataType> {
     suspend fun handleRequest(call: ApplicationCall, id: String?) {
         // Get the Accept header to determine the response format
         val acceptHeader = call.request.header(HttpHeaders.Accept)
-        val data = getData(id)
         
-        if (data == null) {
-            if (acceptHeader?.contains("application/json") == true) {
-                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Resource not found"))
-            } else {
-                // Use the invalidEntryPage for HTML responses
-                call.respondText(
-                    invalidEntryPage(getEntityType(), id ?: "null"),
-                    ContentType.Text.Html
-                )
+        // Start tracking SPARQL queries for this request
+        SparqlConnector.startTracking()
+        
+        try {
+            val data = getData(id)
+            
+            if (data == null) {
+                if (acceptHeader?.contains("application/json") == true) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Resource not found"))
+                } else {
+                    // Use the invalidEntryPage for HTML responses
+                    call.respondText(
+                        invalidEntryPage(getEntityType(), id ?: "null"),
+                        ContentType.Text.Html
+                    )
+                }
+                return
             }
-            return
-        }
-        
-        // Check if JSON is requested
-        if (acceptHeader?.contains("application/json") == true) {
-            call.respond(data)
-        } else {
-            // Default to HTML response
-            call.respondText(renderHtml(data), ContentType.Text.Html)
+            
+            // Check if JSON is requested
+            if (acceptHeader?.contains("application/json") == true) {
+                call.respond(data)
+            } else {
+                // Default to HTML response
+                call.respondText(renderHtml(data), ContentType.Text.Html)
+            }
+        } finally {
+            // Clear tracking after request is complete
+            SparqlConnector.clearTracking()
         }
     }
     

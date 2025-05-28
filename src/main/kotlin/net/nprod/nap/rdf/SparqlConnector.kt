@@ -15,6 +15,37 @@ class SparqlConnector {
     
     companion object {
         private val LOGGER = LoggerFactory.getLogger(SparqlConnector::class.java)
+        
+        // Thread-local storage for tracking queries
+        private val queriesThreadLocal = ThreadLocal<MutableList<String>>()
+        
+        /**
+         * Start tracking SPARQL queries for the current thread
+         */
+        fun startTracking() {
+            queriesThreadLocal.set(mutableListOf())
+        }
+        
+        /**
+         * Get all tracked queries for the current thread
+         */
+        fun getTrackedQueries(): List<String> {
+            return queriesThreadLocal.get()?.toList() ?: emptyList()
+        }
+        
+        /**
+         * Clear tracked queries for the current thread
+         */
+        fun clearTracking() {
+            queriesThreadLocal.remove()
+        }
+        
+        /**
+         * Track a query if tracking is enabled
+         */
+        private fun trackQuery(query: String) {
+            queriesThreadLocal.get()?.add(query)
+        }
     }
 
     fun getResultsOfQuery(query: String): ResultSet? {
@@ -22,6 +53,7 @@ class SparqlConnector {
         RDFConnection.connect(SPARQL_SERVER).use { conn ->
             Txn.executeRead(conn) {
                 LOGGER.debug("Query: $query")
+                trackQuery(query)
                 val rs = conn.query(query).execSelect()
                 safeCopy = ResultSetFactory.copyResults(rs)
             }
@@ -33,6 +65,7 @@ class SparqlConnector {
     fun constructQueryIntoAQueriableDataset(query: String): Dataset? {
         var datasetGraph: Dataset? = null
         val arqQuery = QueryFactory.create(query, Syntax.syntaxARQ)
+        trackQuery(query)
         try {
             val qExec = QueryExecution.service(SPARQL_SERVER).query(arqQuery).build()
             datasetGraph = TDB2Factory.createDataset()
