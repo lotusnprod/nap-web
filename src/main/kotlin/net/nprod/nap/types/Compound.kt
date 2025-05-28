@@ -43,7 +43,7 @@ data class Compound(
             }
         """.trimIndent()
 
-            val result = sparqlConnector.getResultsOfQuery(query)
+            val result = sparqlConnector.getResultsOfQuery(query, logQuery = false)
             if (result != null) {
                 while (result.hasNext()) {
                     val solution = result.nextSolution()

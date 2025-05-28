@@ -24,7 +24,7 @@ class PharmacologySearchController {
     suspend fun handleRequest(call: ApplicationCall) {
         val queryParam = call.request.queryParameters["query"]
         val pharmacologyEntries = if (!queryParam.isNullOrBlank()) {
-            val results = sparqlConnector.getResultsOfQuery(pharmacologySearchQuery(queryParam))
+            val results = sparqlConnector.getResultsOfQuery(pharmacologySearchQuery(queryParam), logQuery = false)
 
             val entries = mutableListOf<Map<String, String>>()
             

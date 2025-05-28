@@ -18,7 +18,7 @@ data class Country(
                 }
                 """
             
-            val result = sparqlConn.getResultsOfQuery(query)
+            val result = sparqlConn.getResultsOfQuery(query, logQuery = false)
             if (result != null && result.hasNext()) {
                 val solution = result.nextSolution()
                 val name = solution["name"].asLiteral().string

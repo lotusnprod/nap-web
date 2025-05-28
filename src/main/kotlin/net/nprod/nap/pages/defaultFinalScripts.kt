@@ -23,10 +23,15 @@ fun BODY.defaultFinalScripts() {
                             id = "sparql-queries"
                             style = "display: none;"
                             
-                            queries.forEachIndexed { index, query ->
+                            queries.forEachIndexed { index, queryInfo ->
                                 div(classes = "mb-3") {
                                     div(classes = "d-flex justify-content-between align-items-start mb-2") {
-                                        h6 { +"Query ${index + 1}" }
+                                        div {
+                                            h6(classes = "mb-1") { +"Query ${index + 1}" }
+                                            small(classes = "text-muted") { 
+                                                +"Execution time: ${queryInfo.executionTimeMs}ms"
+                                            }
+                                        }
                                         button(classes = "btn btn-sm btn-outline-primary") {
                                             attributes["data-query-index"] = index.toString()
                                             attributes["onclick"] = "copyQuery(${index})"
@@ -36,7 +41,7 @@ fun BODY.defaultFinalScripts() {
                                     pre(classes = "bg-light p-3 rounded") {
                                         code {
                                             id = "query-${index}"
-                                            +query
+                                            +queryInfo.query
                                         }
                                     }
                                 }

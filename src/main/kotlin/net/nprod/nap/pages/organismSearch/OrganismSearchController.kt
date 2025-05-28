@@ -24,7 +24,7 @@ class OrganismSearchController {
     suspend fun handleRequest(call: ApplicationCall) {
         val queryParam = call.request.queryParameters["query"]
         val organisms = if (!queryParam.isNullOrBlank()) {
-            val results = sparqlConnector.getResultsOfQuery(organismSearchQuery(queryParam))
+            val results = sparqlConnector.getResultsOfQuery(organismSearchQuery(queryParam), logQuery = false)
             val organismList = mutableListOf<Map<String, String>>()
             
             while (results != null && results.hasNext()) {

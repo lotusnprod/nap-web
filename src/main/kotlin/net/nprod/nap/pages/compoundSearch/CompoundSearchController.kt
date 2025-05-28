@@ -28,7 +28,7 @@ class CompoundSearchController {
         try {
             val queryParam = call.request.queryParameters["query"]
             val compounds = if (!queryParam.isNullOrBlank()) {
-                val results = sparqlConnector.getResultsOfQuery(compoundSearchQuery(queryParam))
+                val results = sparqlConnector.getResultsOfQuery(compoundSearchQuery(queryParam), logQuery = false)
                 val compoundList = mutableListOf<Map<String, String>>()
                 
                 while (results != null && results.hasNext()) {
