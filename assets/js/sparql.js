@@ -313,8 +313,13 @@ SPARQL.Query = function(service, priority) {
 
         if(_output == 'json'){
             var outputJson = _create_json(xhr.responseText);
-            outputJson.executionTime = xhr.executionTime;
-            output = outputJson;
+            if (outputJson !== null) {
+                outputJson.executionTime = xhr.executionTime;
+                output = outputJson;
+            } else {
+                // If JSON parsing failed, pass the raw text
+                output = xhr.responseText;
+            }
         } else{
             output = xhr.responseText;
         }

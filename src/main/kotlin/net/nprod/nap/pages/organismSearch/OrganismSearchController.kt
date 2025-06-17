@@ -39,7 +39,7 @@ class OrganismSearchController {
 
                 val displayName = buildString {
                     if (genusname.isNotBlank()) {
-                        append(genusname.replaceFirstChar { it.uppercase() })
+                        append(genusname.lowercase().replaceFirstChar { it.uppercase() })
                         if (speciesname.isNotBlank()) {
                             append(" ")
                             append(speciesname.lowercase())

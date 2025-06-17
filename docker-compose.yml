@@ -15,9 +15,15 @@ services:
       - ENABLE_UPDATE=false
       - ENABLE_SHACL=false
     volumes:
-      - ./data:/databases
+      - ./data:/databases:U
     networks:
       - web_network
+    x-podman.uidmaps:
+        - "0:1:1"
+        - "9008:${UID:-1000}:1"
+    x-podman.gidmaps:
+        - "0:1:1"
+        - "9008:${GID:-1000}:1"
 networks:
   web_network:
     external: true

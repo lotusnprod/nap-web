@@ -228,6 +228,30 @@ function doQuery(sparql, callback) {
 }
 
 function onFailure(report) {
+    // First try to parse as JSON error response
+    try {
+        var jsonError = JSON.parse(report.responseText);
+        if (jsonError.error || jsonError.message) {
+            var errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.innerHTML = '<strong>Query Error:</strong> ' + (jsonError.error || jsonError.message);
+            setResult(errorDiv);
+            return;
+        }
+    } catch (e) {
+        // Not JSON, continue with original handling
+    }
+    
+    // Check if the response contains a parse error message
+    if (report.responseText && report.responseText.indexOf('Parse error:') !== -1) {
+        var errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.innerHTML = '<strong>SPARQL Parse Error:</strong><pre>' + report.responseText + '</pre>';
+        setResult(errorDiv);
+        return;
+    }
+    
+    // Original handling for HTML errors
     var message = report.responseText.match(/<pre>([\s\S]*)<\/pre>/);
     if (message) {
         var pre = document.createElement('pre');
@@ -261,8 +285,23 @@ function displayResult(json, resultTitle) {
 
     var div = document.createElement('div');
 
-    if (json.results === undefined) {
+    // Check if json is actually a string containing a parse error
+    if (typeof json === 'string') {
+        if (json.indexOf('Parse error:') !== -1) {
+            var errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.innerHTML = '<strong>SPARQL Parse Error:</strong><pre>' + json + '</pre>';
+            setResult(errorDiv);
+            return;
+        }
+        // Other string responses
         div.appendChild(document.createTextNode(json));
+        setResult(div);
+        return;
+    }
+
+    if (json.results === undefined) {
+        div.appendChild(document.createTextNode(JSON.stringify(json)));
     } else {
         var resCount = document.createElement("small");
         resCount.classList.add("text-muted");

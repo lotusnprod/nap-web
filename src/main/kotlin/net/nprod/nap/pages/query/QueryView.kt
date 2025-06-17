@@ -24,6 +24,18 @@ object QueryView {
                     link(rel = "stylesheet", type = "text/css", href = "assets/codemirror/lib/codemirror.css")
                     link(rel = "stylesheet", type = "text/css", href = "assets/codemirror/addon/display/fullscreen.css")
                     link(rel = "stylesheet", type = "text/css", href = "assets/css/bootstrap-treeview.min.css")
+                    style {
+                        unsafe {
+                            raw("""
+                                .CodeMirror {
+                                    resize: vertical;
+                                    overflow: auto !important;
+                                    min-height: 200px;
+                                    max-height: 600px;
+                                }
+                            """.trimIndent())
+                        }
+                    }
                 }
             }
 

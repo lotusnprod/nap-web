@@ -40,10 +40,6 @@ object OrganismSearchView {
                 td { +organism["familyname"]!! }
                 td { +organism["subspeciesname"]!! }
             },
-            additionalInfoBlock = { organisms ->
-                val totalOrganisms = organisms.size
-                p { +"Found $totalOrganisms unique taxa." }
-            },
             preProcessedResults = data.organisms // Use pre-processed results
         )
     }
