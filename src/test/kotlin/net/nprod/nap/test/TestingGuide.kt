@@ -11,7 +11,7 @@ package net.nprod.nap.test
  * 3. **Unit Testing**: Tests for individual components and utilities
  * 
  * ## Test Data
- * Test data is stored in `/src/test/resources/test_data.n3` and contains:
+ * Test data is stored in `stack/seed/001-core.n3` (wired onto the test classpath by build.gradle.kts) and contains:
  * - Sample compounds (Aspirin, Caffeine, Morphine)
  * - Sample organisms (Salix alba, Coffea arabica, Papaver somniferum)
  * - Sample pharmacology relationships
@@ -78,7 +78,7 @@ package net.nprod.nap.test
  * ## Next Steps
  * 
  * To fully utilize this testing framework:
- * 1. Add more comprehensive test data to `test_data.n3`
+ * 1. Add more comprehensive test data to `stack/seed/001-core.n3`
  * 2. Create specific test cases for each controller
  * 3. Add integration tests that verify data relationships
  * 4. Set up continuous integration to run tests automatically

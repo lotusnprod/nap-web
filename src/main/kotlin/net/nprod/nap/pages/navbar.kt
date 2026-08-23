@@ -46,6 +46,9 @@ fun BODY.navbar() {
                     li(classes = "nav-item") {
                         a(classes = "nav-link", href = "/sparql") { +"Sparql" }
                     }
+                    li(classes = "nav-item") {
+                        a(classes = "nav-link", href = "/faq") { +"FAQ" }
+                    }
                 }
 
                 form(classes = "d-flex") {
@@ -60,9 +63,11 @@ fun BODY.navbar() {
                             value = "compound"
                             +"Compound" 
                         }
-                        option { 
-                            value = "organism"
-                            +"Organism" 
+                        // The organism name search collapses its results to one row per taxon,
+                        // so it is presented as a taxon search. See /faq for the distinction.
+                        option {
+                            value = "taxon"
+                            +"Taxon"
                         }
                         option { 
                             value = "pharmacology"

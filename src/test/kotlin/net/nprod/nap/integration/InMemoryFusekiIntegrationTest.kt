@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 
 /**
  * Integration tests that verify the application works with an in-memory Fuseki server
- * loaded with realistic test data from test_data.n3.
+ * loaded with realistic test data from stack/seed/001-core.n3.
  */
 class InMemoryFusekiIntegrationTest {
     

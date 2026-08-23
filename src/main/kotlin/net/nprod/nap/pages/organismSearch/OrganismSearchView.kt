@@ -17,7 +17,9 @@ object OrganismSearchView {
      */
     fun render(data: OrganismSearchViewData): String {
         return genericSearchPage(
-            entityType = "Organism",
+            // Results are grouped by taxon, one row per taxon, so this is a taxon search
+            // even though it matches on organism names.
+            entityType = "Taxon",
             query = data.query,
             searchQueryFunction = null, // Not used directly in the view
             processResults = { _: ResultSet -> emptyList() }, // Not used directly in the view

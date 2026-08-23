@@ -47,9 +47,12 @@ class SparqlConnector {
         }
         
         /**
-         * Track a query if tracking is enabled and logging is requested
+         * Track a query if tracking is enabled and logging is requested.
+         *
+         * Visible within the module (rather than private) so it can be exercised
+         * directly in unit tests without brittle reflection.
          */
-        private fun trackQuery(query: String, executionTimeMs: Long, logQuery: Boolean = true) {
+        internal fun trackQuery(query: String, executionTimeMs: Long, logQuery: Boolean = true) {
             if (!logQuery) {
                 return
             }

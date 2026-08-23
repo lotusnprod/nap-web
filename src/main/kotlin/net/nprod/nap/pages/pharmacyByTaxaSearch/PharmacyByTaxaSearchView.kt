@@ -2,6 +2,8 @@ package net.nprod.nap.pages.pharmacyByTaxaSearch
 
 import kotlinx.html.*
 import net.nprod.nap.pages.defaultPage
+import net.nprod.nap.pages.pharmacyFacets
+import net.nprod.nap.pages.pharmacyFacetsScript
 import net.nprod.nap.pages.presentPharmacyResults
 
 /**
@@ -19,21 +21,32 @@ object PharmacyByTaxaSearchView {
 
         return defaultPage(title) {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-4") { +title }
                     }
                 }
-                
-                div("row") {
-                    div("col-12") {
+
+                div("facet-layout") {
+                    if (data.pharmacyResults.isNotEmpty()) {
+                        div("facet-sidebar") {
+                            pharmacyFacets(data.pharmacyResults)
+                        }
+                    }
+
+                    div("facet-results") {
                         div("card mb-4") {
                             div("card-header bg-primary text-white") {
                                 if (data.pharmacyResults.size >= 10000) {
                                     h3(classes = "card-title mb-0") { +"Too many results" }
                                 } else {
-                                    h3(classes = "card-title mb-0") { +"Experiments (${data.pharmacyResults.size} results)" }
+                                    h3(classes = "card-title mb-0") {
+                                        span {
+                                            id = "pharmacy-result-summary"
+                                            +"Experiments (${data.pharmacyResults.size} results)"
+                                        }
+                                    }
                                 }
                             }
                             div("card-body") {
@@ -42,7 +55,12 @@ object PharmacyByTaxaSearchView {
                                         +"We found more than 10000 experiments. Please refine your search or use SPARQL queries."
                                     }
                                 }
-                                
+
+                                div(classes = "alert alert-info d-none") {
+                                    id = "pharmacy-no-results"
+                                    +"No experiment matches the selected filters."
+                                }
+
                                 div("p-0") {
                                     presentPharmacyResults(data.pharmacyResults, sourceType = "organism")
                                 }
@@ -50,6 +68,8 @@ object PharmacyByTaxaSearchView {
                         }
                     }
                 }
+
+                pharmacyFacetsScript()
             }
         }
     }

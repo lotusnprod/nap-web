@@ -18,6 +18,7 @@ import net.nprod.nap.pages.administrationRoute.AdministrationRouteController
 import net.nprod.nap.pages.compound.CompoundController
 import net.nprod.nap.pages.compoundSearch.CompoundSearchController
 import net.nprod.nap.pages.compoundSynonym.CompoundSynonymController
+import net.nprod.nap.pages.faq.FaqController
 import net.nprod.nap.pages.home.HomeController
 import net.nprod.nap.pages.organismSearch.OrganismSearchController
 import net.nprod.nap.pages.pharmacologySearch.PharmacologySearchController
@@ -55,8 +56,9 @@ fun Application.configureRouting() {
         OrganismSearchController.registerRoutes(this)
         PharmacyByTaxaSearchController.registerRoutes(this)
         
-        // Register home and query controllers
+        // Register home, FAQ and query controllers
         HomeController.registerRoutes(this)
+        FaqController.registerRoutes(this)
         QueryController.registerRoutes(this)
         
         // Register SPARQL Proxy routes using the controller

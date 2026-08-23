@@ -1,4 +1,4 @@
-FROM docker.io/eclipse-temurin:24-jdk AS build
+FROM docker.io/eclipse-temurin:26-jdk AS build
 
 WORKDIR /app
 
@@ -9,11 +9,14 @@ COPY gradle.properties gradlew /app/
 # So we keep gradle  downloaded
 RUN ./gradlew
 COPY build.gradle.kts settings.gradle.kts /app/
-COPY assets src gradle /app/assets/
+# NOTE: only `assets` belongs here. Listing `src`/`gradle` as extra sources made
+# Docker merge them into /app/assets/, and Routing.kt serves that directory
+# statically -> the Kotlin sources were published at /assets/main/kotlin/...
+COPY assets /app/assets/
 COPY src /app/src/
 RUN ./gradlew installDist
 
-FROM docker.io/eclipse-temurin:24-jdk
+FROM docker.io/eclipse-temurin:26-jdk
 WORKDIR /app
 RUN mkdir -p /app
 COPY --from=build /app/build/install/nap-web /app

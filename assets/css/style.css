@@ -156,3 +156,95 @@ footer p{
         flex-grow: 1;
     }
 }
+
+/* Purple badge, used for pharmacology bubbles */
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+.badge.bg-purple a {
+    color: #fff;
+}
+
+/* Faceted search: fixed width sidebar, results take all the remaining width */
+.container-fluid.container-full {
+    max-width: none;
+}
+
+.facet-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.facet-layout > .facet-sidebar {
+    flex: 0 0 300px;
+    max-width: 100%;
+    position: sticky;
+    top: 1rem;
+}
+
+.facet-layout > .facet-results {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.facet-panel .facet-options {
+    max-height: 18rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.25rem;
+}
+
+.facet-panel .facet-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    margin-bottom: 0.25rem;
+    padding-left: 0;
+}
+
+.facet-panel .facet-option .form-check-input {
+    flex: 0 0 auto;
+    margin-top: 0.3rem;
+    margin-left: 0;
+}
+
+.facet-panel .form-check-label {
+    cursor: pointer;
+    line-height: 1.5;
+    min-width: 0;
+}
+
+.facet-panel .badge {
+    white-space: normal;
+    text-align: left;
+}
+
+.facet-panel .facet-count {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-top: 0.2rem;
+    font-size: 0.75rem;
+}
+
+.facet-panel .facet-unreachable {
+    opacity: 0.4;
+}
+
+.facet-panel .facet-group + .facet-group {
+    border-top: 1px solid #dee2e6;
+    padding-top: 0.75rem;
+}
+
+@media (max-width: 991.98px) {
+    .facet-layout > .facet-sidebar {
+        flex: 1 1 100%;
+        position: static;
+    }
+
+    .facet-panel .facet-options {
+        max-height: 12rem;
+    }
+}

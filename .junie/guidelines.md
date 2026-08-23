@@ -6,7 +6,7 @@ This document provides essential information for developers working on the Napra
 
 ### Prerequisites
 
-- JDK 23 (Eclipse Temurin recommended)
+- JDK 26 (Eclipse Temurin recommended)
 - Gradle (wrapper included)
 - Docker or Podman with Compose
 

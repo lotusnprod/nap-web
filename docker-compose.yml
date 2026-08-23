@@ -1,30 +1,73 @@
+name: nap
+
+x-restart-defaults: &restart
+  restart: unless-stopped
+
 services:
-  nap-web:
-    build: 
-      context: ./
-    networks:
-      - web_network
-    ports:
-      - "127.0.0.1:8080:8080"
+  # One-shot seeder: loads stack/seed/*.n3 into the TDB2 store and builds the
+  # Lucene index. Idempotent — skips when the store already has data. Set
+  # FORCE_SEED=true to wipe and reload.
+  nap-sparql-seed:
+    build:
+      context: stack/fuseki
+    entrypoint: ["/seed-entrypoint.sh"]
+    environment:
+      FORCE_SEED: "${FORCE_SEED:-false}"
+      SEED_ENABLED: "${SEED_ENABLED:-true}"
+    volumes:
+      - nap-data:/databases
+      - ./stack/seed:/seed:ro
+    networks: [nap]
+    restart: "no"
+
   nap-sparql:
     build:
       context: stack/fuseki
+    <<: *restart
     environment:
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - ENABLE_DATA_WRITE=false
-      - ENABLE_UPDATE=false
-      - ENABLE_SHACL=false
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set - copy .env.example to .env}"
+      ENABLE_DATA_WRITE: "false"
+      ENABLE_UPDATE: "false"
+      ENABLE_SHACL: "false"
+      QUERY_TIMEOUT: "${QUERY_TIMEOUT:-600000}"
     volumes:
-      - ./data:/databases:U
-    networks:
-      - web_network
-    x-podman.uidmaps:
-        - "0:1:1"
-        - "9008:${UID:-1000}:1"
-    x-podman.gidmaps:
-        - "0:1:1"
-        - "9008:${GID:-1000}:1"
+      - nap-data:/databases
+    networks: [nap]
+    depends_on:
+      nap-sparql-seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- 'http://localhost:3030/$$/ping' >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+
+  nap-web:
+    build:
+      context: ./
+    <<: *restart
+    environment:
+      SPARQL_SERVER: "http://nap-sparql:3030/raw/sparql"
+      ENVIRONMENT: "${ENVIRONMENT:-production}"
+      HTTP_AUTH_SPARQL_USER: "${HTTP_AUTH_SPARQL_USER:-}"
+      HTTP_AUTH_SPARQL_PASSWORD: "${HTTP_AUTH_SPARQL_PASSWORD:-}"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:8080"
+    networks: [nap]
+    depends_on:
+      nap-sparql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 45s
+
+volumes:
+  nap-data:
+
 networks:
-  web_network:
-    external: true
-    name: web_network
+  nap:
+    driver: bridge

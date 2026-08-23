@@ -83,11 +83,12 @@ class OrganismViewTest {
         assertTrue(html.contains("Organism Details"))
         assertTrue(html.contains("Experiments"))
         
-        // Should not contain optional fields
-        assertTrue(!html.contains("Taxon"))
-        assertTrue(!html.contains("Family"))
-        assertTrue(!html.contains("Genus"))
-        assertTrue(!html.contains("Species"))
+        // Should not contain optional fields. These are matched on the property cell of the
+        // details table, as the labels also appear elsewhere on the page (the navbar for one).
+        assertTrue(!html.contains("<td>Taxon</td>"))
+        assertTrue(!html.contains("<td>Family</td>"))
+        assertTrue(!html.contains("<td>Genus</td>"))
+        assertTrue(!html.contains("<td>Species</td>"))
         assertTrue(!html.contains("Search for all experiments on this taxon"))
     }
     

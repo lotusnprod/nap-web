@@ -38,3 +38,6 @@ out/
 data
 
 /C*.md
+
+### Local plans ###
+.plans/

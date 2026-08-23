@@ -13,7 +13,7 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
         }
         return
     }
-    
+
     div(classes = "table-responsive") {
         id = "pharmacy"
         table(classes = "table table-striped table-bordered table-hover") {
@@ -30,33 +30,43 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
             }
             tbody {
                 pharmacyResults.forEach { pharmacy ->
-                    tr {
-                        td { 
-                            a(href = localLinks(pharmacy.uri), classes = "font-weight-bold") { 
-                                +localLinks(pharmacy.uri).getRef() 
-                            } 
+                    tr(classes = "pharmacy-row") {
+                        attributes["data-worktype"] =
+                            pharmacy.worktypes.joinToString("|") { it.uri.getRef() }
+                        attributes["data-pharmacology"] =
+                            pharmacy.pharmacology?.uri?.getRef() ?: ""
+                        td {
+                            a(href = localLinks(pharmacy.uri), classes = "font-weight-bold") {
+                                +localLinks(pharmacy.uri).getRef()
+                            }
                         }
                         td {
                             if (pharmacy.worktypes.isNotEmpty()) {
                                 div("d-flex flex-wrap gap-1") {
                                     pharmacy.worktypes.forEach { worktype ->
-                                        span(classes = "badge bg-primary me-1 mb-1") { 
-                                            a(href = localLinks(worktype.uri), classes = "text-white text-decoration-none") { 
-                                                +worktype.name 
-                                            } 
+                                        span(classes = "badge bg-primary me-1 mb-1") {
+                                            a(href = localLinks(worktype.uri), classes = "text-white text-decoration-none") {
+                                                +worktype.name
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                         td {
-                            pharmacy.pharmacology?.let { 
-                                a(href = localLinks(it.uri)) { +it.name } 
+                            pharmacy.pharmacology?.let { pharmacology ->
+                                div("d-flex flex-wrap gap-1") {
+                                    span(classes = "badge bg-purple me-1 mb-1") {
+                                        a(href = localLinks(pharmacology.uri), classes = "text-white text-decoration-none") {
+                                            +pharmacology.name
+                                        }
+                                    }
+                                }
                             }
                         }
                         td {
-                            pharmacy.organism?.let { 
-                                a(href = localLinks(it.uri)) { +it.nameForHumans() } 
+                            pharmacy.organism?.let {
+                                a(href = localLinks(it.uri)) { +it.nameForHumans() }
                             }
                         }
 
@@ -65,10 +75,10 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
                                 if (pharmacy.compounds.isNotEmpty()) {
                                     div("d-flex flex-wrap gap-1") {
                                         pharmacy.compounds.forEach { compound ->
-                                            span(classes = "badge bg-success me-1 mb-1") { 
-                                                a(href = localLinks(compound.uri), classes = "text-white text-decoration-none") { 
-                                                    +(compound.name ?: "Unknown compound") 
-                                                } 
+                                            span(classes = "badge bg-success me-1 mb-1") {
+                                                a(href = localLinks(compound.uri), classes = "text-white text-decoration-none") {
+                                                    +(compound.name ?: "Unknown compound")
+                                                }
                                             }
                                         }
                                     }

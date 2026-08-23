@@ -46,7 +46,7 @@ fun withTestApplication(
  * Helper function to create a test application with in-memory Fuseki server
  */
 fun withInMemoryFuseki(
-    testDataResource: String = "/test_data.n3",
+    testDataResource: String = "/001-core.n3",
     test: suspend ApplicationTestBuilder.(InMemoryFusekiServer) -> Unit
 ) = testApplication {
     val fusekiServer = InMemoryFusekiServer.createAndStart(testDataResource)

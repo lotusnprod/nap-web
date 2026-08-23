@@ -1,0 +1,10 @@
+# Auto-loaded by `docker compose` / `podman-compose`, so local development is the
+# default. Production explicitly selects -f docker-compose.yml -f docker-compose.prod.yml.
+services:
+  nap-sparql:
+    ports:
+      - "127.0.0.1:3030:3030"     # Fuseki UI, for local poking
+
+  nap-web:
+    environment:
+      ENVIRONMENT: "development"

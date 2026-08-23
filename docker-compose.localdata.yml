@@ -1,0 +1,25 @@
+# Run the local stack against an existing TDB2 store (e.g. a copy of the
+# production database) instead of the seeded fixture volume.
+#
+#   NAP_DATA_DIR=/absolute/path/to/data make dev-localdata
+#
+# The store is mounted as-is and seeding is disabled, so nothing here can
+# overwrite it. On rootless Podman the directory must be owned by the container's
+# uid 9008 / gid 0 — once, out of band:
+#
+#   podman unshare chown -R 9008:0 "$NAP_DATA_DIR"
+#
+# If the nap-data volume already exists with different backing, remove it first:
+# `docker volume rm nap_nap-data`.
+services:
+  nap-sparql-seed:
+    environment:
+      SEED_ENABLED: "false"
+
+volumes:
+  nap-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${NAP_DATA_DIR:?set NAP_DATA_DIR to the absolute path of the TDB2 store directory}"

@@ -65,12 +65,14 @@ class NaiveDataController : AbstractController<NaiveDataViewData>() {
             return
         }
 
-        if (type.contains("/")) {
-            call.respondText(invalidEntryPage("type", type), ContentType.Text.Html)
+        // genURI rejects anything that could break out of the generated SPARQL IRIREF.
+        // This route takes `type` straight from the URL, so surface that as a 400 rather than a 500.
+        val uri = try {
+            genURI(type, id)
+        } catch (e: IllegalArgumentException) {
+            call.respondText(invalidEntryPage("type", type), ContentType.Text.Html, HttpStatusCode.BadRequest)
             return
         }
-
-        val uri = genURI(type, id)
         val sparqlConnector = SparqlConnector()
         
         // Get outgoing nodes

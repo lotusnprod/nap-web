@@ -8,7 +8,10 @@ import kotlinx.coroutines.runBlocking
 import net.nprod.nap.module
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.test.InMemoryFusekiServer
-import org.junit.jupiter.api.*
+import org.junit.AfterClass
+import org.junit.BeforeClass
+import kotlin.test.Test
+import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
 import kotlin.test.assertEquals
 
@@ -16,7 +19,7 @@ class SparqlQueryTrackingIntegrationTest {
     companion object {
         private lateinit var fusekiServer: InMemoryFusekiServer
 
-        @BeforeAll
+        @BeforeClass
         @JvmStatic
         fun setUpClass() {
             fusekiServer = InMemoryFusekiServer()
@@ -24,7 +27,7 @@ class SparqlQueryTrackingIntegrationTest {
             System.setProperty("SPARQL_SERVER", fusekiServer.getSparqlEndpoint())
         }
 
-        @AfterAll
+        @AfterClass
         @JvmStatic
         fun tearDownClass() {
             fusekiServer.stop()
@@ -32,28 +35,30 @@ class SparqlQueryTrackingIntegrationTest {
         }
     }
 
-    @BeforeEach
+    @BeforeTest
     fun setUp() {
         // Clear any existing tracking
         SparqlConnector.clearTracking()
     }
 
     @Test
-    fun `test SPARQL queries are displayed on compound search page`() = testApplication {
+    fun `test compound search page does not expose its SPARQL query`() = testApplication {
         application {
             module()
         }
 
         // Make a request to the compound search page with a query
         val response = client.get("/compound/search?query=test")
-        
+
         assertEquals(HttpStatusCode.OK, response.status)
         val html = response.bodyAsText()
-        
-        // Check that the SPARQL queries section is present
-        assertTrue(html.contains("Show SPARQL Queries"), "HTML should contain SPARQL queries toggle")
-        assertTrue(html.contains("sparql-queries"), "HTML should contain the queries div")
-        assertTrue(html.contains("copyQuery"), "HTML should contain the copy function")
+
+        // The search query is intentionally executed with logQuery = false
+        // (see CompoundSearchController), so it must NOT surface in the UI.
+        assertTrue(
+            !html.contains("Show SPARQL Queries"),
+            "Search query is logged with logQuery = false and must not be exposed"
+        )
     }
 
     @Test
@@ -82,9 +87,10 @@ class SparqlQueryTrackingIntegrationTest {
         // Check that the SPARQL queries section is present
         assertTrue(html.contains("Show SPARQL Queries"), "HTML should contain SPARQL queries toggle")
         assertTrue(html.contains("sparql-queries"), "HTML should contain the queries div")
-        
-        // Check that queries contain expected patterns
-        assertTrue(html.contains("SELECT"), "Should contain SELECT queries")
+
+        // The logged query for a compound page is the pharmacies CONSTRUCT query
+        // (other queries on the page use logQuery = false), scoped to this compound.
+        assertTrue(html.contains("CONSTRUCT"), "Should contain the tracked CONSTRUCT query")
         assertTrue(html.contains("compound/1"), "Should contain queries for the specific compound")
     }
 

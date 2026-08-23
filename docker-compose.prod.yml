@@ -1,0 +1,41 @@
+# Production overlay. Used explicitly (docker-compose.override.yml is NOT loaded):
+#
+#   NAP_DATA_DIR=/srv/nap/data docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
+#
+# Differences from local dev:
+#   - the real TDB2 store is bind-mounted; the fixture seeder is disabled outright
+#   - nap-web additionally joins the external reverse-proxy network
+#   - no Fuseki port published on the host
+#
+# Once CI publishes images (plan 03 §7.13 `image` job), replace the `build:` blocks
+# with `image: ghcr.io/lotusnprod/nap-{web,fuseki}:${TAG}` and deploy by tag.
+services:
+  nap-sparql-seed:
+    environment:
+      SEED_ENABLED: "false"
+
+  nap-sparql:
+    environment:
+      QUERY_TIMEOUT: "${QUERY_TIMEOUT:-60000}"
+    mem_limit: ${SPARQL_MEM_LIMIT:-6g}
+    cpus: ${SPARQL_CPUS:-4}
+
+  nap-web:
+    environment:
+      ENVIRONMENT: "production"
+    networks: [nap, web_network]
+    mem_limit: ${WEB_MEM_LIMIT:-2g}
+    cpus: ${WEB_CPUS:-2}
+
+volumes:
+  nap-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${NAP_DATA_DIR:?set NAP_DATA_DIR to the absolute path of the TDB2 store directory}"
+
+networks:
+  web_network:
+    external: true
+    name: web_network

@@ -25,7 +25,7 @@ class InMemoryFusekiServer {
     /**
      * Start the in-memory Fuseki server with test data
      */
-    fun start(testDataResource: String = "/test_data.n3"): String {
+    fun start(testDataResource: String = "/001-core.n3"): String {
         // Find an available port
         serverPort = findAvailablePort(3330)
         serverUrl = "http://localhost:$serverPort"
@@ -127,7 +127,7 @@ class InMemoryFusekiServer {
         /**
          * Create and start a new in-memory Fuseki server instance
          */
-        fun createAndStart(testDataResource: String = "/test_data.n3"): InMemoryFusekiServer {
+        fun createAndStart(testDataResource: String = "/001-core.n3"): InMemoryFusekiServer {
             val server = InMemoryFusekiServer()
             server.start(testDataResource)
             return server

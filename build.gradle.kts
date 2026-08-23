@@ -7,15 +7,15 @@ val serialization_version: String by project
 
 
 plugins {
-    kotlin("jvm") version "2.2.0-RC"
-    id("io.ktor.plugin") version "3.1.3"
-    id("com.github.ben-manes.versions") version "0.52.0"
-    kotlin("plugin.serialization") version "2.2.0-RC"
-    id("org.jetbrains.kotlinx.kover") version "0.8.3"
+    kotlin("jvm") version "2.4.0"
+    id("io.ktor.plugin") version "3.5.2"
+    id("com.github.ben-manes.versions") version "0.54.0"
+    kotlin("plugin.serialization") version "2.4.0"
+    id("org.jetbrains.kotlinx.kover") version "0.9.8"
 }
 
 kotlin {
-    jvmToolchain(24)
+    jvmToolchain(26)
 }
 
 group = "net.nprod.nap"
@@ -32,6 +32,11 @@ repositories {
     mavenCentral()
 }
 
+// stack/seed/ is the single source of truth for RDF fixtures: the local dev stack
+// loads it through stack/fuseki/seed-entrypoint.sh, and the in-memory Fuseki test
+// server reads the same files off the test classpath.
+sourceSets["test"].resources.srcDir(layout.projectDirectory.dir("stack/seed"))
+
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
@@ -44,7 +49,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinxHtml_version")
     implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinxHtml_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     implementation("ch.qos.logback:logback-classic:$logback_version")
     
@@ -53,7 +58,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("io.ktor:ktor-client-content-negotiation")
     testImplementation("org.apache.jena:jena-fuseki-main:$jena_version")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
 }
 
 distributions {

@@ -97,6 +97,9 @@ jQuery(document).ready(function() {
                 case "compound":
                     url = "/compound/search?query=" + encodeURIComponent(searchQuery);
                     break;
+                // The taxon search is served by the organism search route: it searches
+                // organism names and returns one result per taxon.
+                case "taxon":
                 case "organism":
                     url = "/organism/search?query=" + encodeURIComponent(searchQuery);
                     break;

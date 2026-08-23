@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-FROM docker.io/eclipse-temurin:21-jre-alpine AS base
+FROM docker.io/eclipse-temurin:26-jre-alpine AS base
 
 LABEL maintainer="jouni.tuominen@aalto.fi"
 
@@ -80,25 +80,43 @@ ENV ASSEMBLER $FUSEKI_BASE/configuration/assembler.ttl
 COPY assembler.ttl $ASSEMBLER
 ENV CONFIG $FUSEKI_BASE/config.ttl
 COPY fuseki-config.ttl $CONFIG
-RUN mkdir -p $FUSEKI_BASE/databases
 
 # Set permissions to allow fuseki to run as an arbitrary user
 RUN chgrp -R 0 $FUSEKI_BASE \
     && chmod -R g+rwX $FUSEKI_BASE
 
-# Tools for loading data
+# The dataset locations from assembler.ttl (/databases) and the local-dev seed
+# mount (/seed) are created and owned here, so a NAMED VOLUME inherits the right
+# ownership on both Docker and Podman. That is what removes the need for Podman's
+# `:U` bind flag and the x-podman.uidmaps/gidmaps hacks in compose.
+RUN mkdir -p /databases /seed \
+    && chown -R 9008:0 /databases /seed \
+    && chmod -R g+rwX /databases /seed
+
+# Tools for loading data. NOTE: the xloader locations must match the
+# tdb2:location in assembler.ttl; they used to point at $FUSEKI_BASE/databases/tdb,
+# which is neither the configured dataset nor a mounted path.
 ENV JAVA_CMD java -cp "$FUSEKI_HOME/fuseki-server.jar:/javalibs/*"
 ENV TDBLOADER $JAVA_CMD tdb.tdbloader --desc=$ASSEMBLER
-ENV TDB1XLOADER $JENA_BIN/tdb1.xloader --loc=$FUSEKI_BASE/databases/tdb
+ENV TDB1XLOADER $JENA_BIN/tdb1.xloader --loc=/databases/tdb_nap_raw
 ENV TDB2TDBLOADER $JAVA_CMD tdb2.tdbloader --desc=$ASSEMBLER
-ENV TDB2XLOADER $JENA_BIN/tdb2.xloader --loc=$FUSEKI_BASE/databases/tdb
+ENV TDB2XLOADER $JENA_BIN/tdb2.xloader --loc=/databases/tdb_nap_raw
 ENV TEXTINDEXER $JAVA_CMD jena.textindexer --desc=$ASSEMBLER
 ENV TDBSTATS $JAVA_CMD tdb.tdbstats --desc=$ASSEMBLER
 ENV TDB2TDBSTATS $JAVA_CMD tdb2.tdbstats --desc=$ASSEMBLER
 
+# Local-dev seeder: loads stack/seed/* into the TDB2 store, then builds the
+# Lucene index. Used as the entrypoint of the one-shot nap-sparql-seed service.
+COPY seed-entrypoint.sh /seed-entrypoint.sh
+RUN chmod 755 /seed-entrypoint.sh
+
 WORKDIR /jena-fuseki
 EXPOSE 3030
 USER 9008
+
+# /$/ping is `anon` in shiro.ini, so this needs no credentials.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=120s --retries=10 \
+  CMD wget -qO- http://localhost:3030/\$/ping >/dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["java", "-cp", "*:/javalibs/*", "org.apache.jena.fuseki.cmd.FusekiCmd"]

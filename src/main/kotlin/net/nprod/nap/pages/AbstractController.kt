@@ -49,7 +49,14 @@ abstract class AbstractController<DataType> : BaseController<DataType> {
             return null
         }
 
-        val uri = genURI(getEntityType(), identifier)
+        // An identifier with characters that cannot be safely spliced into a SPARQL IRIREF
+        // is treated as "not found" rather than propagating as a 500.
+        val uri = try {
+            genURI(getEntityType(), identifier)
+        } catch (e: IllegalArgumentException) {
+            return null
+        }
+
         val sparqlConnector = SparqlConnector()
         
         return createData(identifier, sparqlConnector, uri)
