@@ -16,16 +16,23 @@ LOCALDATA_FILES := -f docker-compose.yml -f docker-compose.override.yml -f docke
 # development mode. Without it every target below silently runs the dev config.
 ifeq ($(PROD),1)
 COMPOSE_FILES := -f docker-compose.yml -f docker-compose.prod.yml
+PREFLIGHT := prod-preflight
 else
 COMPOSE_FILES :=
+PREFLIGHT :=
 endif
 DC := $(COMPOSE) $(COMPOSE_FILES)
+
+# compose reads .env by itself, make does not. Read it here too so the preflight
+# checks the same value compose will use, and export it so both agree.
+NAP_DATA_DIR ?= $(shell sed -n 's/^NAP_DATA_DIR=//p' .env 2>/dev/null | tail -1)
+export NAP_DATA_DIR
 
 SPARQL_ENDPOINT ?= http://localhost:3030/raw/sparql
 
 .DEFAULT_GOAL := help
 .PHONY: help dev dev-localdata up sparql-only down logs ps reseed reindex \
-        shell-web shell-sparql test build image clean nuke check-engine env
+        shell-web shell-sparql test build image clean nuke check-engine env prod-preflight
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -34,10 +41,22 @@ help: ## Show this help
 check-engine:
 	@test "$(COMPOSE)" != "MISSING" || { echo "Need docker compose or podman-compose"; exit 1; }
 
+# Docker creates a missing bind source instead of failing, so a wrong NAP_DATA_DIR
+# would bring the stack up on an empty store and look healthy. Check it here, before
+# compose gets a chance.
+prod-preflight:
+	@test -n "$(NAP_DATA_DIR)" || { \
+	  echo "NAP_DATA_DIR is not set (put it in .env, e.g. NAP_DATA_DIR=/home/bjo/nap/nap-web/data)"; exit 1; }
+	@test -d "$(NAP_DATA_DIR)" || { \
+	  echo "NAP_DATA_DIR=$(NAP_DATA_DIR) does not exist. Refusing: docker would create it empty."; exit 1; }
+	@test -d "$(NAP_DATA_DIR)/tdb_nap_raw" || { \
+	  echo "NAP_DATA_DIR=$(NAP_DATA_DIR) has no tdb_nap_raw/ - is that really the store?"; exit 1; }
+	@echo "[preflight] store: $(NAP_DATA_DIR) ($$(du -sh $(NAP_DATA_DIR)/tdb_nap_raw 2>/dev/null | cut -f1))"
+
 env:
 	@test -f .env || { cp .env.example .env; echo "Created .env from .env.example"; }
 
-dev: check-engine env ## Full local stack with seed data (the one command you need)
+dev: check-engine $(PREFLIGHT) env ## Full local stack with seed data (the one command you need)
 	$(DC) up --build -d --wait
 	@echo ""
 	@echo "  nap-web   http://localhost:$${WEB_PORT:-8080}"
@@ -47,10 +66,10 @@ dev: check-engine env ## Full local stack with seed data (the one command you ne
 dev-localdata: check-engine env ## Like dev, but against the store at NAP_DATA_DIR; never seeds
 	$(COMPOSE) $(LOCALDATA_FILES) up --build -d --wait
 
-up: check-engine env ## Start without rebuilding (PROD=1 on the server)
+up: check-engine $(PREFLIGHT) env ## Start without rebuilding (PROD=1 on the server)
 	$(DC) up -d --wait
 
-sparql-only: check-engine env ## Only Fuseki (for running nap-web from the IDE)
+sparql-only: check-engine $(PREFLIGHT) env ## Only Fuseki (for running nap-web from the IDE)
 	$(DC) up --build -d --wait nap-sparql
 	@echo "Run the app with:"
 	@echo "  SPARQL_SERVER=$(SPARQL_ENDPOINT) ENVIRONMENT=development ./gradlew run"
@@ -64,7 +83,7 @@ logs: check-engine ## Follow logs
 ps: check-engine ## Show container + health status
 	$(DC) ps
 
-reseed: check-engine ## Wipe the TDB2 store and reload stack/seed/* (dev only)
+reseed: check-engine $(PREFLIGHT) ## Wipe the TDB2 store and reload stack/seed/* (dev only)
 	@test "$(PROD)" != "1" || { echo "reseed loads FIXTURES; refusing to run with PROD=1"; exit 1; }
 	FORCE_SEED=true $(DC) up -d --force-recreate nap-sparql
 
@@ -75,7 +94,7 @@ reseed: check-engine ## Wipe the TDB2 store and reload stack/seed/* (dev only)
 #     a bare `java -cp fuseki-server.jar`, so log4j2 falls back to its ERROR-only
 #     default and the indexer's "N properties indexed" summary is invisible — the
 #     command prints nothing whether it indexed six million properties or zero.
-reindex: check-engine ## Rebuild the Lucene text index (add PROD=1 on the server)
+reindex: check-engine $(PREFLIGHT) ## Rebuild the Lucene text index (add PROD=1 on the server)
 	$(DC) stop nap-sparql
 	$(DC) run --rm --entrypoint sh nap-sparql -c '\
 	  set -e; \

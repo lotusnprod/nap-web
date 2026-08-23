@@ -1,6 +1,10 @@
 # Production overlay. Used explicitly (docker-compose.override.yml is NOT loaded):
 #
-#   NAP_DATA_DIR=/srv/nap/data docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
+#   make up PROD=1          # preferred: validates NAP_DATA_DIR before touching anything
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
+#
+# Set NAP_DATA_DIR in .env on the server rather than typing it on the command line —
+# a typo used to be able to destroy the store (see the volume note below).
 #
 # Differences from local dev:
 #   - the real TDB2 store is bind-mounted; fixture seeding is disabled outright
@@ -14,6 +18,19 @@ services:
     environment:
       SEED_ENABLED: "false"
       QUERY_TIMEOUT: "${QUERY_TIMEOUT:-60000}"
+    # A plain bind mount, replacing the base file's `nap-data:/databases` (compose
+    # merges volumes by target path). This used to be a named volume with
+    # driver_opts type=none,o=bind — which meant every change to NAP_DATA_DIR made
+    # compose ask "Volume nap_nap-data exists but doesn't match configuration.
+    # Recreate (data will be lost)?" on the production store. Answering yes to that
+    # prompt deletes a plain named volume's contents. A bind mount has no such
+    # prompt, and `docker volume rm` / `down -v` cannot reach the data at all.
+    #
+    # Caveat this does NOT solve: Docker silently creates a missing bind source, so
+    # a typo'd NAP_DATA_DIR yields an empty store rather than an error. `make ...
+    # PROD=1` refuses to run unless the directory exists and holds tdb_nap_raw.
+    volumes:
+      - "${NAP_DATA_DIR:?set NAP_DATA_DIR to the absolute path of the TDB2 store directory}:/databases"
     mem_limit: ${SPARQL_MEM_LIMIT:-6g}
     cpus: ${SPARQL_CPUS:-4}
 
@@ -23,14 +40,6 @@ services:
     networks: [nap, web_network]
     mem_limit: ${WEB_MEM_LIMIT:-2g}
     cpus: ${WEB_CPUS:-2}
-
-volumes:
-  nap-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: "${NAP_DATA_DIR:?set NAP_DATA_DIR to the absolute path of the TDB2 store directory}"
 
 networks:
   web_network:
