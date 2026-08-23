@@ -32,23 +32,14 @@ data class PartCondition (
                     }
                 }
             }
-            if (new == null) throw Exception ("No partcondition found for $uri")
+            if (new == null) throw EntityNotFoundException("partcondition", uri)
             return new
         }
     }
 
-    object Cache {
-        private val pharmacologies: MutableMap<String, PartCondition> = mutableMapOf()
-
-        operator fun get(partconditionUri: String?): PartCondition? {
-            if (partconditionUri == null) return null
-
-            return pharmacologies[partconditionUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<PartCondition>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, PartCondition> {
+            val partconditions = mutableMapOf<String, PartCondition>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -64,9 +55,10 @@ data class PartCondition (
                     val solution = result.nextSolution()
                     val partconditionUri = solution["partcondition"].asResource().uri
                     val name = solution["name"].asLiteral().string
-                    pharmacologies[partconditionUri] = PartCondition(uri = partconditionUri, name = name)
+                    partconditions[partconditionUri] = PartCondition(uri = partconditionUri, name = name)
                 }
             }
+            return partconditions
         }
     }
 }

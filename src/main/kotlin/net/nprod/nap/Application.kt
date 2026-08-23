@@ -2,6 +2,7 @@ package net.nprod.nap
 
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.*
+import net.nprod.nap.pages.sparqlProxy.SparqlProxyService
 import net.nprod.nap.plugins.*
 import io.ktor.server.routing.*
 import io.ktor.serialization.kotlinx.json.*
@@ -22,6 +23,12 @@ fun Application.module() {
             isLenient = true
         })
     }
+    configureErrorHandling()
     install(RoutingRoot)
     configureRouting()
+
+    // The proxy's HTTP client is process-wide; release its engine on shutdown.
+    monitor.subscribe(ApplicationStopping) {
+        SparqlProxyService.sharedClient.close()
+    }
 }

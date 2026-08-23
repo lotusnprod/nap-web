@@ -26,7 +26,12 @@ class PharmacyByTaxaSearchController {
         val taxonId = call.parameters["taxon_id"] ?: ""
         
         if (taxonId.contains(safeNameRegex)) {
-            call.respondText(InvalidEntryUtil.createInvalidEntryPage("taxon", taxonId), ContentType.Text.Html)
+            // A rejected taxon id is a malformed request, not a page that exists.
+            call.respondText(
+                InvalidEntryUtil.createInvalidEntryPage("taxon", taxonId),
+                ContentType.Text.Html,
+                HttpStatusCode.BadRequest
+            )
             return
         }
 

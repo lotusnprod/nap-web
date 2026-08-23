@@ -16,8 +16,9 @@ fun pharmaciesFromQuery(
     query: String
 ): MutableList<Pharmacy> {
     val pharmacyResults = mutableListOf<Pharmacy>()
-    sparqlConnector.constructQueryIntoAQueriableDataset(query)?.let { pharmacyResultsDataset ->
-        pharmacyResultsDataset.begin(ReadWrite.READ)
+    // withConstructedDataset owns the read transaction and closes the dataset,
+    // including when the loop below throws.
+    sparqlConnector.withConstructedDataset(query) { pharmacyResultsDataset ->
         val graph = pharmacyResultsDataset.asDatasetGraph().defaultGraph
         val model = ModelFactory.createModelForGraph(graph)
 
@@ -75,7 +76,6 @@ fun pharmaciesFromQuery(
                 pharmacyResults.add(pharmacy)
             }
         }
-        pharmacyResultsDataset.end()
     }
     return pharmacyResults
 }

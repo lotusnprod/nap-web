@@ -8,7 +8,11 @@
         var table = document.getElementById('pharmacy');
         if (!panel || !table) return;
 
-        var FACETS = ['worktype', 'pharmacology'];
+        /* The facets are whatever the server decided to render, see facetsOf in pharmacyFacets.kt.
+           Each of them is backed by a data-<key> attribute on the experiment rows. */
+        var FACETS = Array.prototype.slice.call(panel.querySelectorAll('.facet-group')).map(function (group) {
+            return group.getAttribute('data-facet');
+        });
         var NONE = '__none__';
 
         var rows = Array.prototype.slice.call(table.querySelectorAll('tbody tr.pharmacy-row'));
@@ -43,7 +47,7 @@
             };
         });
 
-        var summary = document.getElementById('pharmacy-result-summary');
+        var count = document.getElementById('pharmacy-count');
         var noResults = document.getElementById('pharmacy-no-results');
         var clearAll = document.getElementById('facet-clear-all');
 
@@ -122,10 +126,10 @@
 
             if (clearAll) clearAll.classList.toggle('d-none', total === 0);
             if (noResults) noResults.classList.toggle('d-none', visible !== 0);
-            if (summary) {
-                summary.textContent = total === 0
-                    ? 'Experiments (' + entries.length + ' results)'
-                    : 'Experiments (' + visible + ' of ' + entries.length + ' results)';
+            if (count) {
+                count.textContent = total === 0
+                    ? entries.length + ' experiments'
+                    : visible + ' of ' + entries.length + ' experiments';
             }
 
             updateUrl(selections);

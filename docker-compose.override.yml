@@ -3,7 +3,8 @@
 services:
   nap-sparql:
     ports:
-      - "127.0.0.1:3030:3030"     # Fuseki UI, for local poking
+      # Fuseki UI, for local poking. Override FUSEKI_PORT if 3030 is taken.
+      - "127.0.0.1:${FUSEKI_PORT:-3030}:3030"
 
   nap-web:
     environment:

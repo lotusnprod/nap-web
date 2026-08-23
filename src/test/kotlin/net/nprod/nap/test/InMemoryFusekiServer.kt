@@ -8,7 +8,6 @@ import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.riot.Lang
 import org.apache.jena.system.Txn
 import java.io.InputStream
-import java.net.ServerSocket
 
 /**
  * In-memory Fuseki server for testing that loads test data from N3 files.
@@ -26,24 +25,25 @@ class InMemoryFusekiServer {
      * Start the in-memory Fuseki server with test data
      */
     fun start(testDataResource: String = "/001-core.n3"): String {
-        // Find an available port
-        serverPort = findAvailablePort(3330)
-        serverUrl = "http://localhost:$serverPort"
-        
         // Create in-memory transactional dataset
         dataset = DatasetFactory.createTxnMem()
-        
+
         // Load test data
         loadTestData(testDataResource)
-        
-        // Create and start Fuseki server
+
+        // Port 0 lets the OS assign a free port at bind time. Picking one ourselves
+        // first (probe a ServerSocket, close it, then bind) is a check-then-act race:
+        // it produced intermittent "Failed to bind to 0.0.0.0:3330" failures.
         fusekiServer = FusekiServer.create()
-            .port(serverPort)
+            .port(0)
             .add("/napra", dataset!!)
             .build()
-        
+
         fusekiServer!!.start()
-        
+
+        serverPort = fusekiServer!!.port
+        serverUrl = "http://localhost:$serverPort"
+
         return getSparqlEndpoint()
     }
     
@@ -99,23 +99,6 @@ class InMemoryFusekiServer {
                 ds.defaultModel.add(model)
             }
         }
-    }
-    
-    /**
-     * Find an available port starting from the given port
-     */
-    private fun findAvailablePort(startPort: Int): Int {
-        for (port in startPort until startPort + 100) {
-            try {
-                ServerSocket(port).use { 
-                    return port 
-                }
-            } catch (e: Exception) {
-                // Port is in use, try next one
-                continue
-            }
-        }
-        throw RuntimeException("Could not find available port starting from $startPort")
     }
     
     /**

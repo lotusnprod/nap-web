@@ -38,22 +38,19 @@ class NaiveDataController : AbstractController<NaiveDataViewData>() {
      * @param uri The entity URI
      * @return The data object or null if not found
      */
-    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): NaiveDataViewData? {
-        try {
-            // Get outgoing nodes
-            val outNodes = sparqlConnector.predicateAndObjectsOf(uri)
-            // Get incoming nodes
-            val inNodes = sparqlConnector.subjectAndPredicatesOf(uri)
-            
-            return NaiveDataViewData(
-                type = getEntityType(),
-                identifier = identifier,
-                outNodes = convertRdfNodesToStrings(outNodes),
-                inNodes = convertRdfNodesToStrings(inNodes)
-            )
-        } catch (e: Exception) {
-            return null
-        }
+    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): NaiveDataViewData {
+        // See PharmacyController: not-found and backend-down must stay distinguishable.
+        // Get outgoing nodes
+        val outNodes = sparqlConnector.predicateAndObjectsOf(uri)
+        // Get incoming nodes
+        val inNodes = sparqlConnector.subjectAndPredicatesOf(uri)
+
+        return NaiveDataViewData(
+            type = getEntityType(),
+            identifier = identifier,
+            outNodes = convertRdfNodesToStrings(outNodes),
+            inNodes = convertRdfNodesToStrings(inNodes)
+        )
     }
 
     /**
@@ -61,7 +58,8 @@ class NaiveDataController : AbstractController<NaiveDataViewData>() {
      */
     suspend fun handleGenericRequest(call: ApplicationCall, type: String, id: String?) {
         if (id == null || id.toIntOrNull() == null) {
-            call.respondText(invalidEntryPage(type, id ?: "null"), ContentType.Text.Html)
+            // Entity ids are integers, so this is a malformed URL, not a missing record.
+            call.respondText(invalidEntryPage(type, id ?: "null"), ContentType.Text.Html, HttpStatusCode.BadRequest)
             return
         }
 

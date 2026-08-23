@@ -8,18 +8,9 @@ data class DoseUnit (
     val uri: String,
     val name: String
 ) {
-    object Cache {
-        private val doseunits: MutableMap<String, DoseUnit> = mutableMapOf()
-
-        operator fun get(doseunitUri: String?): DoseUnit? {
-            if (doseunitUri == null) return null
-
-            return doseunits[doseunitUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<DoseUnit>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, DoseUnit> {
+            val doseunits = mutableMapOf<String, DoseUnit>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -38,6 +29,7 @@ data class DoseUnit (
                     doseunits[doseunitUri] = DoseUnit(uri = doseunitUri, name = name)
                 }
             }
+            return doseunits
         }
     }
 }

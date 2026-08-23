@@ -157,7 +157,8 @@ class BaseControllerTest {
         }
         
         val response = client.get("/test/invalid")
-        assertEquals(HttpStatusCode.OK, response.status)
+        // A missing entity is a real 404, not a 200 with an "Invalid id" body
+        assertEquals(HttpStatusCode.NotFound, response.status)
         assertEquals(ContentType.Text.Html.withCharset(Charsets.UTF_8), response.contentType())
         
         val body = response.bodyAsText()
@@ -205,8 +206,8 @@ class BaseControllerTest {
         }
         
         val response = client.get("/test")
-        assertEquals(HttpStatusCode.OK, response.status)
-        
+        assertEquals(HttpStatusCode.NotFound, response.status)
+
         val body = response.bodyAsText()
         assertTrue(body.contains("Invalid"))
         assertTrue(body.contains("TestEntity"))

@@ -8,17 +8,9 @@ data class AdministrationRoute (
     val uri: String,
     val name: String
 ) {
-    object Cache {
-        private val administrationRoutes: MutableMap<String, AdministrationRoute> = mutableMapOf()
-
-        operator fun get(administrationRouteUri: String?): AdministrationRoute? {
-            if (administrationRouteUri == null) return null
-
-            return administrationRoutes[administrationRouteUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
+    object Cache : ReferenceCache<AdministrationRoute>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, AdministrationRoute> {
+            val administrationRoutes = mutableMapOf<String, AdministrationRoute>()
 
             // Looks like we are missing a type here...
             val query = """
@@ -38,6 +30,7 @@ data class AdministrationRoute (
                     administrationRoutes[administrationRouteUri] = AdministrationRoute(uri = administrationRouteUri, name = name)
                 }
             }
+            return administrationRoutes
         }
     }
 }

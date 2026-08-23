@@ -12,25 +12,30 @@ import org.apache.commons.codec.binary.Base64.encodeBase64
  * Service class to handle SPARQL proxy functionality
  * This centralizes the common logic for proxying SPARQL requests
  */
-class SparqlProxyService {
+class SparqlProxyService(private val client: HttpClient = sharedClient) {
     // Environment variables
     private val sparqlServer = System.getenv("SPARQL_SERVER")
     private val httpAuthSparqlUser = System.getenv("HTTP_AUTH_SPARQL_USER") ?: ""
     private val httpAuthSparqlPassword = System.getenv("HTTP_AUTH_SPARQL_PASSWORD") ?: ""
-    
-    /**
-     * Create and configure a new HTTP client
-     * @return Configured HttpClient instance
-     */
-    private fun createHttpClient(): HttpClient {
-        return HttpClient(CIO) {
+
+    companion object {
+        /**
+         * One client for the whole process.
+         *
+         * This used to be built per request, so every call to the public
+         * `/raw/sparql` endpoint leaked a CIO engine and its thread pool — a way to
+         * exhaust the server with nothing but well-formed requests.
+         */
+        val sharedClient: HttpClient = HttpClient(CIO) {
             install(HttpTimeout) {
                 requestTimeoutMillis = 60_000
+                connectTimeoutMillis = 3_000
+                socketTimeoutMillis = 60_000
             }
             followRedirects = true
         }
     }
-    
+
     /**
      * Create Basic Authentication header value
      * @return Base64 encoded basic auth header value
@@ -46,8 +51,6 @@ class SparqlProxyService {
      * @return HttpResponse from the SPARQL server
      */
     suspend fun handlePostRequest(body: String): HttpResponse {
-        val client = createHttpClient()
-        
         return client.post(sparqlServer) {
             headers {
                 append(HttpHeaders.Authorization, createAuthHeader())
@@ -64,8 +67,6 @@ class SparqlProxyService {
      * @return HttpResponse from the SPARQL server
      */
     suspend fun handleGetRequest(queryParameters: Parameters): HttpResponse {
-        val client = createHttpClient()
-        
         return client.get(sparqlServer) {
             headers {
                 append(HttpHeaders.Authorization, createAuthHeader())

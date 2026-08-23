@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-FROM docker.io/eclipse-temurin:26-jre-alpine AS base
+FROM docker.io/eclipse-temurin:25-jre-alpine AS base
 
 LABEL maintainer="jouni.tuominen@aalto.fi"
 
@@ -21,10 +21,13 @@ LABEL maintainer="jouni.tuominen@aalto.fi"
 RUN apk add --update bash ca-certificates coreutils findutils jq pwgen ruby wget && rm -rf /var/cache/apk/*
 
 # Update below according to https://jena.apache.org/download/
-ENV FUSEKI_SHA512 650d4576927cb4e330c372c46f76dde3fbd683b59cc692bac501b545097402c58c2254b25502e4225ba6f7d4c79ee12c5e43b78124115dbbe6371c487aa8604f
-ENV FUSEKI_VERSION 5.2.0
-ENV JENA_SHA512 9a66044573ca269c0a9a1191fe7a8e1925f2d77e2e0bdadddd68616a1bafed1d9819c0b2988dd03614ec778a3882ccb091d825976fc0837406916f9f001b701c
-ENV JENA_VERSION 5.2.0
+# Sums are the published ones from https://archive.apache.org/dist/jena/binaries/*.sha512.
+# Keep in lockstep with the `jena` version in gradle/libs.versions.toml: the app and the
+# server drifted four feature releases apart before this bump.
+ENV FUSEKI_SHA512 ba65f5867d2d4741b2ed9e2af5a0d4fbb447909894ab2a0c6bc4dac8997f4fe339c87b13c48d45d054977769f0f8bf763ea346b1f7792d5cdc458041bd43a132
+ENV FUSEKI_VERSION 6.2.0
+ENV JENA_SHA512 2b467d2ff940c207aea935e012ecbb0f0ab3e6bf59b3fc4b3fbc6cf9cea11f1428e97882ec078a5ffc57e114e0f5c88ea98c4575e687cc1dd232f99324b7b2a2
+ENV JENA_VERSION 6.2.0
 
 ENV MIRROR https://dlcdn.apache.org
 ENV ARCHIVE http://archive.apache.org/dist
@@ -47,8 +50,9 @@ RUN wget -O fuseki.tar.gz $MIRROR/jena/binaries/apache-jena-fuseki-$FUSEKI_VERSI
     sha512sum -c fuseki.tar.gz.sha512 && \
     tar zxf fuseki.tar.gz && \
     mv apache-jena-fuseki* $FUSEKI_HOME && \
-    rm fuseki.tar.gz* && \
-    cd $FUSEKI_HOME && rm -rf fuseki.war
+    rm fuseki.tar.gz*
+# (The distribution no longer ships fuseki.war — the WAR/webapp packaging is gone as of
+# Jena 6, so there is nothing left to delete here.)
 
 # Get tdb1.xloader and tdb2.xloader from Jena
 # sha512 checksum
@@ -119,5 +123,14 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=120s --retries=10 \
   CMD wget -qO- http://localhost:3030/\$/ping >/dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["java", "-cp", "*:/javalibs/*", "org.apache.jena.fuseki.cmd.FusekiCmd"]
+# Jena 6 replaced the WAR-based webapp server: `org.apache.jena.fuseki.cmd.FusekiCmd` no
+# longer exists. `main.cmds.FusekiServerUICmd` is the equivalent — Fuseki Main with the UI
+# and the admin area, and it still reads $FUSEKI_BASE (configuration/*.ttl and shiro.ini).
+#
+# `--conf` is NOT optional: the webapp server used to pick up $FUSEKI_BASE/config.ttl on its
+# own, the new one does not. Without it the server starts fine and silently ignores config.ttl,
+# so the QUERY_TIMEOUT knob in docker-entrypoint.sh (docker-compose.prod.yml sets 60s) would
+# quietly stop limiting queries on a public endpoint. Exec form does not expand variables, so
+# the path is written out; it must stay equal to $CONFIG above.
+CMD ["java", "-cp", "*:/javalibs/*", "org.apache.jena.fuseki.main.cmds.FusekiServerUICmd", "--conf=/fuseki-base/config.ttl"]
 

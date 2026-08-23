@@ -3,19 +3,16 @@
 #   NAP_DATA_DIR=/srv/nap/data docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait
 #
 # Differences from local dev:
-#   - the real TDB2 store is bind-mounted; the fixture seeder is disabled outright
+#   - the real TDB2 store is bind-mounted; fixture seeding is disabled outright
 #   - nap-web additionally joins the external reverse-proxy network
 #   - no Fuseki port published on the host
 #
 # Once CI publishes images (plan 03 §7.13 `image` job), replace the `build:` blocks
 # with `image: ghcr.io/lotusnprod/nap-{web,fuseki}:${TAG}` and deploy by tag.
 services:
-  nap-sparql-seed:
-    environment:
-      SEED_ENABLED: "false"
-
   nap-sparql:
     environment:
+      SEED_ENABLED: "false"
       QUERY_TIMEOUT: "${QUERY_TIMEOUT:-60000}"
     mem_limit: ${SPARQL_MEM_LIMIT:-6g}
     cpus: ${SPARQL_CPUS:-4}

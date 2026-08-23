@@ -9,18 +9,9 @@ data class Gender (
     val code: String,
     val name: String
 ) {
-    object Cache {
-        private val genders: MutableMap<String, Gender> = mutableMapOf()
-
-        operator fun get(genderUri: String?): Gender? {
-            if (genderUri == null) return null
-
-            return genders[genderUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<Gender>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, Gender> {
+            val genders = mutableMapOf<String, Gender>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -41,6 +32,7 @@ data class Gender (
                     genders[genderUri] = Gender(uri = genderUri, code = code, name = name)
                 }
             }
+            return genders
         }
     }
 }

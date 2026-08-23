@@ -1,6 +1,9 @@
 package net.nprod.nap.pages.pharmacy
 
 import net.nprod.nap.helpers.localLinks
+import net.nprod.nap.pages.BubbleKind
+import net.nprod.nap.pages.bubble
+import net.nprod.nap.pages.bubbleList
 import net.nprod.nap.pages.defaultPage
 import kotlinx.html.*
 
@@ -19,7 +22,7 @@ object PharmacyView {
         
         return defaultPage("Experiment ${data.identifier}") {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-4") { +"Experiment ${data.identifier}" }
@@ -34,14 +37,9 @@ object PharmacyView {
                                     h3(classes = "card-title mb-0") { +"Worktypes" }
                                 }
                                 div("card-body") {
-                                    div("list-group") {
+                                    bubbleList {
                                         pharmacy.worktypes.forEach { worktype ->
-                                            a(
-                                                href = localLinks(worktype.uri),
-                                                classes = "list-group-item list-group-item-action"
-                                            ) {
-                                                +worktype.name
-                                            }
+                                            bubble(BubbleKind.WORKTYPE, worktype.name, worktype.uri)
                                         }
                                     }
                                 }
@@ -56,14 +54,13 @@ object PharmacyView {
                                     h3(classes = "card-title mb-0") { +"Compounds isolated" }
                                 }
                                 div("card-body") {
-                                    div("list-group") {
+                                    bubbleList {
                                         pharmacy.compounds.forEach { compound ->
-                                            a(
-                                                href = localLinks(compound.uri),
-                                                classes = "list-group-item list-group-item-action"
-                                            ) {
-                                                +(compound.name ?: "Unknown compound")
-                                            }
+                                            bubble(
+                                                BubbleKind.COMPOUND,
+                                                compound.name ?: "Unknown compound",
+                                                compound.uri
+                                            )
                                         }
                                     }
                                 }
@@ -78,14 +75,9 @@ object PharmacyView {
                                     h3(classes = "card-title mb-0") { +"Alerts" }
                                 }
                                 div("card-body") {
-                                    div("list-group") {
+                                    bubbleList {
                                         pharmacy.alerts.forEach { alert ->
-                                            a(
-                                                href = localLinks(alert.uri),
-                                                classes = "list-group-item list-group-item-action"
-                                            ) {
-                                                +alert.name
-                                            }
+                                            bubble(BubbleKind.ALERT, alert.name, alert.uri)
                                         }
                                     }
                                 }
@@ -113,7 +105,11 @@ object PharmacyView {
                                             pharmacy.pharmacology?.let {
                                                 tr {
                                                     td { +"Pharmacology" }
-                                                    td { a(href = localLinks(it.uri)) { +it.name } }
+                                                    td {
+                                                        bubbleList {
+                                                            bubble(BubbleKind.PHARMACOLOGY, it.name, it.uri)
+                                                        }
+                                                    }
                                                 }
                                             }
                                             pharmacy.administrationRoute?.let {

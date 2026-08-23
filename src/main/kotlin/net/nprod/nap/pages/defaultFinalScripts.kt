@@ -65,6 +65,9 @@ fun BODY.defaultFinalScripts() {
 
     // Custom scripts for the application
     script(src = "/assets/js/script.js") {}
+
+    // Guided tour. Inert unless the visitor turned it on, see tutorial.kt
+    script(src = "/assets/js/tutorial.js") {}
     
     // Add JavaScript for SPARQL queries functionality
     if (queries.isNotEmpty()) {

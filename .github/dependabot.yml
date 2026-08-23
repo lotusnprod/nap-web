@@ -1,0 +1,36 @@
+version: 2
+
+# Grouped so that artifacts which must move together arrive in one PR. Ktor is the
+# important one: io.ktor.plugin supplies the ktor-bom, so the plugin version and the
+# library version are the same knob and a split PR would half-upgrade the graph.
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      ktor:
+        patterns: ["io.ktor:*", "io.ktor.plugin"]
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlin.*"
+          - "org.jetbrains.kotlinx:*"
+      jena:
+        patterns: ["org.apache.jena:*"]
+    labels: ["dependencies"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "ci"]
+
+  - package-ecosystem: docker
+    directories:
+      - "/"
+      - "/stack/fuseki"
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "docker"]

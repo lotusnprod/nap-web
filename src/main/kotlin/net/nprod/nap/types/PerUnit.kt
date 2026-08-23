@@ -8,17 +8,9 @@ data class PerUnit (
     val uri: String,
     val name: String
 ) {
-    object Cache {
-        private val perunits: MutableMap<String, PerUnit> = mutableMapOf()
-
-        operator fun get(perunitUri: String?): PerUnit? {
-            if (perunitUri == null) return null
-
-            return perunits[perunitUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
+    object Cache : ReferenceCache<PerUnit>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, PerUnit> {
+            val perunits = mutableMapOf<String, PerUnit>()
 
             // Looks like we are missing a type here...
             val query = """
@@ -38,6 +30,7 @@ data class PerUnit (
                     perunits[perunitUri] = PerUnit(uri = perunitUri, name = name)
                 }
             }
+            return perunits
         }
     }
 }

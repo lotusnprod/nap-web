@@ -32,23 +32,14 @@ data class Pharmacology (
                     }
                 }
             }
-            if (new == null) throw Exception ("No pharmacology found for $uri")
+            if (new == null) throw EntityNotFoundException("pharmacology", uri)
             return new
         }
     }
 
-    object Cache {
-        private val pharmacologies: MutableMap<String, Pharmacology> = mutableMapOf()
-
-        operator fun get(pharmacologyUri: String?): Pharmacology? {
-            if (pharmacologyUri == null) return null
-
-            return pharmacologies[pharmacologyUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<Pharmacology>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, Pharmacology> {
+            val pharmacologies = mutableMapOf<String, Pharmacology>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -67,6 +58,7 @@ data class Pharmacology (
                     pharmacologies[pharmacologyUri] = Pharmacology(uri = pharmacologyUri, name = name)
                 }
             }
+            return pharmacologies
         }
     }
 }

@@ -1,0 +1,56 @@
+# Single source of truth for dependency and plugin versions.
+#
+# Before this file, Kotlin and Ktor were each written in two places (a `plugins {}` literal
+# and a gradle.properties key), which is how the Ktor plugin and the Ktor BOM drifted apart.
+# Nothing here should be duplicated in gradle.properties or inlined in build.gradle.kts.
+
+[versions]
+# 25 is the current LTS. 26 is non-LTS with security patches ending ~Sept 2026.
+jdk = "25"
+
+kotlin = "2.4.0"
+ktor = "3.5.2"
+jena = "6.2.0"
+logback = "1.5.37"
+kotlinxHtml = "0.12.0"
+serialization = "1.11.0"
+coroutines = "1.11.0"
+resilience4j = "2.3.0"
+kover = "0.9.8"
+versionsPlugin = "0.54.0"
+# The foojay toolchain resolver is a settings plugin, and settings.gradle.kts cannot read
+# this catalog (it is the file that declares it), so that one version stays literal there.
+
+[libraries]
+# The io.ktor:* entries deliberately carry no version: io.ktor.plugin applies ktor-bom,
+# which supplies them. `ktor` above therefore drives the plugin and the BOM together.
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors" }
+ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation" }
+ktor-server-statusPages = { module = "io.ktor:ktor-server-status-pages" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
+ktor-server-testHost = { module = "io.ktor:ktor-server-test-host" }
+ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+
+jena-libs = { module = "org.apache.jena:apache-jena-libs", version.ref = "jena" }
+jena-fuseki-main = { module = "org.apache.jena:jena-fuseki-main", version.ref = "jena" }
+
+resilience4j-circuitbreaker = { module = "io.github.resilience4j:resilience4j-circuitbreaker", version.ref = "resilience4j" }
+resilience4j-retry = { module = "io.github.resilience4j:resilience4j-retry", version.ref = "resilience4j" }
+
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinxHtml" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "versionsPlugin" }

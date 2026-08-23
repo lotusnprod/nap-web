@@ -21,7 +21,7 @@ object PartConditionView {
         
         return defaultPage("Collected Condition: ${partCondition.name}") {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-4") { +"Collected Condition: ${partCondition.name}" }
@@ -58,7 +58,7 @@ object PartConditionView {
                                 div("card-header bg-primary text-white") {
                                     h3(classes = "card-title mb-0") { +"Experiments with this collected condition (${pharmacies.size} results)" }
                                 }
-                                div("card-body p-0") {
+                                div("card-body") {
                                     presentPharmacyResults(pharmacies, sourceType = "partcondition")
                                 }
                             }

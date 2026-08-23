@@ -19,19 +19,16 @@ class PharmacologyController : AbstractController<PharmacologyViewData>() {
      * @param uri The entity URI
      * @return The data object or null if not found
      */
-    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): PharmacologyViewData? {
-        try {
-            val pharmacology = Pharmacology.fromSparql(sparqlConnector, uri)
-            val pharmacyResults = pharmaciesOfPharmacology(uri, sparqlConnector)
-            
-            return PharmacologyViewData(
-                identifier = identifier,
-                pharmacology = pharmacology,
-                pharmacyResults = pharmacyResults
-            )
-        } catch (e: Exception) {
-            return null
-        }
+    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): PharmacologyViewData {
+        // See PharmacyController: not-found and backend-down must stay distinguishable.
+        val pharmacology = Pharmacology.fromSparql(sparqlConnector, uri)
+        val pharmacyResults = pharmaciesOfPharmacology(uri, sparqlConnector)
+
+        return PharmacologyViewData(
+            identifier = identifier,
+            pharmacology = pharmacology,
+            pharmacyResults = pharmacyResults
+        )
     }
 
     /**

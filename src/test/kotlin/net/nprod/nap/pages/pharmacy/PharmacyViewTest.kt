@@ -295,7 +295,7 @@ class PharmacyViewTest {
         assertContains(html, "card")
         assertContains(html, "card-header")
         assertContains(html, "card-body")
-        assertContains(html, "list-group")
+        assertContains(html, "badge bubble")
         assertContains(html, "table-responsive")
         assertContains(html, "table table-striped table-bordered table-hover")
     }

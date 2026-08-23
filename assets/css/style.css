@@ -16,6 +16,19 @@ footer p{
     margin-inline-end: 0px;
 }
 
+/* Site wide disclaimer. Opts out of the fixed height and grey band above, it has
+   to wrap freely on narrow screens and stay in the background visually. */
+footer.site-disclaimer {
+    height: auto;
+    background-color: transparent;
+}
+
+footer.site-disclaimer p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+    line-height: 1.4;
+}
+
 #result{
   margin-bottom: 50px;
 }
@@ -162,8 +175,67 @@ footer p{
     background-color: #6f42c1 !important;
 }
 
-.badge.bg-purple a {
-    color: #fff;
+/* Neutral badge, used for organism bubbles */
+.bg-organism {
+    background-color: #d3d9e3 !important;
+}
+
+/* Entity bubbles (worktype, compound, pharmacology, …). They must look the same on
+   every page, see BubbleKind in bubbles.kt */
+.bubble {
+    white-space: normal;
+    text-align: left;
+}
+
+.bubble a {
+    color: inherit;
+}
+
+/* Guided tour. Opt in from the navbar, see assets/js/tutorial.js.
+   Positioned in page coordinates so the card stays glued to its target while scrolling. */
+.tour-card {
+    position: absolute;
+    z-index: 1080;
+    width: 20rem;
+    max-width: calc(100vw - 1rem);
+    padding: 0.75rem 1rem;
+    background-color: #fff;
+    border: 1px solid #0d6efd;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.tour-card-title {
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+}
+
+.tour-card-body {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+}
+
+.tour-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.tour-card-count {
+    margin-right: auto;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.tour-target {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
+
+/* The tutorial toggle is a button so it can carry aria-pressed, but it sits among links */
+#tutorial-toggle {
+    text-decoration: none;
 }
 
 /* Faceted search: fixed width sidebar, results take all the remaining width */

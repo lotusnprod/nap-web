@@ -106,7 +106,8 @@ class CompoundCodeControllerTest {
     @Test
     fun testRegisterRoutes() = testApplication {
         application {
-            System.setProperty("SPARQL_SERVER", "http://localhost:3030/napra/sparql")
+            // Route registration touches no SPARQL endpoint. Setting the JVM-global
+            // SPARQL_SERVER here used to leak a dead endpoint into later test classes.
             
             routing {
                 // Simply verify that registerRoutes doesn't throw an exception

@@ -20,7 +20,7 @@ object PharmacologyView {
         
         return defaultPage("${pharmacology.name} (${data.identifier})") {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-4") { +"${pharmacology.name} (${data.identifier})" }
@@ -33,7 +33,7 @@ object PharmacologyView {
                             div("card-header bg-primary text-white") {
                                 h3(classes = "card-title mb-0") { +"Experiments (${pharmacyResults.size} results)" }
                             }
-                            div("card-body p-0") {
+                            div("card-body") {
                                 presentPharmacyResults(pharmacyResults, sourceType = "pharmacology")
                             }
                         }

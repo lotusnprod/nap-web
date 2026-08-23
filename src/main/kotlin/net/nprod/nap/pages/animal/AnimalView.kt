@@ -23,7 +23,7 @@ object AnimalView {
         
         return defaultPage(title) {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-4") { +title }
@@ -69,7 +69,7 @@ object AnimalView {
                                 div("card-header bg-primary text-white") {
                                     h3(classes = "card-title mb-0") { +"Experiments (${pharmacyResults.size})" }
                                 }
-                                div("card-body p-0") {
+                                div("card-body") {
                                     presentPharmacyResults(pharmacyResults, sourceType = "animal")
                                 }
                             }

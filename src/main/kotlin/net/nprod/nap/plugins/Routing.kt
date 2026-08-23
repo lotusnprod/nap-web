@@ -6,7 +6,9 @@ import net.nprod.nap.pages.geographicalArea.GeographicalAreaController
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.pages.animal.AnimalController
 import net.nprod.nap.pages.citation.CitationController
 import net.nprod.nap.pages.compoundCode.CompoundCodeController
@@ -32,6 +34,34 @@ import java.io.File
 fun Application.configureRouting() {
     routing {
         staticResources("/static", "static")
+
+        // Liveness: the process is up and serving. Used by the container HEALTHCHECK.
+        get("/health") {
+            call.respondText("ok", ContentType.Text.Plain)
+        }
+
+        // Readiness: the SPARQL endpoint is reachable and has data. Used as the
+        // deploy gate — a green /health with a red /health/ready means Fuseki is
+        // the problem, not the app.
+        get("/health/ready") {
+            val ready = runCatching {
+                SparqlConnector()
+                    .getResultsOfQuery("SELECT ?s WHERE { ?s ?p ?o } LIMIT 1", logQuery = false)
+                    ?.hasNext() == true
+            }.getOrDefault(false)
+
+            if (ready) {
+                call.respondText("ready", ContentType.Text.Plain)
+            } else {
+                // The breaker state says whether the app has already given up on the
+                // backend (OPEN) or is still trying (CLOSED) — the first thing to know.
+                call.respondText(
+                    "not ready (breaker=${SparqlConnector.breakerState() ?: "unconfigured"})",
+                    ContentType.Text.Plain,
+                    HttpStatusCode.ServiceUnavailable
+                )
+            }
+        }
 
         // Register controllers for pages transformed to MVC pattern
         CompoundController.registerRoutes(this)

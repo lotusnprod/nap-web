@@ -2,6 +2,9 @@ package net.nprod.nap.pages.citation
 
 import kotlinx.html.*
 import net.nprod.nap.helpers.localLinks
+import net.nprod.nap.pages.BubbleKind
+import net.nprod.nap.pages.bubble
+import net.nprod.nap.pages.bubbleList
 import net.nprod.nap.pages.defaultPage
 
 /**
@@ -194,19 +197,18 @@ object CitationView {
                                                                             +(experiment.number ?: "N/A")
                                                                         }
                                                                     }
-                                                                    td { +(experiment.pharmacologyName ?: "Not specified") }
+                                                                    td {
+                                                                        experiment.pharmacologyName?.let { name ->
+                                                                            bubbleList {
+                                                                                bubble(BubbleKind.PHARMACOLOGY, name)
+                                                                            }
+                                                                        } ?: +"Not specified"
+                                                                    }
                                                                     td {
                                                                         if (experiment.worktypes.isNotEmpty()) {
-                                                                            div("d-flex flex-wrap gap-1") {
+                                                                            bubbleList {
                                                                                 experiment.worktypes.forEach { worktype ->
-                                                                                    span(classes = "badge bg-primary me-1 mb-1 small") {
-                                                                                        a(
-                                                                                            href = localLinks(worktype.uri),
-                                                                                            classes = "text-white text-decoration-none"
-                                                                                        ) {
-                                                                                            +worktype.name
-                                                                                        }
-                                                                                    }
+                                                                                    bubble(BubbleKind.WORKTYPE, worktype.name, worktype.uri)
                                                                                 }
                                                                             }
                                                                         } else {
@@ -215,16 +217,9 @@ object CitationView {
                                                                     }
                                                                     td {
                                                                         if (experiment.compounds.isNotEmpty()) {
-                                                                            div("d-flex flex-wrap gap-1") {
+                                                                            bubbleList {
                                                                                 experiment.compounds.forEach { compound ->
-                                                                                    span(classes = "badge bg-success me-1 mb-1 small") {
-                                                                                        a(
-                                                                                            href = localLinks(compound.uri),
-                                                                                            classes = "text-white text-decoration-none"
-                                                                                        ) {
-                                                                                            +compound.name
-                                                                                        }
-                                                                                    }
+                                                                                    bubble(BubbleKind.COMPOUND, compound.name, compound.uri)
                                                                                 }
                                                                             }
                                                                         } else {
@@ -233,11 +228,9 @@ object CitationView {
                                                                     }
                                                                     td {
                                                                         if (experiment.qualitativeResults.isNotEmpty()) {
-                                                                            div("d-flex flex-wrap gap-1") {
+                                                                            bubbleList {
                                                                                 experiment.qualitativeResults.forEach { result ->
-                                                                                    span(classes = "badge bg-success me-1 mb-1 small") {
-                                                                                        +result.name
-                                                                                    }
+                                                                                    bubble(BubbleKind.RESULT, result.name)
                                                                                 }
                                                                             }
                                                                         } else {

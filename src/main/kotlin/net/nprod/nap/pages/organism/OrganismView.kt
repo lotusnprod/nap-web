@@ -29,7 +29,7 @@ object OrganismView {
         
         return defaultPage(title) {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-3") { +title }
@@ -120,7 +120,7 @@ object OrganismView {
                             div("card-header bg-primary text-white") {
                                 h3(classes = "card-title mb-0") { +"Experiments" }
                             }
-                            div("card-body p-0") {
+                            div("card-body") {
                                 presentPharmacyResults(pharmacyResults, sourceType = "pharmacology")
                             }
                         }

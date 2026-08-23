@@ -14,46 +14,38 @@ This document provides essential information for developers working on the Napra
 
 1. **Clone the repository**
 
-2. **Environment Variables**:
-   - `SPARQL_SERVER`: URL of the SPARQL endpoint (default: http://nap-sparql:3030/raw/sparql)
-   - `ADMIN_PASSWORD`: Password for the Fuseki admin interface
-   - Optional authentication variables:
-     - `HTTP_AUTH_SPARQL_USER`: Username for SPARQL endpoint authentication
-     - `HTTP_AUTH_SPARQL_PASSWORD`: Password for SPARQL endpoint authentication
-
-3. **Build the application**:
+2. **Start the stack**:
    ```bash
-   ./gradlew build
+   make dev
    ```
+   This builds both images, loads `stack/seed/*.n3` into a fresh TDB2 store, builds the
+   Lucene index and waits until every service reports healthy. `make help` lists all
+   targets. No network has to be created by hand and no data has to be provisioned.
 
-4. **Run locally with Docker/Podman**:
-   ```bash
-   ./run
-   ```
-   This script:
-   - Creates a Docker network called `web_network` if it doesn't exist
-   - Stops any running containers
-   - Removes any existing nap-web containers
-   - Builds and starts the application using docker-compose
-
-5. **Access the application**:
+3. **Access the application**:
    - Web interface: http://localhost:8080
-   - SPARQL endpoint: http://localhost:3030 (in development mode)
+   - Fuseki UI: http://localhost:3030
 
-### Manual Build and Run
+4. **Configuration**: `make dev` copies `.env.example` to `.env` on first run (gitignored).
+   - `ADMIN_PASSWORD`: Fuseki admin API password. No default — compose fails if unset.
+   - `SPARQL_SERVER`: SPARQL endpoint URL (compose sets http://nap-sparql:3030/raw/sparql)
+   - `ENVIRONMENT`: `development` or `production`; controls link generation
+   - `WEB_PORT`, `FUSEKI_PORT`: host ports
+   - `QUERY_TIMEOUT`: Fuseki ARQ query timeout in ms
+   - `HTTP_AUTH_SPARQL_USER` / `HTTP_AUTH_SPARQL_PASSWORD`: only needed when the SPARQL
+     endpoint sits behind HTTP basic auth
+   - `FORCE_SEED`: wipe the store and reload the seed files
+   - `NAP_DATA_DIR`: absolute path to an existing TDB2 store, for `make dev-localdata`
 
-If you prefer not to use Docker/Podman:
+### Running the app outside a container
 
-1. **Build the application**:
-   ```bash
-   ./gradlew build
-   ```
+```bash
+make sparql-only
+SPARQL_SERVER=http://localhost:3030/raw/sparql ENVIRONMENT=development ./gradlew run
+```
 
-2. **Run the application**:
-   ```bash
-   ./gradlew run
-   ```
-   Note: You'll need to set up a SPARQL endpoint separately and configure the `SPARQL_SERVER` environment variable.
+`make sparql-only` starts just Fuseki, which is also the setup to use when running or
+debugging the app from the IDE.
 
 ## Testing Information
 
@@ -122,9 +114,11 @@ If you prefer not to use Docker/Podman:
 
 ### Key Technologies
 
-- **Kotlin**: Programming language (version 2.1.10)
-- **Ktor**: Web framework (version 3.1.1)
-- **Apache Jena**: RDF/semantic web library (version 5.3.0)
+Versions live in `gradle.properties` — that file is the source of truth, not this list.
+
+- **Kotlin**: Programming language
+- **Ktor**: Web framework
+- **Apache Jena**: RDF/semantic web library
 - **KotlinX HTML**: HTML DSL for Kotlin
 - **Gradle**: Build system
 - **Docker/Podman**: Containerization
@@ -137,13 +131,33 @@ The application follows a typical Ktor architecture:
 - **Pages**: Handle rendering of HTML pages
 - **RDF**: Interacts with the SPARQL endpoint to retrieve data
 
-### Docker Containers
+### Containers
 
-The application consists of two main containers:
-1. **nap-web**: The Ktor web application
-2. **nap-sparql**: Apache Fuseki SPARQL endpoint
+Two services, on an internal `nap` bridge network:
 
-These containers are connected via the `web_network` Docker network.
+1. **nap-sparql**: Apache Fuseki SPARQL endpoint. Its entrypoint seeds `stack/seed/*.n3`
+   into the TDB2 store and builds the Lucene index *before* starting Fuseki. That is
+   idempotent — skipped when the store already has data, when `/seed` is empty, or when
+   `SEED_ENABLED=false`. Seeding runs here rather than in a separate one-shot service
+   because podman-compose turns `depends_on: service_completed_successfully` into a
+   must-be-running requirement, which a container that exits can never satisfy.
+2. **nap-web**: the Ktor web application. Starts only once Fuseki reports healthy.
+
+Compose files:
+
+- `docker-compose.yml` — engine-neutral base; named `nap-data` volume, healthchecks,
+  `depends_on` conditions. No `:U` and no uidmaps, so Docker and Podman behave the same.
+- `docker-compose.override.yml` — auto-loaded, so local dev is the default: publishes the
+  Fuseki port and forces `ENVIRONMENT=development`.
+- `docker-compose.localdata.yml` — point the stack at an existing TDB2 store instead of the
+  seeded volume (`make dev-localdata`, needs `NAP_DATA_DIR`). Seeding is disabled.
+- `docker-compose.prod.yml` — server-side: bind-mounted real store, seeding disabled,
+  nap-web also joined to the external `web_network` reverse-proxy network, resource limits.
+
+### Health endpoints
+
+- `/health` — liveness; used by the container `HEALTHCHECK` and the compose healthcheck.
+- `/health/ready` — readiness; 503 unless the SPARQL endpoint answers with data.
 
 ### Code Style
 
@@ -158,5 +172,7 @@ These containers are connected via the `web_network` Docker network.
   ```bash
   ./gradlew run -Pdevelopment=true
   ```
-- In development mode, the SPARQL endpoint is accessible at http://localhost:3030
-- Check logs for errors and debugging information
+- `make sparql-only` gives you just Fuseki on http://localhost:3030 to run the app against
+- `make logs` / `make ps` for container output and health status
+- `make shell-sparql` for a shell in the Fuseki container (the `TDB*`/`TEXTINDEXER` env vars
+  there are ready-made loader commands)

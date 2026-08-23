@@ -1,0 +1,50 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix n: <https://nap.nprod.net/> .
+
+# Taxon coverage for the organisms in 001-core.n3.
+#
+# The taxon search (rdf/SearchQueries.kt organismSearchQuery) requires n:number on the
+# organism and OrganismSearchController drops any hit without n:has_taxon, so without
+# these triples a Lucene match on "Salix" renders "Found 0 results".
+#
+# n:number values are integer literals, per the data convention in CLAUDE.md.
+#
+# Loaded by the dev stack (every file under stack/seed is seeded). The in-memory test
+# server loads only 001-core.n3 unless a test asks for another resource by name.
+
+<https://nap.nprod.net/organism/1> n:number 1 ;
+    n:has_taxon <https://nap.nprod.net/taxon/1> .
+
+<https://nap.nprod.net/organism/2> n:number 2 ;
+    n:has_taxon <https://nap.nprod.net/taxon/2> .
+
+<https://nap.nprod.net/organism/3> n:number 3 ;
+    n:has_taxon <https://nap.nprod.net/taxon/3> .
+
+<https://nap.nprod.net/taxon/1> rdf:type n:taxon ;
+    n:name "Salix alba" ;
+    n:number 1 ;
+    n:parent_taxon <https://nap.nprod.net/taxon/101> .
+
+<https://nap.nprod.net/taxon/2> rdf:type n:taxon ;
+    n:name "Coffea arabica" ;
+    n:number 2 ;
+    n:parent_taxon <https://nap.nprod.net/taxon/102> .
+
+<https://nap.nprod.net/taxon/3> rdf:type n:taxon ;
+    n:name "Papaver somniferum" ;
+    n:number 3 ;
+    n:parent_taxon <https://nap.nprod.net/taxon/103> .
+
+# Families, as parent taxa.
+<https://nap.nprod.net/taxon/101> rdf:type n:taxon ;
+    n:name "Salicaceae" ;
+    n:number 101 .
+
+<https://nap.nprod.net/taxon/102> rdf:type n:taxon ;
+    n:name "Rubiaceae" ;
+    n:number 102 .
+
+<https://nap.nprod.net/taxon/103> rdf:type n:taxon ;
+    n:name "Papaveraceae" ;
+    n:number 103 .

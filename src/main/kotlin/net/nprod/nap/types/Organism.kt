@@ -139,7 +139,7 @@ data class Organism(
                     }
                 }
             }
-            if (new == null) throw Exception("No organism found for $uri")
+            if (new == null) throw EntityNotFoundException("organism", uri)
             return new
         }
     }

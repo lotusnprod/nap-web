@@ -21,7 +21,7 @@ object GeographicalAreaView {
         
         return defaultPage("Geographical Area: ${geographicalArea.name}") {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-4") { +"Geographical Area: ${geographicalArea.name}" }
@@ -58,7 +58,7 @@ object GeographicalAreaView {
                                 div("card-header bg-primary text-white") {
                                     h3(classes = "card-title mb-0") { +"Experiments in this geographical area or with organisms from this area (${pharmacies.size} results)" }
                                 }
-                                div("card-body p-0") {
+                                div("card-body") {
                                     presentPharmacyResults(pharmacies, sourceType = "geographicalarea")
                                 }
                             }

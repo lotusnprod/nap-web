@@ -4,22 +4,6 @@ x-restart-defaults: &restart
   restart: unless-stopped
 
 services:
-  # One-shot seeder: loads stack/seed/*.n3 into the TDB2 store and builds the
-  # Lucene index. Idempotent — skips when the store already has data. Set
-  # FORCE_SEED=true to wipe and reload.
-  nap-sparql-seed:
-    build:
-      context: stack/fuseki
-    entrypoint: ["/seed-entrypoint.sh"]
-    environment:
-      FORCE_SEED: "${FORCE_SEED:-false}"
-      SEED_ENABLED: "${SEED_ENABLED:-true}"
-    volumes:
-      - nap-data:/databases
-      - ./stack/seed:/seed:ro
-    networks: [nap]
-    restart: "no"
-
   nap-sparql:
     build:
       context: stack/fuseki
@@ -30,12 +14,15 @@ services:
       ENABLE_UPDATE: "false"
       ENABLE_SHACL: "false"
       QUERY_TIMEOUT: "${QUERY_TIMEOUT:-600000}"
+      # The entrypoint seeds /seed into the store before starting Fuseki. Idempotent:
+      # skipped when the store already has data. FORCE_SEED wipes and reloads;
+      # SEED_ENABLED=false refuses to touch the store at all.
+      FORCE_SEED: "${FORCE_SEED:-false}"
+      SEED_ENABLED: "${SEED_ENABLED:-true}"
     volumes:
       - nap-data:/databases
+      - ./stack/seed:/seed:ro
     networks: [nap]
-    depends_on:
-      nap-sparql-seed:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- 'http://localhost:3030/$$/ping' >/dev/null 2>&1 || exit 1"]
       interval: 15s

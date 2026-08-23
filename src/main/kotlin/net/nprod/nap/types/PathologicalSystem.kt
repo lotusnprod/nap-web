@@ -9,18 +9,9 @@ data class PathologicalSystem (
     val code: String,
     val name: String
 ) {
-    object Cache {
-        private val pathologicalSystems: MutableMap<String, PathologicalSystem> = mutableMapOf()
-
-        operator fun get(pathologicalSystemUri: String?): PathologicalSystem? {
-            if (pathologicalSystemUri == null) return null
-
-            return pathologicalSystems[pathologicalSystemUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<PathologicalSystem>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, PathologicalSystem> {
+            val pathologicalSystems = mutableMapOf<String, PathologicalSystem>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -41,6 +32,7 @@ data class PathologicalSystem (
                     pathologicalSystems[pathologicalSystemUri] = PathologicalSystem(uri = pathologicalSystemUri, code = code, name = name)
                 }
             }
+            return pathologicalSystems
         }
     }
 }

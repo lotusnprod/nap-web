@@ -1,7 +1,16 @@
+# Build context for the app image (Dockerfile at the repo root).
+# NOTE: `stack` is excluded, so the image build must not run tests — the test
+# resources include stack/seed (see build.gradle.kts). `installDist` is fine.
 stack
 .idea
 .git
+.github
 .gradle
 .kotlin
 build
 data
+tools
+.plans
+.env
+docker-compose*.yml
+Makefile

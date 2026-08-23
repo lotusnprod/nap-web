@@ -67,7 +67,7 @@ data class Compound(
                     }
                 }
             }
-            if (new == null) throw Exception ("No compound found for $uri")
+            if (new == null) throw EntityNotFoundException("compound", uri)
             return new
         }
     }

@@ -1,21 +1,15 @@
-val ktor_version: String by project
-val kotlin_version: String by project
-val logback_version: String by project
-val kotlinxHtml_version: String by project
-val jena_version: String by project
-val serialization_version: String by project
-
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-    kotlin("jvm") version "2.4.0"
-    id("io.ktor.plugin") version "3.5.2"
-    id("com.github.ben-manes.versions") version "0.54.0"
-    kotlin("plugin.serialization") version "2.4.0"
-    id("org.jetbrains.kotlinx.kover") version "0.9.8"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktor)
+    alias(libs.plugins.versions)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kover)
 }
 
 kotlin {
-    jvmToolchain(26)
+    jvmToolchain(libs.versions.jdk.get().toInt())
 }
 
 group = "net.nprod.nap"
@@ -38,27 +32,81 @@ repositories {
 sourceSets["test"].resources.srcDir(layout.projectDirectory.dir("stack/seed"))
 
 dependencies {
-    implementation("io.ktor:ktor-server-core-jvm")
-    implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("io.ktor:ktor-server-cors")
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-server-content-negotiation")
+    // Keeps kotlin-reflect on the compiler's version. Without it the graph resolves
+    // reflect 2.3.21 against stdlib 2.4.0, and Kotlin does not support that skew.
+    implementation(platform(libs.kotlin.bom))
 
-    implementation("org.apache.jena:apache-jena-libs:$jena_version")
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.server.contentNegotiation)
+    implementation(libs.ktor.server.statusPages)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinxHtml_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinxHtml_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    implementation(libs.jena.libs)
 
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    
+    // Resilience around the SPARQL endpoint: retry transient failures, open a
+    // breaker when Fuseki is down instead of queueing requests against it.
+    implementation(libs.resilience4j.circuitbreaker)
+    implementation(libs.resilience4j.retry)
+
+    implementation(libs.kotlinx.html)
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.logback.classic)
+
     // Testing dependencies
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("io.ktor:ktor-client-content-negotiation")
-    testImplementation("org.apache.jena:jena-fuseki-main:$jena_version")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.ktor.server.testHost)
+    testImplementation(libs.ktor.client.contentNegotiation)
+    testImplementation(libs.jena.fuseki.main)
+    testImplementation(libs.kotlinx.coroutines.test)
+}
+
+// A 2016 shim for JDK 8, dragged in by ktor-server-netty. ALPN has been part of the
+// JDK since 9, so this is unmaintained dead weight on the runtime classpath.
+configurations.all {
+    exclude(group = "org.eclipse.jetty.alpn", module = "alpn-api")
+}
+
+// Pin the whole transitive graph. `./gradlew resolveAndLockAll --write-locks` after any
+// dependency change; the lockfile diff is then part of the review instead of a surprise.
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+// Locking only reports on configurations something actually resolves, so a plain
+// --write-locks run would silently leave most of the graph unlocked. This resolves
+// every lockable configuration in one pass.
+tasks.register("resolveAndLockAll") {
+    doFirst {
+        require(gradle.startParameter.isWriteDependencyLocks) {
+            "Run with --write-locks: ./gradlew resolveAndLockAll --write-locks"
+        }
+    }
+    doLast {
+        configurations.filter { it.isCanBeResolved }.forEach { it.resolve() }
+    }
+}
+
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+
+// Without a stability filter a run recommends netty 5.0.0.Alpha2, kotlin 2.4.20-Beta2
+// and friends, which makes the report useless.
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    return !stableKeyword && !regex.matches(version)
+}
+
+tasks.withType<DependencyUpdatesTask> {
+    rejectVersionIf { isNonStable(candidate.version) && !isNonStable(currentVersion) }
+    checkForGradleUpdate = true
+    outputFormatter = "json,plain"
 }
 
 distributions {

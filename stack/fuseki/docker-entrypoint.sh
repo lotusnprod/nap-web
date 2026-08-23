@@ -42,5 +42,15 @@ test "${ENABLE_UPDATE}" = true && sed -i 's/#\s*\(fuseki:serviceUpdate\)/\1/' $A
 test "${ENABLE_SHACL}" = true && sed -i -E 's/#\s*(fuseki:endpoint\s*\[\s*fuseki:operation\s+fuseki:shacl.+$)/\1/' $ASSEMBLER
 test "${QUERY_TIMEOUT}" && sed -i "s/\(ja:cxtName\s*\"arq:queryTimeout\"\s*;\s*ja:cxtValue\s*\)\"[0-9]*\"/\1\"$QUERY_TIMEOUT\"/" $CONFIG
 
+# Local-dev seeding, before Fuseki opens the store. Idempotent: a no-op when the
+# store already has data, when /seed is empty (production mounts no seed dir), or
+# when SEED_ENABLED=false. Seeding here rather than in a separate compose service
+# keeps the ordering correct on every engine — podman-compose turns
+# `depends_on: condition: service_completed_successfully` into a
+# must-be-running requirement, which a one-shot seeder can never satisfy.
+if [ -x /seed-entrypoint.sh ] ; then
+  /seed-entrypoint.sh
+fi
+
 exec "$@"
 

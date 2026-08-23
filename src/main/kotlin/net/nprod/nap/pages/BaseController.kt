@@ -49,10 +49,13 @@ interface BaseController<DataType> {
                 if (acceptHeader?.contains("application/json") == true) {
                     call.respond(HttpStatusCode.NotFound, mapOf("error" to "Resource not found"))
                 } else {
-                    // Use the invalidEntryPage for HTML responses
+                    // Use the invalidEntryPage for HTML responses. The status has to
+                    // be a real 404: a soft-404 hides outages from monitoring and gets
+                    // the page indexed by crawlers.
                     call.respondText(
                         invalidEntryPage(getEntityType(), id ?: "null"),
-                        ContentType.Text.Html
+                        ContentType.Text.Html,
+                        HttpStatusCode.NotFound
                     )
                 }
                 return

@@ -2,8 +2,6 @@ package net.nprod.nap.pages.pharmacyByTaxaSearch
 
 import kotlinx.html.*
 import net.nprod.nap.pages.defaultPage
-import net.nprod.nap.pages.pharmacyFacets
-import net.nprod.nap.pages.pharmacyFacetsScript
 import net.nprod.nap.pages.presentPharmacyResults
 
 /**
@@ -28,24 +26,15 @@ object PharmacyByTaxaSearchView {
                     }
                 }
 
-                div("facet-layout") {
-                    if (data.pharmacyResults.isNotEmpty()) {
-                        div("facet-sidebar") {
-                            pharmacyFacets(data.pharmacyResults)
-                        }
-                    }
-
-                    div("facet-results") {
+                div("row") {
+                    div("col-12") {
                         div("card mb-4") {
                             div("card-header bg-primary text-white") {
                                 if (data.pharmacyResults.size >= 10000) {
                                     h3(classes = "card-title mb-0") { +"Too many results" }
                                 } else {
                                     h3(classes = "card-title mb-0") {
-                                        span {
-                                            id = "pharmacy-result-summary"
-                                            +"Experiments (${data.pharmacyResults.size} results)"
-                                        }
+                                        +"Experiments (${data.pharmacyResults.size} results)"
                                     }
                                 }
                             }
@@ -56,20 +45,11 @@ object PharmacyByTaxaSearchView {
                                     }
                                 }
 
-                                div(classes = "alert alert-info d-none") {
-                                    id = "pharmacy-no-results"
-                                    +"No experiment matches the selected filters."
-                                }
-
-                                div("p-0") {
-                                    presentPharmacyResults(data.pharmacyResults, sourceType = "organism")
-                                }
+                                presentPharmacyResults(data.pharmacyResults, sourceType = "organism")
                             }
                         }
                     }
                 }
-
-                pharmacyFacetsScript()
             }
         }
     }

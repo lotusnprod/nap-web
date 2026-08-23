@@ -16,6 +16,7 @@ fun defaultPage(title: String?=null, content: DIV.() -> Unit = {}): String {
            navbar()
            div(classes =  "content", block = content)
            defaultFinalScripts()
+           disclaimer()
        }
    }.serialize(true)
 }

@@ -8,18 +8,9 @@ data class OrganismClass(
     var uri: String,
     var name: String
 )  {
-    object Cache {
-        private val organismClasses: MutableMap<String, OrganismClass> = mutableMapOf()
-
-        operator fun get(organismClassUri: String?): OrganismClass? {
-            if (organismClassUri == null) return null
-
-            return organismClasses[organismClassUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<OrganismClass>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, OrganismClass> {
+            val organismClasses = mutableMapOf<String, OrganismClass>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -38,6 +29,7 @@ data class OrganismClass(
                     organismClasses[organismClassUri] = OrganismClass(uri = organismClassUri, name = name)
                 }
             }
+            return organismClasses
         }
     }
 }

@@ -44,11 +44,30 @@ fun BODY.navbar() {
                         }
                     }
                     li(classes = "nav-item") {
-                        a(classes = "nav-link", href = "/sparql") { +"Sparql" }
+                        a(classes = "nav-link", href = "/sparql") {
+                            tourStep(
+                                TourStep.SPARQL,
+                                "Ask your own question",
+                                "The pages only show what we thought of showing. This is the query editor: it runs " +
+                                    "SPARQL against the same data, and exports the results as CSV, JSON or XML.",
+                                shared = true
+                            )
+                            +"Sparql"
+                        }
                     }
                     li(classes = "nav-item") {
-                        a(classes = "nav-link", href = "/faq") { +"FAQ" }
+                        a(classes = "nav-link", href = "/faq") {
+                            tourStep(
+                                TourStep.FAQ,
+                                "The rest is here",
+                                "What the records mean, how organisms and taxa differ, and how to get the data out. " +
+                                    "That is the end of the tour.",
+                                shared = true
+                            )
+                            +"FAQ"
+                        }
                     }
+                    tutorialToggle()
                 }
 
                 form(classes = "d-flex") {
@@ -58,8 +77,15 @@ fun BODY.navbar() {
                     select(classes = "form-select me-2") {
                         id = "search-type"
                         style = "width: auto;"
+                        tourStep(
+                            TourStep.SEARCH_TYPE,
+                            "Pick what you are looking for",
+                            "A taxon if you start from a plant or an animal, a compound if you start from a " +
+                                "chemical, a pharmacology if you start from an activity.",
+                            shared = true
+                        )
 
-                        option { 
+                        option {
                             value = "compound"
                             +"Compound" 
                         }
@@ -81,9 +107,22 @@ fun BODY.navbar() {
                         attributes["aria-label"] = "Search"
                         id = "search-input"
                         name = "search-query"
+                        tourStep(
+                            TourStep.SEARCH_INPUT,
+                            "Type a name",
+                            "Part of a name is enough, for example \"salix\" or \"quercetin\". The search is on " +
+                                "names as they were recorded, so try a shorter fragment if you get nothing.",
+                            shared = true
+                        )
                     }
 
                     button(classes = "btn btn-outline-success", type = ButtonType.submit) {
+                        tourStep(
+                            TourStep.SEARCH_SUBMIT,
+                            "Then search",
+                            "You get a list of matches. Following one takes you to the experiments recorded for it.",
+                            shared = true
+                        )
                         +"Search"
                     }
                 }

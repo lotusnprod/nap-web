@@ -10,20 +10,9 @@ data class Worktype (
     val name: String,
     val group: WorktypeGroup? = null
 ) {
-    object Cache {
-        private val worktypes: MutableMap<String, Worktype> = mutableMapOf()
-
-        operator fun get(worktypeUri: String?): Worktype? {
-            if (worktypeUri == null) return null
-
-            return worktypes[worktypeUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
-            // Initialize WorktypeGroup cache first
-            WorktypeGroup.Cache
+    object Cache : ReferenceCache<Worktype>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, Worktype> {
+            val worktypes = mutableMapOf<String, Worktype>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -47,6 +36,7 @@ data class Worktype (
                     worktypes[worktypeUri] = Worktype(uri = worktypeUri, code = code, name = name, group = group)
                 }
             }
+            return worktypes
         }
     }
 }

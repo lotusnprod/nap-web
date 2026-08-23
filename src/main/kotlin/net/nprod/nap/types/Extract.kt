@@ -9,18 +9,9 @@ data class Extract (
     val code: String,
     val name: String
 ) {
-    object Cache {
-        private val extracts: MutableMap<String, Extract> = mutableMapOf()
-
-        operator fun get(extractUri: String?): Extract? {
-            if (extractUri == null) return null
-
-            return extracts[extractUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<Extract>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, Extract> {
+            val extracts = mutableMapOf<String, Extract>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -41,6 +32,7 @@ data class Extract (
                     extracts[extractUri] = Extract(uri = extractUri, code = code, name = name)
                 }
             }
+            return extracts
         }
     }
 }

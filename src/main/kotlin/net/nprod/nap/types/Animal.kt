@@ -8,18 +8,9 @@ data class Animal (
     val uri: String,
     val name: String
 ) {
-    object Cache {
-        private val animals: MutableMap<String, Animal> = mutableMapOf()
-
-        operator fun get(animalUri: String?): Animal? {
-            if (animalUri == null) return null
-
-            return animals[animalUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<Animal>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, Animal> {
+            val animals = mutableMapOf<String, Animal>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -38,6 +29,7 @@ data class Animal (
                     animals[animalUri] = Animal(uri = animalUri, name = name)
                 }
             }
+            return animals
         }
     }
 }

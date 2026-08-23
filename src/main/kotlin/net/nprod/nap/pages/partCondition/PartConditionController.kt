@@ -19,19 +19,16 @@ class PartConditionController : AbstractController<PartConditionViewData>() {
      * @param uri The entity URI
      * @return The data object or null if not found
      */
-    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): PartConditionViewData? {
-        try {
-            val partCondition = PartCondition.fromSparql(sparqlConnector, uri)
-            val pharmacies = pharmaciesOfPartCondition(uri, sparqlConnector)
-            
-            return PartConditionViewData(
-                identifier = identifier,
-                partCondition = partCondition,
-                pharmacies = pharmacies
-            )
-        } catch (e: Exception) {
-            return null
-        }
+    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): PartConditionViewData {
+        // See PharmacyController: not-found and backend-down must stay distinguishable.
+        val partCondition = PartCondition.fromSparql(sparqlConnector, uri)
+        val pharmacies = pharmaciesOfPartCondition(uri, sparqlConnector)
+
+        return PartConditionViewData(
+            identifier = identifier,
+            partCondition = partCondition,
+            pharmacies = pharmacies
+        )
     }
 
     /**

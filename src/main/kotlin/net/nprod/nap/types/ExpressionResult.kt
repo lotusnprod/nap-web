@@ -9,18 +9,9 @@ data class ExpressionResult (
     val code: String,
     val name: String
 ) {
-    object Cache {
-        private val expressionResults: MutableMap<String, ExpressionResult> = mutableMapOf()
-
-        operator fun get(expressionResultUri: String?): ExpressionResult? {
-            if (expressionResultUri == null) return null
-
-            return expressionResults[expressionResultUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<ExpressionResult>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, ExpressionResult> {
+            val expressionResults = mutableMapOf<String, ExpressionResult>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -41,6 +32,7 @@ data class ExpressionResult (
                     expressionResults[expressionResultUri] = ExpressionResult(uri = expressionResultUri, code = code, name = name)
                 }
             }
+            return expressionResults
         }
     }
 }

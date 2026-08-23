@@ -8,18 +8,9 @@ data class QualitativeResult (
     val uri: String,
     val name: String
 ) {
-    object Cache {
-        private val qualitativeResults: MutableMap<String, QualitativeResult> = mutableMapOf()
-
-        operator fun get(qualitativeResultUri: String?): QualitativeResult? {
-            if (qualitativeResultUri == null) return null
-
-            return qualitativeResults[qualitativeResultUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<QualitativeResult>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, QualitativeResult> {
+            val qualitativeResults = mutableMapOf<String, QualitativeResult>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -38,6 +29,7 @@ data class QualitativeResult (
                     qualitativeResults[qualitativeResultUri] = QualitativeResult(uri = qualitativeResultUri, name = name)
                 }
             }
+            return qualitativeResults
         }
     }
 }

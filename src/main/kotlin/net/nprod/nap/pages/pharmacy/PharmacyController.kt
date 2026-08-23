@@ -17,16 +17,15 @@ class PharmacyController : AbstractController<PharmacyViewData>() {
      * @param uri The entity URI
      * @return The data object or null if not found
      */
-    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): PharmacyViewData? {
-        try {
-            val pharmacy = Pharmacy.fromSparql(sparqlConnector, uri)
-            return PharmacyViewData(
-                identifier = identifier,
-                pharmacy = pharmacy
-            )
-        } catch (e: Exception) {
-            return null
-        }
+    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): PharmacyViewData {
+        // No blanket catch: a missing pharmacy throws EntityNotFoundException (404)
+        // and a backend failure throws SparqlUnavailableException (503). Swallowing
+        // both into null made an outage look like a bad id, with nothing in the log.
+        val pharmacy = Pharmacy.fromSparql(sparqlConnector, uri)
+        return PharmacyViewData(
+            identifier = identifier,
+            pharmacy = pharmacy
+        )
     }
 
     /**

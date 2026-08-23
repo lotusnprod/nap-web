@@ -12,7 +12,7 @@
 # If the nap-data volume already exists with different backing, remove it first:
 # `docker volume rm nap_nap-data`.
 services:
-  nap-sparql-seed:
+  nap-sparql:
     environment:
       SEED_ENABLED: "false"
 

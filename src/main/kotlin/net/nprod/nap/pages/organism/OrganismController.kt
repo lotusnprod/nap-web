@@ -19,20 +19,17 @@ class OrganismController : AbstractController<OrganismViewData>() {
      * @param uri The entity URI
      * @return The data object or null if not found
      */
-    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): OrganismViewData? {
-        try {
-            val organism = Organism.fromSparql(sparqlConnector, uri)
-            val pharmacyResults = pharmaciesOfOrganism(uri, sparqlConnector)
-                .sortedBy { it.number?.toIntOrNull() ?: Int.MAX_VALUE }
-            
-            return OrganismViewData(
-                identifier = identifier,
-                organism = organism,
-                pharmacyResults = pharmacyResults
-            )
-        } catch (e: Exception) {
-            return null
-        }
+    override fun createData(identifier: String, sparqlConnector: SparqlConnector, uri: String): OrganismViewData {
+        // See PharmacyController: not-found and backend-down must stay distinguishable.
+        val organism = Organism.fromSparql(sparqlConnector, uri)
+        val pharmacyResults = pharmaciesOfOrganism(uri, sparqlConnector)
+            .sortedBy { it.number?.toIntOrNull() ?: Int.MAX_VALUE }
+
+        return OrganismViewData(
+            identifier = identifier,
+            organism = organism,
+            pharmacyResults = pharmacyResults
+        )
     }
 
     /**

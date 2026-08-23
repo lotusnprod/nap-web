@@ -6,6 +6,14 @@ import getRef
 import kotlinx.html.*
 import net.nprod.nap.types.Pharmacy
 
+/**
+ * Render a list of experiments as a table, together with the faceted filter panel
+ * that narrows it down client side (see [pharmacyFacets]).
+ *
+ * @param pharmacyResults The experiments to display
+ * @param sourceType The kind of entity the experiments are displayed for, the column
+ *                   holding that entity is dropped from the table
+ */
 fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: String) {
     if (pharmacyResults.isEmpty()) {
         div(classes = "alert alert-info mt-3") {
@@ -14,6 +22,30 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
         return
     }
 
+    div("facet-layout") {
+        pharmacyFacets(pharmacyResults)
+
+        div("facet-results") {
+            div("d-flex justify-content-between align-items-center mb-2") {
+                span(classes = "text-muted small") {
+                    id = "pharmacy-count"
+                    +"${pharmacyResults.size} experiments"
+                }
+            }
+
+            div(classes = "alert alert-info d-none") {
+                id = "pharmacy-no-results"
+                +"No experiment matches the selected filters."
+            }
+
+            pharmacyResultsTable(pharmacyResults, sourceType)
+        }
+    }
+
+    pharmacyFacetsScript()
+}
+
+private fun DIV.pharmacyResultsTable(pharmacyResults: List<Pharmacy>, sourceType: String) {
     div(classes = "table-responsive") {
         id = "pharmacy"
         table(classes = "table table-striped table-bordered table-hover") {
@@ -35,6 +67,10 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
                             pharmacy.worktypes.joinToString("|") { it.uri.getRef() }
                         attributes["data-pharmacology"] =
                             pharmacy.pharmacology?.uri?.getRef() ?: ""
+                        attributes["data-compound"] =
+                            pharmacy.compounds.joinToString("|") { it.uri.getRef() }
+                        attributes["data-organism"] =
+                            pharmacy.organism?.uri?.getRef() ?: ""
                         td {
                             a(href = localLinks(pharmacy.uri), classes = "font-weight-bold") {
                                 +localLinks(pharmacy.uri).getRef()
@@ -42,25 +78,17 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
                         }
                         td {
                             if (pharmacy.worktypes.isNotEmpty()) {
-                                div("d-flex flex-wrap gap-1") {
+                                bubbleList {
                                     pharmacy.worktypes.forEach { worktype ->
-                                        span(classes = "badge bg-primary me-1 mb-1") {
-                                            a(href = localLinks(worktype.uri), classes = "text-white text-decoration-none") {
-                                                +worktype.name
-                                            }
-                                        }
+                                        bubble(BubbleKind.WORKTYPE, worktype.name, worktype.uri)
                                     }
                                 }
                             }
                         }
                         td {
                             pharmacy.pharmacology?.let { pharmacology ->
-                                div("d-flex flex-wrap gap-1") {
-                                    span(classes = "badge bg-purple me-1 mb-1") {
-                                        a(href = localLinks(pharmacology.uri), classes = "text-white text-decoration-none") {
-                                            +pharmacology.name
-                                        }
-                                    }
+                                bubbleList {
+                                    bubble(BubbleKind.PHARMACOLOGY, pharmacology.name, pharmacology.uri)
                                 }
                             }
                         }
@@ -73,13 +101,13 @@ fun DIV.presentPharmacyResults(pharmacyResults: List<Pharmacy>, sourceType: Stri
                         if (sourceType !== "compound") {
                             td {
                                 if (pharmacy.compounds.isNotEmpty()) {
-                                    div("d-flex flex-wrap gap-1") {
+                                    bubbleList {
                                         pharmacy.compounds.forEach { compound ->
-                                            span(classes = "badge bg-success me-1 mb-1") {
-                                                a(href = localLinks(compound.uri), classes = "text-white text-decoration-none") {
-                                                    +(compound.name ?: "Unknown compound")
-                                                }
-                                            }
+                                            bubble(
+                                                BubbleKind.COMPOUND,
+                                                compound.name ?: "Unknown compound",
+                                                compound.uri
+                                            )
                                         }
                                     }
                                 }

@@ -4,6 +4,7 @@ import kotlinx.html.*
 import kotlinx.html.dom.createHTMLDocument
 import kotlinx.html.dom.serialize
 import net.nprod.nap.pages.defaultFinalScripts
+import net.nprod.nap.pages.disclaimer
 import net.nprod.nap.pages.genericHead
 import net.nprod.nap.pages.navbar
 
@@ -214,6 +215,8 @@ object QueryView {
                 }
                 script(type = ScriptType.textJavaScript, src = "assets/js/snorql.js") {}
                 script(type = ScriptType.textJavaScript, src = "assets/js/script.js") {}
+
+                disclaimer()
             }
         }.serialize(true)
     }

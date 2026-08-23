@@ -1,15 +1,12 @@
 package net.nprod.nap.rdf
 
 import net.nprod.nap.test.InMemoryFusekiServer
-import org.apache.jena.query.ReadWrite
-import org.apache.jena.query.ResultSet
-import org.apache.jena.rdf.model.ModelFactory
+import org.apache.jena.query.QueryParseException
 import org.apache.jena.rdf.model.ResourceFactory
-import org.apache.jena.system.Txn
 import org.junit.*
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SparqlConnectorTest {
@@ -118,52 +115,64 @@ class SparqlConnectorTest {
             }
         """.trimIndent()
         
-        val dataset = sparqlConnector.constructQueryIntoAQueriableDataset(query)
-        assertNotNull(dataset)
-        
-        // Query the constructed dataset
-        dataset.begin(ReadWrite.READ)
-        try {
+        val count = sparqlConnector.withConstructedDataset(query) { dataset ->
             val model = dataset.defaultModel
             val compounds = model.listSubjectsWithProperty(
                 ResourceFactory.createProperty("https://naturalproducts.net/ontology#", "name")
             )
-            
-            var count = 0
+
+            var seen = 0
             while (compounds.hasNext()) {
                 compounds.next()
-                count++
+                seen++
             }
-            assertEquals(2, count)
-        } finally {
-            dataset.end()
+            seen
         }
-        
-        dataset.close()
+
+        assertEquals(2, count)
     }
-    
+
     @Test
-    fun testConstructQueryWithException() {
-        // Test with an invalid SPARQL server URL to trigger exception
+    fun testConstructQueryOnUnreachableServerThrows() {
+        // An unreachable backend must surface as SparqlUnavailableException (503),
+        // not as a silently empty dataset that renders as "no results".
         val originalServer = sparqlConnector.SPARQL_SERVER
         try {
-            // Create a new connector with invalid URL
-            System.setProperty("SPARQL_SERVER", "http://invalid-server:9999/sparql")
+            System.setProperty("SPARQL_SERVER", "http://127.0.0.1:9/sparql")
             val badConnector = SparqlConnector()
-            
-            val query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"
-            val dataset = badConnector.constructQueryIntoAQueriableDataset(query)
-            
-            // The method should handle the exception and return a dataset (possibly empty)
-            assertNotNull(dataset)
-            
-            // Clean up the dataset properly
-            dataset?.close()
+
+            assertFailsWith<SparqlUnavailableException> {
+                badConnector.withConstructedDataset("CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }") { it }
+            }
         } finally {
-            System.setProperty("SPARQL_SERVER", originalServer!!)
+            System.setProperty("SPARQL_SERVER", originalServer)
         }
     }
-    
+
+    @Test
+    fun testSelectOnUnreachableServerThrows() {
+        val originalServer = sparqlConnector.SPARQL_SERVER
+        try {
+            System.setProperty("SPARQL_SERVER", "http://127.0.0.1:9/sparql")
+            val badConnector = SparqlConnector()
+
+            assertFailsWith<SparqlUnavailableException> {
+                badConnector.getResultsOfQuery("SELECT ?s WHERE { ?s ?p ?o }")
+            }
+        } finally {
+            System.setProperty("SPARQL_SERVER", originalServer)
+        }
+    }
+
+    @Test
+    fun testMalformedQueryThrowsQueryParseException() {
+        // E3: a newline (or anything else malformed) in a user-supplied search term
+        // must be a parse error the caller can turn into a 400, not a 500.
+        assertFailsWith<QueryParseException> {
+            sparqlConnector.getResultsOfQuery("SELECT ?s WHERE { ?s ?p ?o }\nnonsense")
+        }
+    }
+
     @Test
     fun testPredicateAndObjectsOf() {
         val results = sparqlConnector.predicateAndObjectsOf("http://example.org/compound1")
@@ -308,21 +317,20 @@ class SparqlConnectorTest {
     
     @Test
     fun testEnvironmentVariableFallback() {
-        // Save original values
         val originalSystemProp = System.getProperty("SPARQL_SERVER")
-        
+
         try {
-            // Clear system property to test environment variable fallback
+            // With the system property cleared the connector falls back to the
+            // environment variable; with neither set, construction fails fast.
             System.clearProperty("SPARQL_SERVER")
-            
-            // The connector should still work with environment variable or have null
-            val connector = SparqlConnector()
-            
-            // Just verify it initializes without error
-            // SPARQL_SERVER can be null if no env var is set, which is fine
-            assertTrue(true, "Connector initialized successfully")
+            val fromEnvironment = System.getenv("SPARQL_SERVER")
+
+            if (fromEnvironment == null) {
+                assertFailsWith<IllegalStateException> { SparqlConnector() }
+            } else {
+                assertEquals(fromEnvironment, SparqlConnector().SPARQL_SERVER)
+            }
         } finally {
-            // Restore original value if it existed
             if (originalSystemProp != null) {
                 System.setProperty("SPARQL_SERVER", originalSystemProp)
             }

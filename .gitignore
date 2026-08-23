@@ -41,3 +41,6 @@ data
 
 ### Local plans ###
 .plans/
+
+### Local env ###
+.env

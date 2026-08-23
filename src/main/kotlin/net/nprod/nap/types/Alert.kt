@@ -8,18 +8,9 @@ data class Alert (
     val uri: String,
     val name: String
 ) {
-    object Cache {
-        private val alerts: MutableMap<String, Alert> = mutableMapOf()
-
-        operator fun get(alertUri: String?): Alert? {
-            if (alertUri == null) return null
-
-            return alerts[alertUri]
-        }
-
-        init {
-            val sparqlConnector = SparqlConnector()
-
+    object Cache : ReferenceCache<Alert>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, Alert> {
+            val alerts = mutableMapOf<String, Alert>()
 
             val query = """
            PREFIX n: <https://nap.nprod.net/>
@@ -38,6 +29,7 @@ data class Alert (
                     alerts[alertUri] = Alert(uri = alertUri, name = name)
                 }
             }
+            return alerts
         }
     }
 }

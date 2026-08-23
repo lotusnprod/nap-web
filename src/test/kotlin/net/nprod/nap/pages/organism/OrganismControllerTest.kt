@@ -7,6 +7,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import net.nprod.nap.test.withInMemoryFuseki
 import net.nprod.nap.rdf.SparqlConnector
+import net.nprod.nap.rdf.SparqlUnavailableException
+import net.nprod.nap.types.EntityNotFoundException
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
@@ -78,24 +81,33 @@ class OrganismControllerTest {
             
             val controller = OrganismController()
             val sparqlConnector = SparqlConnector()
-            
-            // Should return null when organism not found (exception caught)
-            val data = controller.createData("999", sparqlConnector, "https://nap.nprod.net/organism/999")
-            assertNull(data)
+
+            // A missing organism is a 404, and must be distinguishable from an outage
+            val notFound = assertFailsWith<EntityNotFoundException> {
+                controller.createData("999", sparqlConnector, "https://nap.nprod.net/organism/999")
+            }
+            assertEquals("organism", notFound.entityType)
         }
     }
 
     @Test
     fun testCreateDataWithInvalidSparqlConnector() = runBlocking {
-        // Test with invalid SPARQL endpoint to trigger exception
-        System.setProperty("SPARQL_SERVER", "http://invalid-endpoint:9999/sparql")
-        
-        val controller = OrganismController()
-        val sparqlConnector = SparqlConnector()
-        
-        // Should catch exception and return null
-        val data = controller.createData("123", sparqlConnector, "https://nap.nprod.net/organism/123")
-        assertNull(data)
+        // An unreachable backend is a 503, not a "no such organism" page.
+        // SPARQL_SERVER is JVM-global, so it has to be restored for later classes.
+        val originalServer = System.getProperty("SPARQL_SERVER")
+        try {
+            System.setProperty("SPARQL_SERVER", "http://invalid-endpoint:9999/sparql")
+
+            val controller = OrganismController()
+            val sparqlConnector = SparqlConnector()
+
+            assertFailsWith<SparqlUnavailableException> {
+                controller.createData("123", sparqlConnector, "https://nap.nprod.net/organism/123")
+            }
+        } finally {
+            if (originalServer != null) System.setProperty("SPARQL_SERVER", originalServer)
+        }
+        return@runBlocking
     }
 
     @Test
@@ -125,7 +137,8 @@ class OrganismControllerTest {
     @Test
     fun testRegisterRoutes() = testApplication {
         application {
-            System.setProperty("SPARQL_SERVER", "http://localhost:3030/napra/sparql")
+            // Route registration touches no SPARQL endpoint. Setting the JVM-global
+            // SPARQL_SERVER here used to leak a dead endpoint into later test classes.
             
             routing {
                 // Simply verify that registerRoutes doesn't throw an exception

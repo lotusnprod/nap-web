@@ -163,7 +163,11 @@ data class Pharmacy(
                         }
                     }
 
-                    new.worktypes.add(Worktype.Cache[solution["worktype"].asResource().uri]!!)
+                    // worktype is bound in an OPTIONAL, and the cache may not know a
+                    // freshly added one — neither case should NPE the whole page.
+                    solution["worktype"]?.asResource()?.uri
+                        ?.let { Worktype.Cache[it] }
+                        ?.let { new.worktypes.add(it) }
                     solution["compound"]?.asResource()?.let {
                         var cmpd = Compound.fromSparql(sparqlConnector, it.uri)
                         cmpd.name = solution["compound_name"].asLiteral().string
@@ -177,7 +181,7 @@ data class Pharmacy(
                     }
                 }
             }
-            if (new == null) throw Exception("No pharmacy found for $uri")
+            if (new == null) throw EntityNotFoundException("pharmacy", uri)
             return new
         }
     }

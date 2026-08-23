@@ -22,7 +22,7 @@ object CompoundView {
 
         return defaultPage("${compound.name} ($identifier)") {
             id = "content-node"
-            div("container") {
+            div("container-fluid container-full px-4") {
                 div("row") {
                     div("col-12") {
                         h1(classes = "mt-4 mb-4") { +"${compound.name} ($identifier)" }
@@ -125,7 +125,7 @@ object CompoundView {
                                     +"Experiments (${pharmacyResults.size})"
                                 }
                             }
-                            div("card-body p-0") {
+                            div("card-body") {
                                 presentPharmacyResults(pharmacyResults, sourceType = "compound")
                             }
                         }
