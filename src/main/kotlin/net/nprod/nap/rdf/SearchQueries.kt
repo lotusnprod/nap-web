@@ -32,13 +32,73 @@ fun cleanSearchQuery(query: String): String {
     return cleanedQuery
 }
 
+private val WHITESPACE = Regex("\\s+")
+private val NON_ALPHANUMERIC = Regex("[^a-z0-9]+")
+
+/** The same collapsing as [normalizeForPhraseMatch], expressed for SPARQL's REPLACE */
+private const val NON_ALPHANUMERIC_SPARQL = "[^a-z0-9]+"
+
+/**
+ * Split a search query into the words it is made of
+ *
+ * Double quotes are dropped rather than escaped: people quote to ask for an exact phrase,
+ * which is what a multi-word search does here anyway, so the quotes carry no information
+ * and would otherwise reach Lucene as escaped literal characters and match nothing.
+ *
+ * @param query The raw query string
+ * @return The words of the query, in the order they were typed
+ */
+fun searchWords(query: String): List<String> =
+    query.replace("\"", " ").trim().split(WHITESPACE).filter { it.isNotEmpty() }
+
+/**
+ * Lowercase a name and collapse every run of non-alphanumeric characters into one space
+ *
+ * Applied to both sides of a phrase comparison so that "Alepposide A" also matches
+ * "alepposide-a": natural product series are written both ways.
+ *
+ * @param text The text to normalize
+ * @return The normalized text
+ */
+fun normalizeForPhraseMatch(text: String): String =
+    text.lowercase().replace(NON_ALPHANUMERIC, " ").trim()
+
+/**
+ * Pick the word to hand to the text index
+ *
+ * The index holds one document per literal, and a bare multi-word Lucene query matches
+ * nothing at all — neither across two literals of the same organism nor within a single
+ * compound name. So a multi-word query looks up its longest word, the most selective one,
+ * and [phraseFilter] checks the rest in SPARQL.
+ *
+ * @param words The words of the query
+ * @return The word to search the index for, empty when there is no word at all
+ */
+private fun indexWord(words: List<String>): String = words.maxByOrNull { it.length } ?: ""
+
+/**
+ * A FILTER keeping only the rows whose name contains the whole query as a phrase
+ *
+ * @param nameExpression A SPARQL expression producing the name to match against
+ * @param words The words of the query
+ * @return A FILTER clause, or an empty string when there is nothing left to check
+ */
+private fun phraseFilter(nameExpression: String, words: List<String>): String {
+    if (words.size < 2) return ""
+    val phrase = normalizeForPhraseMatch(words.joinToString(" "))
+    if (phrase.isEmpty()) return ""
+    // phrase is alphanumerics and spaces only, so it needs no SPARQL escaping
+    return """FILTER(CONTAINS(REPLACE(LCASE($nameExpression), "$NON_ALPHANUMERIC_SPARQL", " "), "$phrase"))"""
+}
+
 /**
  * Get a SPARQL query to search for compounds by name using text indexing
  * @param query The search term to find in compound names
  * @return A SPARQL query string to search for compounds
  */
 fun compoundSearchQuery(query: String): String {
-    val cleanQuery = cleanSearchQuery(query)
+    val words = searchWords(query)
+    val cleanQuery = cleanSearchQuery(indexWord(words))
     return """
         PREFIX n: <https://nap.nprod.net/>
         PREFIX text: <http://jena.apache.org/text#>
@@ -49,6 +109,7 @@ fun compoundSearchQuery(query: String): String {
                       n:name ?name;
                       n:compoundclass ?compoundClass;
                       n:number ?number.
+            ${phraseFilter("?name", words)}
         }
         ORDER BY ?name
     """.trimIndent()
@@ -60,7 +121,16 @@ fun compoundSearchQuery(query: String): String {
  * @return A SPARQL query string to search for organisms
  */
 fun organismSearchQuery(query: String): String {
-    val cleanQuery = cleanSearchQuery(query)
+    val words = searchWords(query)
+    val cleanQuery = cleanSearchQuery(indexWord(words))
+    // An organism has no single name literal: it is spelled across four fields, and the
+    // index holds each of them as its own document. Rebuild the full name to match on.
+    val fullName = """CONCAT(
+                COALESCE(?familyname, ""), " ",
+                COALESCE(?genusname, ""), " ",
+                COALESCE(?speciesname, ""), " ",
+                COALESCE(?subspeciesname, "")
+            )"""
     return """
         PREFIX n: <https://nap.nprod.net/>
         PREFIX text: <http://jena.apache.org/text#>
@@ -74,6 +144,7 @@ fun organismSearchQuery(query: String): String {
             OPTIONAL { ?organism n:subspeciesname ?subspeciesname }
             OPTIONAL { ?organism n:familyname ?familyname }
             OPTIONAL { ?organism n:has_taxon ?taxon }
+            ${phraseFilter(fullName, words)}
         }
         ORDER BY ?genusname ?speciesname
     """.trimIndent()
@@ -85,7 +156,8 @@ fun organismSearchQuery(query: String): String {
  * @return A SPARQL query string to search for pharmacology entries
  */
 fun pharmacologySearchQuery(query: String): String {
-    val cleanQuery = cleanSearchQuery(query)
+    val words = searchWords(query)
+    val cleanQuery = cleanSearchQuery(indexWord(words))
     return """
         PREFIX n: <https://nap.nprod.net/>
         PREFIX text: <http://jena.apache.org/text#>
@@ -94,6 +166,7 @@ fun pharmacologySearchQuery(query: String): String {
             ?pharmacology text:query "$cleanQuery".
             ?pharmacology a n:pharmacology;
                          n:name ?name.
+            ${phraseFilter("?name", words)}
         }
         ORDER BY ?name
     """.trimIndent()

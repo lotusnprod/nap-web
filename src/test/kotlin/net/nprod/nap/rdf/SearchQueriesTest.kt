@@ -2,9 +2,11 @@ package net.nprod.nap.rdf
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class SearchQueriesTest {
-    
+
     @Test
     fun testCleanSearchQuery() {
         // Test normal text
@@ -98,8 +100,63 @@ class SearchQueriesTest {
     @Test
     fun testPharmacologySearchQueryWithSpecialCharacters() {
         val query = pharmacologySearchQuery("anti-cancer*")
-        
+
         // Verify special characters are properly escaped
         assert(query.contains("?pharmacology text:query \"anti\\\\-cancer\\\\*\""))
+    }
+
+    @Test
+    fun testSearchWordsDropsQuotesAndBlanks() {
+        assertEquals(listOf("alepposide", "a"), searchWords("  alepposide   a "))
+        assertEquals(listOf("Alepposide", "A"), searchWords("\"Alepposide A\""))
+        assertEquals(emptyList(), searchWords("   "))
+    }
+
+    @Test
+    fun testNormalizeForPhraseMatchCollapsesPunctuation() {
+        assertEquals("alepposide a", normalizeForPhraseMatch("Alepposide-A"))
+        assertEquals("alepposide a", normalizeForPhraseMatch("  Alepposide   A  "))
+        assertEquals("amyrin acetate", normalizeForPhraseMatch("α-Amyrin acetate"))
+    }
+
+    @Test
+    fun testSingleWordSearchesAreNotFiltered() {
+        // One word is what the text index handles on its own; nothing to check afterwards
+        listOf(compoundSearchQuery("alepposide"), organismSearchQuery("adonis"), pharmacologySearchQuery("euphoriant"))
+            .forEach { assertFalse(it.contains("FILTER"), "a one-word search needs no FILTER: $it") }
+    }
+
+    @Test
+    fun testMultiWordCompoundSearchLooksUpTheLongestWordAndChecksThePhrase() {
+        val query = compoundSearchQuery("Alepposide A")
+
+        // "alepposide" is the selective word; the index cannot match "alepposide a" at all
+        assertTrue(query.contains("?compound text:query (n:name \"alepposide\")"), query)
+        assertTrue(query.contains("\"alepposide a\""), query)
+    }
+
+    @Test
+    fun testMultiWordCompoundSearchIgnoresQuotesAroundThePhrase() {
+        assertEquals(compoundSearchQuery("Alepposide A"), compoundSearchQuery("\"Alepposide A\""))
+    }
+
+    @Test
+    fun testMultiWordOrganismSearchMatchesOnTheWholeName() {
+        val query = organismSearchQuery("Adonis aleppica")
+
+        assertTrue(query.contains("?organism text:query \"aleppica\""), query)
+        // The name is spread over four fields, so the phrase is checked against all of them
+        listOf("?familyname", "?genusname", "?speciesname", "?subspeciesname").forEach {
+            assertTrue(query.contains("COALESCE($it, \"\")"), "the phrase check should cover $it")
+        }
+        assertTrue(query.contains("\"adonis aleppica\""), query)
+    }
+
+    @Test
+    fun testMultiWordPharmacologySearchChecksThePhrase() {
+        val query = pharmacologySearchQuery("euphoriant activity")
+
+        assertTrue(query.contains("?pharmacology text:query \"euphoriant\""), query)
+        assertTrue(query.contains("\"euphoriant activity\""), query)
     }
 }

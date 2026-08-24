@@ -44,11 +44,13 @@ class ErrorResponsesTest {
     }
 
     @Test
-    fun testMalformedSearchTermIsBadRequest() = withInMemoryFuseki {
-        // A newline breaks out of the SPARQL string literal the search query builds.
+    fun testSearchTermWithANewlineIsAnOrdinarySearch() = withInMemoryFuseki {
+        // A newline used to break out of the SPARQL string literal the search query builds
+        // and come back as a 400. The search now splits on whitespace before it builds the
+        // query, so there is nothing to break out of: this is a two-word search.
         val response = client.get("/compound/search?query=a%0Ab")
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.OK, response.status)
         assertFalse(response.bodyAsText().contains("QueryParseException"), "The page must not leak the parser error")
     }
 
