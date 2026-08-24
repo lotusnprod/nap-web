@@ -31,7 +31,7 @@ export NAP_DATA_DIR
 SPARQL_ENDPOINT ?= http://localhost:3030/raw/sparql
 
 .DEFAULT_GOAL := help
-.PHONY: help dev dev-localdata up sparql-only down logs ps reseed reindex \
+.PHONY: help dev dev-localdata up sparql-only wait-sparql down logs ps reseed reindex \
         shell-web shell-sparql test build image clean nuke check-engine env prod-preflight
 
 help: ## Show this help
@@ -69,10 +69,34 @@ dev-localdata: check-engine env ## Like dev, but against the store at NAP_DATA_D
 up: check-engine $(PREFLIGHT) env ## Start without rebuilding (PROD=1 on the server)
 	$(DC) up -d --wait
 
-sparql-only: check-engine $(PREFLIGHT) env ## Only Fuseki (for running nap-web from the IDE)
-	$(DC) up --build -d --wait nap-sparql
+# Two things `up --build -d --wait nap-sparql` got wrong once a container existed:
+#   - compose reuses the container it finds, rebuilt image or not, so the second run
+#     silently left the old Fuseki running;
+#   - podman-compose's `--wait` waits for nothing. It prints "Error: container is
+#     stopped" and returns, which reads as a failure and tells you nothing about
+#     whether the server came up.
+# So: tear the project down, bring Fuseki back alone, and ask it ourselves. Taking
+# nap-web down with it is the point of the target — it is the process you are about
+# to run from the IDE, on the same port.
+sparql-only: check-engine env ## Only Fuseki, recreated from scratch (for running nap-web from the IDE)
+	@test "$(PROD)" != "1" || { echo "sparql-only is a dev target; refusing to run with PROD=1"; exit 1; }
+	@# podman-compose reports every service of the project that has no container as an
+	@# error, so a clean tree brings back five "no such container" lines that are not
+	@# failures. Anything that actually went wrong shows up on the `up` below.
+	@$(DC) down 2>&1 | grep -vE 'no such (container|pod)' || true
+	$(DC) up --build -d nap-sparql
+	@$(MAKE) --no-print-directory wait-sparql
 	@echo "Run the app with:"
 	@echo "  SPARQL_SERVER=$(SPARQL_ENDPOINT) ENVIRONMENT=development ./gradlew run"
+
+wait-sparql: ## Block until Fuseki answers a query
+	@command -v curl >/dev/null 2>&1 || { echo "[wait] no curl, skipping the readiness check"; exit 0; }
+	@printf '[wait] fuseki '
+	@for i in $$(seq 1 90); do \
+	  if curl -sf -o /dev/null --max-time 2 "$(SPARQL_ENDPOINT)?query=ASK%7B%7D"; then echo "ready"; exit 0; fi; \
+	  printf '.'; sleep 2; \
+	done; \
+	echo "not ready after 180s"; $(DC) logs --tail 30 nap-sparql || true; exit 1
 
 down: check-engine ## Stop the stack (keeps data)
 	$(DC) down

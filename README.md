@@ -28,7 +28,7 @@ builds the Lucene index, and waits until every service is healthy. Then:
 |---|---|
 | `make dev` | Build + start the whole seeded stack, wait for health |
 | `make up` | Start without rebuilding |
-| `make sparql-only` | Only Fuseki, for running the app from the IDE |
+| `make sparql-only` | Only Fuseki, recreated from scratch, for running the app from the IDE |
 | `make reseed` | Wipe the store and reload `stack/seed/*` |
 | `make reindex` | Rebuild the Lucene text index |
 | `make logs` / `make ps` | Follow logs / show health status |
@@ -83,6 +83,10 @@ If the `nap-data` volume already exists with different backing, `docker volume r
 make sparql-only
 SPARQL_SERVER=http://localhost:3030/raw/sparql ENVIRONMENT=development ./gradlew run
 ```
+
+`sparql-only` takes the project down before it starts, so nap-web stops and Fuseki comes
+back from a freshly built image rather than from whatever container was lying around. It
+returns when Fuseki actually answers a query, not when compose has finished talking.
 
 ## Health endpoints
 
