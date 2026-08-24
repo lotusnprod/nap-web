@@ -117,6 +117,17 @@ fun compoundSearchQuery(query: String): String {
 
 /**
  * Get a SPARQL query to search for organisms by name using text indexing
+ *
+ * One row per taxon, not per organism: the matches are specimen records and the same
+ * species is recorded once per publication, so a plain search for "salix" answers with
+ * thousands of rows that say the same thing. Grouping here rather than in the controller
+ * is what makes the experiment count possible — it counts every experiment on the taxon,
+ * not the ones attached to whichever record happened to come back first.
+ *
+ * The names are read with SAMPLE off internal variables. No taxon in the store spans two
+ * genera, so the sample is not arbitrary in practice, and grouping by taxon alone keeps
+ * the count whole even where a record disagrees.
+ *
  * @param query The search term to find in organism names
  * @return A SPARQL query string to search for organisms
  */
@@ -126,32 +137,38 @@ fun organismSearchQuery(query: String): String {
     // An organism has no single name literal: it is spelled across four fields, and the
     // index holds each of them as its own document. Rebuild the full name to match on.
     val fullName = """CONCAT(
-                COALESCE(?familyname, ""), " ",
-                COALESCE(?genusname, ""), " ",
-                COALESCE(?speciesname, ""), " ",
-                COALESCE(?subspeciesname, "")
+                COALESCE(?family, ""), " ",
+                COALESCE(?genus, ""), " ",
+                COALESCE(?species, ""), " ",
+                COALESCE(?subspecies, "")
             )"""
     return """
         PREFIX n: <https://nap.nprod.net/>
         PREFIX text: <http://jena.apache.org/text#>
-        SELECT DISTINCT ?organism ?genusname ?speciesname ?subspeciesname ?familyname ?number ?taxon ?taxonName
+        SELECT ?taxon ?taxonName
+               (SAMPLE(?org) AS ?organism)
+               (SAMPLE(?genus) AS ?genusname)
+               (SAMPLE(?species) AS ?speciesname)
+               (SAMPLE(?subspecies) AS ?subspeciesname)
+               (SAMPLE(?family) AS ?familyname)
+               (SAMPLE(?class) AS ?organismClass)
+               (SAMPLE(?nb) AS ?number)
+               (COUNT(DISTINCT ?pharmacy) AS ?experiments)
         WHERE {
-            ?organism text:query "$cleanQuery".
-            ?organism a n:organism;
-                      n:number ?number.
-            OPTIONAL { ?organism n:genusname ?genusname }
-            OPTIONAL { ?organism n:speciesname ?speciesname }
-            OPTIONAL { ?organism n:subspeciesname ?subspeciesname }
-            OPTIONAL { ?organism n:familyname ?familyname }
-            # The taxon name has to be nested: with ?taxon unbound, a sibling OPTIONAL
-            # would match every named resource in the store.
-            OPTIONAL {
-                ?organism n:has_taxon ?taxon.
-                OPTIONAL { ?taxon n:name ?taxonName }
-            }
+            ?org text:query "$cleanQuery".
+            ?org a n:organism;
+                 n:number ?nb;
+                 n:has_taxon ?taxon.
+            OPTIONAL { ?org n:genusname ?genus }
+            OPTIONAL { ?org n:speciesname ?species }
+            OPTIONAL { ?org n:subspeciesname ?subspecies }
+            OPTIONAL { ?org n:familyname ?family }
+            OPTIONAL { ?org n:organismclass/n:name ?class }
+            OPTIONAL { ?taxon n:name ?taxonName }
+            OPTIONAL { ?pharmacy a n:pharmacy; n:has_organism ?org }
             ${phraseFilter(fullName, words)}
         }
-        ORDER BY ?genusname ?speciesname
+        GROUP BY ?taxon ?taxonName
     """.trimIndent()
 }
 

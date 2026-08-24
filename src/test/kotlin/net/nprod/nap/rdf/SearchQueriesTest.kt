@@ -61,28 +61,39 @@ class SearchQueriesTest {
     @Test
     fun testOrganismSearchQuery() {
         val query = organismSearchQuery("arabidopsis")
-        
+
         // Verify the query contains the expected structure
         assert(query.contains("PREFIX n: <https://nap.nprod.net/>"))
         assert(query.contains("PREFIX text: <http://jena.apache.org/text#>"))
-        assert(query.contains("?organism text:query \"arabidopsis\""))
-        assert(query.contains("?organism a n:organism"))
-        assert(query.contains("n:number ?number"))
-        assert(query.contains("OPTIONAL { ?organism n:genusname ?genusname }"))
-        assert(query.contains("OPTIONAL { ?organism n:speciesname ?speciesname }"))
-        assert(query.contains("OPTIONAL { ?organism n:subspeciesname ?subspeciesname }"))
-        assert(query.contains("OPTIONAL { ?organism n:familyname ?familyname }"))
-        assert(query.contains("?organism n:has_taxon ?taxon."))
+        assert(query.contains("?org text:query \"arabidopsis\""))
+        assert(query.contains("?org a n:organism"))
+        assert(query.contains("n:number ?nb"))
+        assert(query.contains("OPTIONAL { ?org n:genusname ?genus }"))
+        assert(query.contains("OPTIONAL { ?org n:speciesname ?species }"))
+        assert(query.contains("OPTIONAL { ?org n:subspeciesname ?subspecies }"))
+        assert(query.contains("OPTIONAL { ?org n:familyname ?family }"))
+        assert(query.contains("OPTIONAL { ?org n:organismclass/n:name ?class }"))
+        assert(query.contains("n:has_taxon ?taxon"))
         assert(query.contains("OPTIONAL { ?taxon n:name ?taxonName }"))
-        assert(query.contains("ORDER BY ?genusname ?speciesname"))
     }
-    
+
+    @Test
+    fun testOrganismSearchQueryReturnsOneRowPerTaxon() {
+        val query = organismSearchQuery("arabidopsis")
+
+        // Specimen records repeat the same species once per publication. Collapsing them
+        // here rather than in the controller is what makes the experiment count whole.
+        assert(query.contains("GROUP BY ?taxon ?taxonName"))
+        assert(query.contains("(COUNT(DISTINCT ?pharmacy) AS ?experiments)"))
+        assert(query.contains("(SAMPLE(?genus) AS ?genusname)"))
+    }
+
     @Test
     fun testOrganismSearchQueryWithSpecialCharacters() {
         val query = organismSearchQuery("test(organism)")
-        
+
         // Verify special characters are properly escaped
-        assert(query.contains("?organism text:query \"test\\\\(organism\\\\)\""))
+        assert(query.contains("?org text:query \"test\\\\(organism\\\\)\""))
     }
     
     @Test
@@ -145,9 +156,9 @@ class SearchQueriesTest {
     fun testMultiWordOrganismSearchMatchesOnTheWholeName() {
         val query = organismSearchQuery("Adonis aleppica")
 
-        assertTrue(query.contains("?organism text:query \"aleppica\""), query)
+        assertTrue(query.contains("?org text:query \"aleppica\""), query)
         // The name is spread over four fields, so the phrase is checked against all of them
-        listOf("?familyname", "?genusname", "?speciesname", "?subspeciesname").forEach {
+        listOf("?family", "?genus", "?species", "?subspecies").forEach {
             assertTrue(query.contains("COALESCE($it, \"\")"), "the phrase check should cover $it")
         }
         assertTrue(query.contains("\"adonis aleppica\""), query)

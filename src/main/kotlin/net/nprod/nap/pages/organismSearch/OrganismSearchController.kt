@@ -37,9 +37,11 @@ class OrganismSearchController {
                 val number = solution.getLiteral("number")?.int?.toString() ?: "Unknown"
                 val taxon = solution.getResource("taxon")?.uri
                 val taxonName = solution.getLiteral("taxonName")?.string ?: ""
+                val organismClass = solution.getLiteral("organismClass")?.string ?: ""
+                val experiments = solution.getLiteral("experiments")?.int ?: 0
 
-                // The family is a column of its own, so it is left out here: it would
-                // otherwise make every recorded name differ from its taxon name.
+                // The ranks each have a column of their own, but a row still needs one
+                // name to fall back on when the record has no genus to show.
                 val recordedName = buildString {
                     if (genusname.isNotBlank()) {
                         append(genusname.lowercase().replaceFirstChar { it.uppercase() })
@@ -56,30 +58,31 @@ class OrganismSearchController {
                     }
                 }
 
-                // A row stands for a taxon, so it is named after the taxon. The name the
-                // matched organism record carries is kept alongside: it is what the visitor
-                // typed a fragment of, and seeing it is the only way to understand why a
-                // search for one name answers with another.
                 organismList.add(mapOf(
                     "uri" to organismUri,
-                    "displayName" to taxonName.ifBlank { recordedName },
+                    "taxonName" to taxonName,
                     "recordedName" to recordedName,
                     "genusname" to genusname,
                     "speciesname" to speciesname,
                     "subspeciesname" to subspeciesname,
                     "familyname" to familyname,
+                    "organismClass" to organismClass,
+                    "experiments" to experiments.toString(),
                     "number" to number,
                     "taxon" to (taxon ?: "")
                 ))
             }
-            
-            // Group organisms by taxon and only show the first one per taxon
-            val groupedByTaxon = organismList.groupBy { it["taxon"] }
-            val uniqueOrganisms = groupedByTaxon
-                .filter { it.key?.isNotEmpty() == true } // Filter out organisms without taxon
-                .map { it.value.first() } // Take the first organism for each taxon
-            
-            uniqueOrganisms
+
+            // The query already returns one row per taxon. Ordering is left to here: a
+            // GROUP BY cannot be sorted on the names it samples without repeating every
+            // aggregate in the ORDER BY.
+            organismList.sortedWith(
+                compareBy(
+                    { it["genusname"].orEmpty().lowercase() },
+                    { it["speciesname"].orEmpty().lowercase() },
+                    { it["subspeciesname"].orEmpty().lowercase() }
+                )
+            )
         } else {
             emptyList()
         }
