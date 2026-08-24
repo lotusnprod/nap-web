@@ -143,7 +143,7 @@ class PharmacologySearchViewTest {
         assertContains(html, "table table-striped table-hover")
         assertContains(html, "<thead>")
         assertContains(html, "<tbody>")
-        assertContains(html, "<th>Name</th>")
+        assertContains(html, "<th>Activity</th>")
         
         // Check links are rendered correctly
         assertContains(html, "<a href=\"/pharmacology/hepatoprotective\">Hepatoprotective</a>")
@@ -183,6 +183,57 @@ class PharmacologySearchViewTest {
         assertContains(html, "Please enter a search term.")
     }
     
+    @Test
+    fun testNoQueryListsEveryActivityInsteadOfAskingForATerm() {
+        val viewData = PharmacologySearchViewData(
+            query = null,
+            pharmacologyEntries = listOf(
+                mapOf("uri" to "https://nap.nprod.net/pharmacology/1", "name" to "ANTIBACTERIAL", "experiments" to "12"),
+                mapOf("uri" to "https://nap.nprod.net/pharmacology/2", "name" to "ANTIVIRAL", "experiments" to "0")
+            )
+        )
+
+        val html = PharmacologySearchView.render(viewData)
+
+        // The activity names are a vocabulary: reading through it is the point of the page
+        assertContains(html, "Pharmacological activities")
+        assertFalse(html.contains("Please enter a search term."))
+        assertContains(html, "<a href=\"/pharmacology/1\">ANTIBACTERIAL</a>")
+        assertContains(html, "<a href=\"/pharmacology/2\">ANTIVIRAL</a>")
+        assertContains(html, "Showing ")
+    }
+
+    @Test
+    fun testTheListingFiltersOnTheActivityNameAlone() {
+        val viewData = PharmacologySearchViewData(
+            query = null,
+            pharmacologyEntries = listOf(
+                mapOf("uri" to "https://nap.nprod.net/pharmacology/1", "name" to "ANTIBACTERIAL", "experiments" to "12")
+            )
+        )
+
+        val html = PharmacologySearchView.render(viewData)
+
+        // Filtering on the whole row would let "12" match on the experiment count
+        assertContains(html, """data-filter="ANTIBACTERIAL"""")
+        assertContains(html, "/assets/js/live-filter.js")
+    }
+
+    @Test
+    fun testTheExperimentCountIsShown() {
+        val viewData = PharmacologySearchViewData(
+            query = "anti",
+            pharmacologyEntries = listOf(
+                mapOf("uri" to "https://nap.nprod.net/pharmacology/1", "name" to "ANTIBACTERIAL", "experiments" to "12")
+            )
+        )
+
+        val html = PharmacologySearchView.render(viewData)
+
+        assertContains(html, "<th class=\"text-end\">Experiments</th>")
+        assertContains(html, "<td class=\"text-end\">12</td>")
+    }
+
     @Test
     fun testRenderWithWhitespaceOnlyQuery() {
         val viewData = PharmacologySearchViewData(

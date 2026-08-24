@@ -27,6 +27,15 @@ class NavbarTest {
     }
 
     @Test
+    fun testTheActivityListingIsLinked() {
+        // Searching supposes you can spell what you are after; the list does not
+        val html = navbarHtml()
+
+        assertContains(html, """href="/pharmacology"""")
+        assertContains(html, "Activities")
+    }
+
+    @Test
     fun testFaqIsLinked() {
         val html = navbarHtml()
 

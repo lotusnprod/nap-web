@@ -58,6 +58,12 @@ abstract class ReferenceCache<T : Any>(private val ttl: Duration = DEFAULT_TTL) 
         return entries.values
     }
 
+    /** The whole cache as uri → entity, loading it if needed. */
+    fun asMap(): Map<String, T> {
+        refreshIfStale()
+        return entries
+    }
+
     /** True once a load has succeeded; consumed by readiness checks and tests. */
     fun isLoaded(): Boolean = loadedAt != null
 

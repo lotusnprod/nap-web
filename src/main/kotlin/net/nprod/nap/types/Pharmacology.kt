@@ -37,6 +37,39 @@ data class Pharmacology (
         }
     }
 
+    /**
+     * How many experiments measured each activity, uri → count.
+     *
+     * The activity list is 4000 names long and a name alone says nothing about whether
+     * anything was ever recorded for it, so the count is what makes the list navigable.
+     * One grouped query over the experiments, cached like the reference tables: cheap
+     * enough to keep, too slow to run on every page view.
+     *
+     * Activities nothing was recorded for are absent from the map, not zero.
+     */
+    object ExperimentCounts : ReferenceCache<Int>() {
+        override fun load(sparqlConnector: SparqlConnector): Map<String, Int> {
+            val counts = mutableMapOf<String, Int>()
+
+            val query = """
+            PREFIX n: <https://nap.nprod.net/>
+            SELECT ?pharmacology (COUNT(*) AS ?count) {
+                 ?pharmacy n:has_pharmacology ?pharmacology.
+            }
+            GROUP BY ?pharmacology
+        """.trimIndent()
+
+            val result = sparqlConnector.getResultsOfQuery(query, logQuery = false)
+            if (result != null) {
+                while (result.hasNext()) {
+                    val solution = result.nextSolution()
+                    counts[solution["pharmacology"].asResource().uri] = solution["count"].asLiteral().int
+                }
+            }
+            return counts
+        }
+    }
+
     object Cache : ReferenceCache<Pharmacology>() {
         override fun load(sparqlConnector: SparqlConnector): Map<String, Pharmacology> {
             val pharmacologies = mutableMapOf<String, Pharmacology>()

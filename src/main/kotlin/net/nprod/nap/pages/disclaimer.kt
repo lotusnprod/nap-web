@@ -17,7 +17,7 @@ fun BODY.disclaimer() {
         id = "site-disclaimer"
         div(classes = "container") {
             p(classes = "text-muted small mb-0") {
-                +"Nap is an index of what scientific publications report. It is not medical advice, and nothing "
+                +"NAP is an index of what scientific publications report. It is not medical advice, and nothing "
                 +"here is a recommendation to use any organism, extract or compound to prevent, diagnose or treat "
                 +"any condition. Records reproduce what their source stated and may be incomplete, outdated or "
                 +"wrong; we make no warranty as to their accuracy. Always go back to the cited publication before "

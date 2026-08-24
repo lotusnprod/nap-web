@@ -31,8 +31,15 @@ class HomeViewTest {
     fun testEveryEntryPointLeadsToItsOwnSearch() {
         // The point people missed: the cards used to only offer a pre-run example, so the
         // only way to search for something else was the box in the navigation bar
-        listOf("/organism/search", "/compound/search", "/pharmacology/search", "/sparql").forEach { path ->
-            assertContains(html, """href="$path"""", message = "the cards should open $path")
+        // The activity card opens the list of them rather than an empty search box: that
+        // vocabulary is worth reading through, and it filters as you type.
+        listOf("/organism/search", "/compound/search", "/pharmacology", "/sparql").forEach { path ->
+            // The button of the card, not the same link in the navigation bar
+            assertContains(
+                html,
+                """<a class="btn btn-sm btn-primary" href="$path">""",
+                message = "the cards should open $path"
+            )
         }
     }
 

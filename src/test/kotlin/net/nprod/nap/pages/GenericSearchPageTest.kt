@@ -319,6 +319,73 @@ class GenericSearchPageTest {
     }
 
     @Test
+    fun testAnEmptyQueryListsEverythingWhenThereIsAListingToShow() {
+        val html = genericSearchPage(
+            entityType = "Pharmacology",
+            query = null,
+            searchQueryFunction = null,
+            processResults = null,
+            renderTableHeaders = { th { +"Activity" } },
+            renderTableRow = { entity -> td { +(entity["name"] ?: "") } },
+            preProcessedResults = listOf(mapOf("name" to "ANTIBACTERIAL"), mapOf("name" to "ANTIVIRAL")),
+            searchPath = "/pharmacology/search",
+            listing = SearchListing(
+                title = "Pharmacological activities",
+                intro = "Every activity recorded in NAP.",
+                filterTextOf = { it["name"] ?: "" }
+            )
+        )
+
+        assertContains(html, "Pharmacological activities")
+        assertContains(html, "Every activity recorded in NAP.")
+        assertContains(html, "ANTIBACTERIAL")
+        assertContains(html, "ANTIVIRAL")
+        // The whole list is on the page, so the filtering happens in the browser
+        assertContains(html, """id="live-filter-input"""")
+        assertContains(html, """id="live-filter-table"""")
+        assertContains(html, """data-filter="ANTIBACTERIAL"""")
+        assertFalse(html.contains("Please enter a search term."))
+    }
+
+    @Test
+    fun testAListingWithNothingToShowStillAsksForASearchTerm() {
+        val html = genericSearchPage(
+            entityType = "Pharmacology",
+            query = null,
+            searchQueryFunction = null,
+            processResults = null,
+            renderTableHeaders = { th { +"Activity" } },
+            renderTableRow = { td { +"Test" } },
+            preProcessedResults = emptyList(),
+            searchPath = "/pharmacology/search",
+            listing = SearchListing(title = "Pharmacological activities")
+        )
+
+        // A backend that answered with nothing must not leave a page with no way in
+        assertContains(html, "Please enter a search term.")
+        assertContains(html, """action="/pharmacology/search"""")
+    }
+
+    @Test
+    fun testAQueryStillSearchesWhenAListingIsAvailable() {
+        val html = genericSearchPage(
+            entityType = "Pharmacology",
+            query = "antiv",
+            searchQueryFunction = null,
+            processResults = null,
+            renderTableHeaders = { th { +"Activity" } },
+            renderTableRow = { entity -> td { +(entity["name"] ?: "") } },
+            preProcessedResults = listOf(mapOf("name" to "ANTIVIRAL")),
+            searchPath = "/pharmacology/search",
+            listing = SearchListing(title = "Pharmacological activities")
+        )
+
+        assertContains(html, "Pharmacology Search: antiv")
+        assertContains(html, "Found 1 results.")
+        assertFalse(html.contains("""id="live-filter-table""""), "the page only shows what the search returned")
+    }
+
+    @Test
     fun testNoSearchBoxWithoutARouteToSubmitTo() {
         val html = genericSearchPage(
             entityType = "Compound",

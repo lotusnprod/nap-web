@@ -2,6 +2,7 @@ package net.nprod.nap.pages.pharmacologySearch
 
 import kotlinx.html.*
 import net.nprod.nap.helpers.localLinks
+import net.nprod.nap.pages.SearchListing
 import net.nprod.nap.pages.genericSearchPage
 import org.apache.jena.query.ResultSet
 
@@ -22,17 +23,28 @@ object PharmacologySearchView {
             searchQueryFunction = null, // Not used directly in the view
             processResults = { _: ResultSet -> emptyList() }, // Not used directly in the view
             renderTableHeaders = {
-                th { +"Name" }
+                th { +"Activity" }
+                th(classes = "text-end") { +"Experiments" }
             },
             renderTableRow = { entry ->
-                td { 
+                td {
                     val uri = entry["uri"]!!
                     a(href = localLinks(uri)) { +entry["name"]!! }
                 }
+                // An activity nothing was recorded for is still a real entry of the
+                // vocabulary; the count is what says there is nothing behind it.
+                td(classes = "text-end") { +(entry["experiments"] ?: "") }
             },
             headerColor = "bg-primary",
             preProcessedResults = data.pharmacologyEntries, // Use pre-processed results
-            searchPath = "/pharmacology/search"
+            searchPath = "/pharmacology/search",
+            listing = SearchListing(
+                title = "Pharmacological activities",
+                intro = "Every activity recorded in NAP, by name. Following one lists the experiments that " +
+                    "measured it, whatever the organism or the compound involved.",
+                // Matching the whole row would let a count digit hide half the vocabulary
+                filterTextOf = { it["name"] ?: "" }
+            )
         )
     }
 }

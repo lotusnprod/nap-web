@@ -63,10 +63,10 @@ object HomeView {
         ),
         Entry(
             "Start from an activity",
-            "Search for a pharmacology to find the experiments that measured it, whatever the organism or the " +
-                "compound involved.",
-            "Search pharmacologies",
-            "/pharmacology/search",
+            "Read through every activity name we record, narrowing the list as you type. Following one gives you " +
+                "the experiments that measured it, whatever the organism or the compound involved.",
+            "Browse activities",
+            "/pharmacology",
             "/pharmacology/1"
         ),
         Entry(
@@ -89,7 +89,7 @@ object HomeView {
             div("container") {
                 div("row") {
                     div("col-12") {
-                        h1(classes = "mt-4 mb-3") { +"Nap" }
+                        h1(classes = "mt-4 mb-3") { +"NAP" }
                         p(classes = "lead") {
                             +"Natural Actives & Pharmacology. An open database of ethnomedical and "
                             +"ethnopharmacological information: which organisms and which compounds were studied in "
@@ -103,7 +103,7 @@ object HomeView {
                         div("card mb-4") {
                             tourStep(
                                 TourStep.HOME_INTRO,
-                                "This is Nap",
+                                "This is NAP",
                                 "Every record here comes from a publication. This tour shows you how to get from a " +
                                     "name to the experiments behind it. Next takes you through it, Turn off ends it."
                             )

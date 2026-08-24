@@ -11,7 +11,7 @@ fun MetaDataContent.genericHead(title: String?=null, description: String? = null
     meta(
         name = "description",
         content = description
-            ?: "Nap, Natural Actives & Pharmacology: the open database of ethnomedical and " +
+            ?: "NAP, Natural Actives & Pharmacology: the open database of ethnomedical and " +
             "ethnopharmacological information"
     )
     meta(name = "author", content = "The LOTUS devs")

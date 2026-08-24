@@ -19,7 +19,7 @@ import kotlinx.html.ul
 fun BODY.navbar() {
     nav(classes = "navbar navbar-expand-lg bg-body-tertiary") {
         div(classes = "container-fluid") {
-            a(classes = "navbar-brand", href = "#") { +"Nap" }
+            a(classes = "navbar-brand", href = "#") { +"NAP" }
 
             button(
                 type = ButtonType.button,
@@ -41,6 +41,13 @@ fun BODY.navbar() {
                         a(classes = "nav-link active", href = "/") {
                             attributes["aria-current"] = "page"
                             +"Home"
+                        }
+                    }
+                    // The activity names are a vocabulary of their own: worth being able to
+                    // read through without having to guess a term to search for first.
+                    li(classes = "nav-item") {
+                        a(classes = "nav-link", href = "/pharmacology") {
+                            +"Activities"
                         }
                     }
                     li(classes = "nav-item") {

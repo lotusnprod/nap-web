@@ -91,8 +91,28 @@ class ApplicationStructureTest {
             
             // Test pharmacology search
             val pharmacologySearchResponse = client.get("/pharmacology/search")
-            assertEquals(HttpStatusCode.OK, pharmacologySearchResponse.status, 
+            assertEquals(HttpStatusCode.OK, pharmacologySearchResponse.status,
                         "Pharmacology search route should work")
+        }
+    }
+
+    @Test
+    fun testActivityListingRoute() = runBlocking {
+        withInMemoryFuseki { fusekiServer ->
+            val response = client.get("/pharmacology")
+            assertEquals(HttpStatusCode.OK, response.status, "The activity listing route should work")
+
+            val content = response.bodyAsText()
+            assertTrue(content.contains("Pharmacological activities"), "The listing should name itself")
+            // Everything in the vocabulary, without having searched for anything, in order
+            val listed = listOf("Analgesic effect", "Anti-inflammatory effect", "Stimulant effect")
+            assertEquals(
+                listed,
+                listed.sortedBy { content.indexOf(">$it<") },
+                "Every activity should be listed, by name"
+            )
+            // And how much was recorded for each, which is what makes the list worth reading
+            assertTrue(content.contains("Experiments"), "The listing should show experiment counts")
         }
     }
     

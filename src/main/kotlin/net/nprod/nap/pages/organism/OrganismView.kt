@@ -34,7 +34,7 @@ object OrganismView {
                     div("col-12") {
                         h1(classes = "mt-4 mb-3") { +title }
                         div("alert alert-info") {
-                            +"Organisms in Nap refer to specimens, they are not \"taxonomical\" organisms and they can in some cases even be mixtures of organisms. Empty organisms are used as placeholders as the original dataset entry system used organism as the central part."
+                            +"Organisms in NAP refer to specimens, they are not \"taxonomical\" organisms and they can in some cases even be mixtures of organisms. Empty organisms are used as placeholders as the original dataset entry system used organism as the central part."
                         }
                         
                         organism.taxon?.let { taxon ->
