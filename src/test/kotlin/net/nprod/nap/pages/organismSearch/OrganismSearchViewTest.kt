@@ -21,12 +21,12 @@ class OrganismSearchViewTest {
     @Test
     fun testRowIsNamedAfterTheTaxonItLinksTo() {
         val html = OrganismSearchView.render(
-            OrganismSearchViewData("adonis", listOf(row("Achillea aleppica", "Adonis aleppica (RANUNCULACEAE)")))
+            OrganismSearchViewData("adonis", listOf(row("Achillea aleppica", "Adonis aleppica")))
         )
 
         // The heading of the destination page says the same thing, so the two agree
         assertContains(html, """<a href="/pharmacy_search?taxon_id=8001">Achillea aleppica</a>""")
-        assertContains(html, "recorded as Adonis aleppica (RANUNCULACEAE)")
+        assertContains(html, "recorded as Adonis aleppica")
     }
 
     @Test

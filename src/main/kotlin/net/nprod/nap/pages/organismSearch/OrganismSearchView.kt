@@ -51,7 +51,8 @@ object OrganismSearchView {
                 td { +organism["familyname"]!! }
                 td { +organism["subspeciesname"]!! }
             },
-            preProcessedResults = data.organisms // Use pre-processed results
+            preProcessedResults = data.organisms, // Use pre-processed results
+            searchPath = "/organism/search"
         )
     }
 }

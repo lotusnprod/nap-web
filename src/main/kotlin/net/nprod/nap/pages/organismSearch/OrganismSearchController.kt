@@ -38,6 +38,8 @@ class OrganismSearchController {
                 val taxon = solution.getResource("taxon")?.uri
                 val taxonName = solution.getLiteral("taxonName")?.string ?: ""
 
+                // The family is a column of its own, so it is left out here: it would
+                // otherwise make every recorded name differ from its taxon name.
                 val recordedName = buildString {
                     if (genusname.isNotBlank()) {
                         append(genusname.lowercase().replaceFirstChar { it.uppercase() })
@@ -48,11 +50,6 @@ class OrganismSearchController {
                                 append(" subsp. ")
                                 append(subspeciesname.lowercase())
                             }
-                        }
-                        if (familyname.isNotBlank()) {
-                            append(" (")
-                            append(familyname)
-                            append(")")
                         }
                     } else {
                         append("Organism #$number")

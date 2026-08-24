@@ -283,4 +283,53 @@ class GenericSearchPageTest {
         assertContains(html, "Compound Search: C₆H₁₂O₆ &amp; &lt;test&gt;")
         assertContains(html, "No compound found matching 'C₆H₁₂O₆ &amp; &lt;test&gt;'.")
     }
+
+    @Test
+    fun testAnEmptySearchPageOffersASearchBox() {
+        val html = genericSearchPage(
+            entityType = "Taxon",
+            query = null,
+            searchQueryFunction = null,
+            processResults = null,
+            renderTableHeaders = { th { +"Name" } },
+            renderTableRow = { td { +"Test" } },
+            searchPath = "/organism/search"
+        )
+
+        // Arriving here from the home page with nothing to show must not be a dead end
+        assertContains(html, """action="/organism/search"""")
+        assertContains(html, """name="query"""")
+    }
+
+    @Test
+    fun testAResultPageKeepsTheSearchBoxFilledIn() {
+        val html = genericSearchPage(
+            entityType = "Compound",
+            query = "alepposide a",
+            searchQueryFunction = null,
+            processResults = null,
+            renderTableHeaders = { th { +"Name" } },
+            renderTableRow = { td { +"Test" } },
+            preProcessedResults = emptyList(),
+            searchPath = "/compound/search"
+        )
+
+        assertContains(html, """action="/compound/search"""")
+        assertContains(html, """value="alepposide a"""")
+    }
+
+    @Test
+    fun testNoSearchBoxWithoutARouteToSubmitTo() {
+        val html = genericSearchPage(
+            entityType = "Compound",
+            query = null,
+            searchQueryFunction = null,
+            processResults = null,
+            renderTableHeaders = { th { +"Name" } },
+            renderTableRow = { td { +"Test" } }
+        )
+
+        // The navigation bar has its own form, so look for the one this page would add
+        assertFalse(html.contains("""method="get""""), "there is nowhere to submit to")
+    }
 }

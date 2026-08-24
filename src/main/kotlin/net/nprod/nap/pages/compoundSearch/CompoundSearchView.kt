@@ -34,7 +34,8 @@ object CompoundSearchView {
                 }
                 td { +compound["compoundClass"]!! }
             },
-            preProcessedResults = data.compounds // Use pre-processed results
+            preProcessedResults = data.compounds, // Use pre-processed results
+            searchPath = "/compound/search"
         )
     }
 }

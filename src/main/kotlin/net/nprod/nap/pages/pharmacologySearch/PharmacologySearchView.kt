@@ -31,7 +31,8 @@ object PharmacologySearchView {
                 }
             },
             headerColor = "bg-primary",
-            preProcessedResults = data.pharmacologyEntries // Use pre-processed results
+            preProcessedResults = data.pharmacologyEntries, // Use pre-processed results
+            searchPath = "/pharmacology/search"
         )
     }
 }

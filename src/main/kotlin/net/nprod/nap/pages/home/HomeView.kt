@@ -4,6 +4,8 @@ import kotlinx.html.*
 import net.nprod.nap.pages.TourStep
 import net.nprod.nap.pages.defaultPage
 import net.nprod.nap.pages.tourStep
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 /**
  * View for the home page
@@ -13,33 +15,58 @@ object HomeView {
     /**
      * One of the ways into the data, presented as a card
      *
+     * Every card offers the same two things, in the same order: the way in, so a visitor
+     * who has a name in mind can type it without hunting for the search box in the
+     * navigation bar, and one worked example for a visitor who has nothing in mind yet.
+     *
      * @param title What the visitor wants to do
      * @param body How to do it
-     * @param linkLabel Label of the example link
-     * @param linkHref Where the example goes
+     * @param actionLabel Label of the button that opens the search or the editor
+     * @param actionHref Where that button goes
+     * @param exampleHref A page or a pre-run search showing what comes out of it
      */
-    private data class Entry(val title: String, val body: String, val linkLabel: String, val linkHref: String)
+    private data class Entry(
+        val title: String,
+        val body: String,
+        val actionLabel: String,
+        val actionHref: String,
+        val exampleHref: String
+    )
+
+    /** A short query for the editor example, kept free of the "=" the editor cannot read back */
+    private val exampleQuery = """
+        PREFIX n: <https://nap.nprod.net/>
+        SELECT ?compound ?name
+        WHERE {
+            ?compound a n:compound;
+                      n:name ?name.
+        }
+        LIMIT 10
+    """.trimIndent()
 
     private val entries = listOf(
         Entry(
             "Start from a plant or an animal",
             "Search for a taxon by name. You get one result per name, and following it lists every experiment " +
                 "recorded on that taxon.",
-            "Try salix",
+            "Search taxa",
+            "/organism/search",
             "/organism/search?query=salix"
         ),
         Entry(
             "Start from a compound",
             "Search for a compound by name. Its page gives you its class, its codes, its synonyms and where it " +
                 "shows up.",
-            "Browse a compound",
+            "Search compounds",
+            "/compound/search",
             "/compound/1"
         ),
         Entry(
             "Start from an activity",
             "Search for a pharmacology to find the experiments that measured it, whatever the organism or the " +
                 "compound involved.",
-            "Browse a pharmacology",
+            "Search pharmacologies",
+            "/pharmacology/search",
             "/pharmacology/1"
         ),
         Entry(
@@ -47,7 +74,8 @@ object HomeView {
             "The whole database is a graph you can query directly. The editor comes with examples, and results " +
                 "export to CSV, JSON or XML.",
             "Open the query editor",
-            "/sparql"
+            "/sparql",
+            "/sparql?q=" + URLEncoder.encode(exampleQuery, StandardCharsets.UTF_8).replace("+", "%20")
         )
     )
 
@@ -104,8 +132,8 @@ object HomeView {
                                     +" goes through this in more detail."
                                 }
                                 p(classes = "mb-0") {
-                                    +"Use the search box at the top of any page to get started, or pick one of the "
-                                    +"entry points below."
+                                    +"Pick one of the entry points below to run your own search, or use the search "
+                                    +"box at the top of any page."
                                 }
                             }
                         }
@@ -119,8 +147,13 @@ object HomeView {
                                 div("card-body") {
                                     h3(classes = "card-title h5") { +entry.title }
                                     p(classes = "card-text") { +entry.body }
-                                    a(classes = "btn btn-sm btn-outline-primary", href = entry.linkHref) {
-                                        +entry.linkLabel
+                                    div("d-flex flex-wrap gap-2") {
+                                        a(classes = "btn btn-sm btn-primary", href = entry.actionHref) {
+                                            +entry.actionLabel
+                                        }
+                                        a(classes = "btn btn-sm btn-outline-secondary", href = entry.exampleHref) {
+                                            +"See an example"
+                                        }
                                     }
                                 }
                             }

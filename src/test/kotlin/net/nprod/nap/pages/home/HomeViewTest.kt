@@ -3,6 +3,7 @@ package net.nprod.nap.pages.home
 import net.nprod.nap.pages.TourStep
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 class HomeViewTest {
@@ -27,11 +28,22 @@ class HomeViewTest {
     }
 
     @Test
-    fun testOffersEntryPoints() {
+    fun testEveryEntryPointLeadsToItsOwnSearch() {
+        // The point people missed: the cards used to only offer a pre-run example, so the
+        // only way to search for something else was the box in the navigation bar
+        listOf("/organism/search", "/compound/search", "/pharmacology/search", "/sparql").forEach { path ->
+            assertContains(html, """href="$path"""", message = "the cards should open $path")
+        }
+    }
+
+    @Test
+    fun testEveryEntryPointAlsoShowsAnExample() {
         assertContains(html, """href="/organism/search?query=salix"""")
         assertContains(html, """href="/compound/1"""")
         assertContains(html, """href="/pharmacology/1"""")
-        assertContains(html, """href="/sparql"""")
+        assertContains(html, """href="/sparql?q=""")
+
+        assertEquals(4, Regex("See an example").findAll(html).count(), "one example per card, no more")
     }
 
     @Test
