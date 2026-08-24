@@ -29,14 +29,23 @@ object OrganismSearchView {
                 th { +"Subspecies" }
             },
             renderTableRow = { organism ->
-                td { 
+                td {
+                    val displayName = organism["displayName"]!!
                     val taxon = organism["taxon"]!!
                     if (taxon.isNotEmpty()) {
                         val taxonId = taxon.split("/").last()
-                        a(href = "/pharmacy_search?taxon_id=$taxonId") { +organism["displayName"]!! }
+                        a(href = "/pharmacy_search?taxon_id=$taxonId") { +displayName }
                     } else {
                         val uri = organism["uri"]!!
-                        a(href = localLinks(uri)) { +organism["displayName"]!! }
+                        a(href = localLinks(uri)) { +displayName }
+                    }
+
+                    // The row is named after the taxon, but the match was on an organism
+                    // record. When the two names differ, saying so is the difference
+                    // between a reconciled name and an apparently unrelated one.
+                    val recordedName = organism["recordedName"] ?: ""
+                    if (recordedName.isNotEmpty() && recordedName != displayName) {
+                        div("text-muted small") { +"recorded as $recordedName" }
                     }
                 }
                 td { +organism["familyname"]!! }

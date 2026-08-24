@@ -7,6 +7,7 @@ import io.ktor.server.routing.*
 import net.nprod.nap.pages.invalidEntry.InvalidEntryUtil
 import net.nprod.nap.rdf.SparqlConnector
 import net.nprod.nap.rdf.pharmaciesOfTaxa
+import net.nprod.nap.rdf.taxonName
 
 /**
  * Controller for the pharmacy by taxa search page
@@ -36,12 +37,14 @@ class PharmacyByTaxaSearchController {
         }
 
         val pharmacyResults = pharmaciesOfTaxa(sparqlConnector, taxonId)
-        val organismName = pharmacyResults.firstOrNull()?.organism?.nameForHumans() ?: taxonId
+        // Not the name of one of the organisms: they are per-publication records and the
+        // first of them is as likely as not to be spelled differently from the taxon.
+        val taxonName = taxonName(sparqlConnector, taxonId) ?: taxonId
 
         val data = PharmacyByTaxaSearchViewData(
             taxonId = taxonId,
             pharmacyResults = pharmacyResults,
-            organismName = organismName
+            taxonName = taxonName
         )
         
         val html = PharmacyByTaxaSearchView.render(data)

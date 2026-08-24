@@ -72,7 +72,8 @@ class SearchQueriesTest {
         assert(query.contains("OPTIONAL { ?organism n:speciesname ?speciesname }"))
         assert(query.contains("OPTIONAL { ?organism n:subspeciesname ?subspeciesname }"))
         assert(query.contains("OPTIONAL { ?organism n:familyname ?familyname }"))
-        assert(query.contains("OPTIONAL { ?organism n:has_taxon ?taxon }"))
+        assert(query.contains("?organism n:has_taxon ?taxon."))
+        assert(query.contains("OPTIONAL { ?taxon n:name ?taxonName }"))
         assert(query.contains("ORDER BY ?genusname ?speciesname"))
     }
     

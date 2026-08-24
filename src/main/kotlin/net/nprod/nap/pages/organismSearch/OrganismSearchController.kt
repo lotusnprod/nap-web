@@ -36,8 +36,9 @@ class OrganismSearchController {
                 val familyname = solution.getLiteral("familyname")?.string ?: ""
                 val number = solution.getLiteral("number")?.int?.toString() ?: "Unknown"
                 val taxon = solution.getResource("taxon")?.uri
+                val taxonName = solution.getLiteral("taxonName")?.string ?: ""
 
-                val displayName = buildString {
+                val recordedName = buildString {
                     if (genusname.isNotBlank()) {
                         append(genusname.lowercase().replaceFirstChar { it.uppercase() })
                         if (speciesname.isNotBlank()) {
@@ -58,9 +59,14 @@ class OrganismSearchController {
                     }
                 }
 
+                // A row stands for a taxon, so it is named after the taxon. The name the
+                // matched organism record carries is kept alongside: it is what the visitor
+                // typed a fragment of, and seeing it is the only way to understand why a
+                // search for one name answers with another.
                 organismList.add(mapOf(
                     "uri" to organismUri,
-                    "displayName" to displayName,
+                    "displayName" to taxonName.ifBlank { recordedName },
+                    "recordedName" to recordedName,
                     "genusname" to genusname,
                     "speciesname" to speciesname,
                     "subspeciesname" to subspeciesname,

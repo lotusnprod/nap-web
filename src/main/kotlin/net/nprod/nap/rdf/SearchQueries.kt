@@ -134,7 +134,7 @@ fun organismSearchQuery(query: String): String {
     return """
         PREFIX n: <https://nap.nprod.net/>
         PREFIX text: <http://jena.apache.org/text#>
-        SELECT DISTINCT ?organism ?genusname ?speciesname ?subspeciesname ?familyname ?number ?taxon
+        SELECT DISTINCT ?organism ?genusname ?speciesname ?subspeciesname ?familyname ?number ?taxon ?taxonName
         WHERE {
             ?organism text:query "$cleanQuery".
             ?organism a n:organism;
@@ -143,7 +143,12 @@ fun organismSearchQuery(query: String): String {
             OPTIONAL { ?organism n:speciesname ?speciesname }
             OPTIONAL { ?organism n:subspeciesname ?subspeciesname }
             OPTIONAL { ?organism n:familyname ?familyname }
-            OPTIONAL { ?organism n:has_taxon ?taxon }
+            # The taxon name has to be nested: with ?taxon unbound, a sibling OPTIONAL
+            # would match every named resource in the store.
+            OPTIONAL {
+                ?organism n:has_taxon ?taxon.
+                OPTIONAL { ?taxon n:name ?taxonName }
+            }
             ${phraseFilter(fullName, words)}
         }
         ORDER BY ?genusname ?speciesname

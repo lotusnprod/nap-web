@@ -15,7 +15,7 @@ object PharmacyByTaxaSearchView {
      * @return HTML string of the search page
      */
     fun render(data: PharmacyByTaxaSearchViewData): String {
-        val title = "Experiments for taxon ${data.organismName}"
+        val title = "Experiments for taxon ${data.taxonName}"
 
         return defaultPage(title) {
             id = "content-node"
