@@ -2,24 +2,26 @@
 # production database) instead of the seeded fixture volume.
 #
 #   NAP_DATA_DIR=/absolute/path/to/data make dev-localdata
+#   NAP_DATA_DIR=/absolute/path/to/data make sparql-only
+#
+# Setting NAP_DATA_DIR is what selects this flavour: the Makefile loads this file
+# whenever the variable is set and PROD is not.
 #
 # The store is mounted as-is and seeding is disabled, so nothing here can
 # overwrite it. On rootless Podman the directory must be owned by the container's
 # uid 9008 / gid 0 — once, out of band:
 #
 #   podman unshare chown -R 9008:0 "$NAP_DATA_DIR"
-#
-# If the nap-data volume already exists with different backing, remove it first:
-# `docker volume rm nap_nap-data`.
 services:
   nap-sparql:
     environment:
       SEED_ENABLED: "false"
-
-volumes:
-  nap-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: "${NAP_DATA_DIR:?set NAP_DATA_DIR to the absolute path of the TDB2 store directory}"
+    # A plain bind mount, replacing the base file's `nap-data:/databases` (compose
+    # merges volumes by target path), for the same reason the production overlay
+    # does it: this used to be a named volume with driver_opts type=none,o=bind,
+    # and a named volume keeps whatever backing it was created with. So once the
+    # seeded nap_nap-data volume existed — one `make dev` was enough — it silently
+    # won, /databases stayed on the fixtures, and the only symptom was queries
+    # answering nothing. A bind mount has no identity to collide with.
+    volumes:
+      - "${NAP_DATA_DIR:?set NAP_DATA_DIR to the absolute path of the TDB2 store directory}:/databases"

@@ -9,30 +9,42 @@ COMPOSE := $(shell \
 # localdata flavour has to list every file explicitly.
 LOCALDATA_FILES := -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.localdata.yml
 
-# Compose file selection. Dev is the default (the override file is auto-loaded).
-# `PROD=1` selects the production overlay instead — REQUIRED on the server, where
-# the real store is a bind mount that only docker-compose.prod.yml declares, and
-# where the dev override would publish Fuseki on the host and flip nap-web to
-# development mode. Without it every target below silently runs the dev config.
+# compose reads .env by itself, make does not. Read it here too so the preflight
+# checks the same value compose will use, and export it so both agree. This has to
+# come before the file selection below, which branches on it.
+NAP_DATA_DIR ?= $(shell sed -n 's/^NAP_DATA_DIR=//p' .env 2>/dev/null | tail -1)
+export NAP_DATA_DIR
+
+# Compose file selection. Dev on the seeded fixture volume is the default (the
+# override file is auto-loaded).
+#
+# `PROD=1` selects the production overlay — REQUIRED on the server, where the real
+# store is a bind mount that only docker-compose.prod.yml declares, and where the
+# dev override would publish Fuseki on the host and flip nap-web to development
+# mode. Without it every target below silently runs the dev config.
+#
+# Otherwise, setting NAP_DATA_DIR runs the dev stack against that store instead of
+# the fixtures, seeding disabled. It is the variable the localdata overlay reads, so
+# having it select the overlay too is the only way `NAP_DATA_DIR=... make sparql-only`
+# can mean what it looks like it means; before, it was accepted and ignored, and you
+# got the fixtures with nothing in the output to say so.
 ifeq ($(PROD),1)
 COMPOSE_FILES := -f docker-compose.yml -f docker-compose.prod.yml
-PREFLIGHT := prod-preflight
+PREFLIGHT := store-preflight
+else ifneq ($(strip $(NAP_DATA_DIR)),)
+COMPOSE_FILES := $(LOCALDATA_FILES)
+PREFLIGHT := store-preflight
 else
 COMPOSE_FILES :=
 PREFLIGHT :=
 endif
 DC := $(COMPOSE) $(COMPOSE_FILES)
 
-# compose reads .env by itself, make does not. Read it here too so the preflight
-# checks the same value compose will use, and export it so both agree.
-NAP_DATA_DIR ?= $(shell sed -n 's/^NAP_DATA_DIR=//p' .env 2>/dev/null | tail -1)
-export NAP_DATA_DIR
-
 SPARQL_ENDPOINT ?= http://localhost:3030/raw/sparql
 
 .DEFAULT_GOAL := help
 .PHONY: help dev dev-localdata up sparql-only wait-sparql down logs ps reseed reindex \
-        shell-web shell-sparql test build image clean nuke check-engine env prod-preflight
+        shell-web shell-sparql test build image clean nuke check-engine env store-preflight
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -43,8 +55,9 @@ check-engine:
 
 # Docker creates a missing bind source instead of failing, so a wrong NAP_DATA_DIR
 # would bring the stack up on an empty store and look healthy. Check it here, before
-# compose gets a chance.
-prod-preflight:
+# compose gets a chance. Runs for both flavours that bind a real store: PROD=1 and
+# NAP_DATA_DIR on its own.
+store-preflight:
 	@test -n "$(NAP_DATA_DIR)" || { \
 	  echo "NAP_DATA_DIR is not set (put it in .env, e.g. NAP_DATA_DIR=/home/bjo/nap/nap-web/data)"; exit 1; }
 	@test -d "$(NAP_DATA_DIR)" || { \
@@ -63,7 +76,9 @@ dev: check-engine $(PREFLIGHT) env ## Full local stack with seed data (the one c
 	@echo "  fuseki    http://localhost:$${FUSEKI_PORT:-3030}"
 	@echo ""
 
-dev-localdata: check-engine env ## Like dev, but against the store at NAP_DATA_DIR; never seeds
+# Kept as a name people already type. Setting NAP_DATA_DIR is now enough on its own,
+# so this is `make dev` with the variable required rather than merely honoured.
+dev-localdata: check-engine store-preflight env ## Like dev, but against the store at NAP_DATA_DIR; never seeds
 	$(COMPOSE) $(LOCALDATA_FILES) up --build -d --wait
 
 up: check-engine $(PREFLIGHT) env ## Start without rebuilding (PROD=1 on the server)
@@ -78,7 +93,7 @@ up: check-engine $(PREFLIGHT) env ## Start without rebuilding (PROD=1 on the ser
 # So: tear the project down, bring Fuseki back alone, and ask it ourselves. Taking
 # nap-web down with it is the point of the target — it is the process you are about
 # to run from the IDE, on the same port.
-sparql-only: check-engine env ## Only Fuseki, recreated from scratch (for running nap-web from the IDE)
+sparql-only: check-engine $(PREFLIGHT) env ## Only Fuseki, recreated from scratch (for running nap-web from the IDE)
 	@test "$(PROD)" != "1" || { echo "sparql-only is a dev target; refusing to run with PROD=1"; exit 1; }
 	@# podman-compose reports every service of the project that has no container as an
 	@# error, so a clean tree brings back five "no such container" lines that are not
@@ -107,8 +122,12 @@ logs: check-engine ## Follow logs
 ps: check-engine ## Show container + health status
 	$(DC) ps
 
-reseed: check-engine $(PREFLIGHT) ## Wipe the TDB2 store and reload stack/seed/* (dev only)
+reseed: check-engine $(PREFLIGHT) ## Wipe the TDB2 store and reload stack/seed/* (fixture volume only)
 	@test "$(PROD)" != "1" || { echo "reseed loads FIXTURES; refusing to run with PROD=1"; exit 1; }
+	@# The entrypoint would refuse anyway (the localdata overlay pins SEED_ENABLED=false),
+	@# but silently: the target would report success having done nothing.
+	@test -z "$(strip $(NAP_DATA_DIR))" || { \
+	  echo "reseed loads FIXTURES; refusing while NAP_DATA_DIR=$(NAP_DATA_DIR) selects a real store"; exit 1; }
 	FORCE_SEED=true $(DC) up -d --force-recreate nap-sparql
 
 # Two things this target has to get right, both of which bit us once:

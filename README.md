@@ -62,20 +62,31 @@ idempotent: it is skipped when the store already has data. `make reseed` (i.e.
 ## Running against a real (non-fixture) store
 
 To point the stack at an existing TDB2 store — a copy of production, for instance —
-instead of the seeded volume:
+instead of the seeded volume, set `NAP_DATA_DIR`. It is what selects the flavour, so it
+works on any of the dev targets:
 
 ```shell
 NAP_DATA_DIR=$PWD/data make dev-localdata
+NAP_DATA_DIR=$PWD/data make sparql-only
+NAP_DATA_DIR=$PWD/data make reindex
 ```
 
-Seeding is disabled outright in that mode (`SEED_ENABLED=false`), so the store cannot be
-overwritten. On rootless Podman the directory has to be owned by the container user once:
+The store is bind-mounted and seeding is disabled outright (`SEED_ENABLED=false`), so
+nothing can overwrite it; `make reseed` refuses to run at all in this mode. Every target
+that binds a real store says which one before it starts anything:
+
+```
+[preflight] store: /home/bjo/Software/NapraBase/nap-web/data (22G)
+```
+
+Switching back and forth is safe: the fixtures live in the `nap-data` named volume and the
+real store is a plain bind mount, so neither can be mistaken for the other.
+
+On rootless Podman the directory has to be owned by the container user once:
 
 ```shell
 podman unshare chown -R 9008:0 "$NAP_DATA_DIR"
 ```
-
-If the `nap-data` volume already exists with different backing, `docker volume rm nap_nap-data` first.
 
 ## Running the app from the IDE
 
