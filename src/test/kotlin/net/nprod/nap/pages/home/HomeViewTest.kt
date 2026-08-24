@@ -11,6 +11,7 @@ class HomeViewTest {
 
     @Test
     fun testExplainsWhatNapIs() {
+        assertContains(html, "Natural Actives &amp; Pharmacology")
         assertContains(html, "ethnomedical and ethnopharmacological")
         assertContains(html, "How it works")
     }

@@ -20,6 +20,14 @@ class FaqViewTest {
     }
 
     @Test
+    fun testRenderSpellsOutWhatNapStandsFor() {
+        val html = FaqView.render(FaqViewData())
+
+        // "&" is escaped by kotlinx.html, so match on the entity form
+        assertContains(html, "Natural Actives &amp; Pharmacology")
+    }
+
+    @Test
     fun testRenderExplainsOrganismVersusTaxon() {
         val html = FaqView.render(FaqViewData())
 

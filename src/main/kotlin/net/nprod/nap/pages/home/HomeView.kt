@@ -63,9 +63,9 @@ object HomeView {
                     div("col-12") {
                         h1(classes = "mt-4 mb-3") { +"Nap" }
                         p(classes = "lead") {
-                            +"An open database of ethnomedical and ethnopharmacological information: which organisms "
-                            +"and which compounds were studied in the scientific literature, how they were studied "
-                            +"and what was found."
+                            +"Natural Actives & Pharmacology. An open database of ethnomedical and "
+                            +"ethnopharmacological information: which organisms and which compounds were studied in "
+                            +"the scientific literature, how they were studied and what was found."
                         }
                     }
                 }

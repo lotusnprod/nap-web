@@ -100,7 +100,9 @@ object FaqView {
                     div("col-12") {
                         section("What is Nap?") {
                             p {
-                                +"Nap is an open database of ethnomedical and ethnopharmacological information. It "
+                                +"Nap stands for "
+                                strong { +"Natural Actives & Pharmacology" }
+                                +". It is an open database of ethnomedical and ethnopharmacological information. It "
                                 +"collects, from the published literature, which organisms and which compounds were "
                                 +"tested, how they were tested and what came out of it."
                             }

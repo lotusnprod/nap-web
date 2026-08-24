@@ -1,7 +1,8 @@
 # nap-web
 
-Web front-end for the NAPRALERT-derived RDF dataset. Kotlin + Ktor, served from an
-Apache Jena Fuseki SPARQL endpoint.
+Web front-end for Nap — **Natural Actives & Pharmacology** — an open database of
+ethnomedical and ethnopharmacological information derived from a subset of NAPRALERT.
+Kotlin + Ktor, served from an Apache Jena Fuseki SPARQL endpoint.
 
 Code is licensed under AGPL 3.0 except for SnorQL by Ammar Ammar (ammar257ammar@gmail.com)
 and collaborators, which is GPL v3.0.

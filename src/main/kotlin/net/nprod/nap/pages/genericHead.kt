@@ -8,7 +8,12 @@ import kotlinx.html.title
 fun MetaDataContent.genericHead(title: String?=null, description: String? = null, block: MetaDataContent.() -> Unit = {}) {
     meta(charset = "utf-8")
     meta(name = "viewport", content = "width=device-width, initial-scale=1")
-    meta(name = "description", content = description ?: "Nap: the Open database of Ethnomedical and Ethnopharmacological information" )
+    meta(
+        name = "description",
+        content = description
+            ?: "Nap, Natural Actives & Pharmacology: the open database of ethnomedical and " +
+            "ethnopharmacological information"
+    )
     meta(name = "author", content = "The LOTUS devs")
     link(rel = "icon", href = "/assets/images/favicon.ico")
     link(rel = "stylesheet", type = "text/css", href = "/assets/css/style.css")
