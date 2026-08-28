@@ -17,7 +17,7 @@ serialization = "1.11.0"
 coroutines = "1.11.0"
 resilience4j = "2.3.0"
 kover = "0.9.8"
-versionsPlugin = "0.54.0"
+versionsPlugin = "0.61.0"
 # The foojay toolchain resolver is a settings plugin, and settings.gradle.kts cannot read
 # this catalog (it is the file that declares it), so that one version stays literal there.
 
