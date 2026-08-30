@@ -8,7 +8,7 @@
 # 25 is the current LTS. 26 is non-LTS with security patches ending ~Sept 2026.
 jdk = "25"
 
-kotlin = "2.4.0"
+kotlin = "2.4.10"
 ktor = "3.5.2"
 jena = "6.2.0"
 logback = "1.5.37"
