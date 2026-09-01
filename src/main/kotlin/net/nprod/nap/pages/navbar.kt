@@ -74,6 +74,11 @@ fun BODY.navbar() {
                             +"FAQ"
                         }
                     }
+                    li(classes = "nav-item") {
+                        a(classes = "nav-link", href = "/contact") {
+                            +"Contact"
+                        }
+                    }
                     tutorialToggle()
                 }
 

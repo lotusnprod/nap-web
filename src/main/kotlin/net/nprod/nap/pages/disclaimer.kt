@@ -25,6 +25,8 @@ fun BODY.disclaimer() {
             }
             p(classes = "text-muted small mb-0 mt-2") {
                 a(classes = "link-secondary", href = "/faq") { +"More about the data and how it is organized" }
+                +" · "
+                a(classes = "link-secondary", href = "/contact") { +"Contact" }
             }
         }
     }

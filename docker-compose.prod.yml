@@ -33,6 +33,7 @@ services:
       - "${NAP_DATA_DIR:?set NAP_DATA_DIR to the absolute path of the TDB2 store directory}:/databases"
     mem_limit: ${SPARQL_MEM_LIMIT:-6g}
     cpus: ${SPARQL_CPUS:-4}
+    networks: [nap, web_network]
 
   nap-web:
     environment:
