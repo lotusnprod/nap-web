@@ -9,7 +9,7 @@
 jdk = "25"
 
 kotlin = "2.4.0"
-ktor = "3.5.2"
+ktor = "3.6.0"
 jena = "6.2.0"
 logback = "1.5.37"
 kotlinxHtml = "0.12.0"
